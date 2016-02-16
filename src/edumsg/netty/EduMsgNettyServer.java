@@ -22,21 +22,24 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import org.apache.log4j.Logger;
 
 public class EduMsgNettyServer {
 
     static final boolean SSL = System.getProperty("ssl") != null;
+
+
     static final int PORT = Integer.parseInt(System.getProperty("port",
             SSL ? "8443" : "8080"));
 
     public static void main(String[] args) throws Exception {
+        Logger log = Logger.getLogger(EduMsgNettyServer.class);
         // Configure SSL.
         EduMsgRedis.redisCache.flushDB();
         final SslContext sslCtx;
         if (SSL) {
             SelfSignedCertificate ssc = new SelfSignedCertificate();
-            sslCtx = SslContext.newServerContext(ssc.certificate(),
-                    ssc.privateKey());
+            sslCtx = SslContext.newServerContext(ssc.certificate(),ssc.privateKey());
         } else {
             sslCtx = null;
         }

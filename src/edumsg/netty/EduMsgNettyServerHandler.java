@@ -20,6 +20,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
+import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.json.JSONException;
@@ -34,130 +35,130 @@ import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class EduMsgNettyServerHandler extends
-		SimpleChannelInboundHandler<Object> {
+        SimpleChannelInboundHandler<Object> {
 
-	private HttpRequest request;
-	private String requestBody;
-	private String responseBody;
+    private HttpRequest request;
+    private String requestBody;
+    private String responseBody;
+    Logger log = Logger.getLogger(EduMsgNettyServer.class);
+    public void channelReadComplete(ChannelHandlerContext ctx) {
+        ctx.flush();
+    }
 
-	public void channelReadComplete(ChannelHandlerContext ctx) {
-		ctx.flush();
-	}
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, Object msg)
+            throws Exception {
+        System.out.println(msg+"\n=============");
 
-	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, Object msg)
-			throws Exception {
-		if (msg instanceof HttpRequest) {
-			HttpRequest request = this.request = (HttpRequest) msg;
+        if (msg instanceof HttpRequest) {
+            HttpRequest request = this.request = (HttpRequest) msg;
+            if (HttpHeaders.is100ContinueExpected(request)) {
+                send100Continue(ctx);
+            }
 
-			if (HttpHeaders.is100ContinueExpected(request)) {
-				send100Continue(ctx);
-			}
+        }
+        if (msg instanceof HttpContent) {
+            HttpContent httpContent = (HttpContent) msg;
+             ByteBuf content = httpContent.content();
+            setRequestBody(content.toString(CharsetUtil.UTF_8));
+        }
+        if (msg instanceof LastHttpContent) {
+            LastHttpContent trailer = (LastHttpContent) msg;
+            writeresponse(trailer, ctx);
+        }
+    }
 
-		}
-		if (msg instanceof HttpContent) {
-			HttpContent httpContent = (HttpContent) msg;
+    private void writeresponse(HttpObject currentObj,
+                               final ChannelHandlerContext ctx) throws JMSException,
+            NumberFormatException, JsonParseException, JsonMappingException,
+            IOException, InterruptedException, JSONException {
 
-			ByteBuf content = httpContent.content();
-			setRequestBody(content.toString(CharsetUtil.UTF_8));
-		}
-		if (msg instanceof LastHttpContent) {
-			LastHttpContent trailer = (LastHttpContent) msg;
-			writeresponse(trailer, ctx);
-		}
-	}
+        JSONObject requestJson = new JSONObject(requestBody);
+        NettyNotifier notifier = new NettyNotifier(this, requestJson.getString("queue"));
+        notifier.start();
+        sendMessageToActiveMQ(requestBody, requestJson.getString("queue"));
 
-	private void writeresponse(HttpObject currentObj,
-			final ChannelHandlerContext ctx) throws JMSException,
-			NumberFormatException, JsonParseException, JsonMappingException,
-			IOException, InterruptedException, JSONException {
+        synchronized (this) {
+            System.out.println("waited");
+            this.wait();
+        }
+        System.out.println("notified");
+        System.out.println("netty" + getResponseBody());
+        System.out.println("-----------");
+        JSONObject json = new JSONObject(getResponseBody());
+        HttpResponseStatus status = null;
+        if (!json.has("message"))
+            status = new HttpResponseStatus(Integer.parseInt((String) json
+                    .get("code")),
+                    Integer.parseInt((String) json.get("code")) == 200 ? "Ok"
+                            : "Bad Request");
+        else
+            status = new HttpResponseStatus(Integer.parseInt((String) json
+                    .get("code")), (String) json.get("message"));
 
-		JSONObject requestJson = new JSONObject(requestBody);
-		NettyNotifier notifier = new NettyNotifier(this, requestJson.getString("queue"));
-		notifier.start();
-		sendMessageToActiveMQ(requestBody, requestJson.getString("queue"));
+        boolean keepAlive = HttpHeaders.isKeepAlive(request);
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
+                status, Unpooled.copiedBuffer(responseBody, CharsetUtil.UTF_8));
 
-		synchronized (this) {
-			System.out.println("waited");
-			this.wait();
-		}
-		System.out.println("notified");
-		System.out.println("netty" + getResponseBody());
-		System.out.println("-----------");
-		JSONObject json = new JSONObject(getResponseBody());
-		HttpResponseStatus status = null;
-		if (!json.has("message"))
-			status = new HttpResponseStatus(Integer.parseInt((String) json
-					.get("code")),
-					Integer.parseInt((String) json.get("code")) == 200 ? "Ok"
-							: "Bad Request");
-		else
-			status = new HttpResponseStatus(Integer.parseInt((String) json
-					.get("code")), (String) json.get("message"));
+        response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
+        if (keepAlive) {
+            response.headers().set(CONTENT_LENGTH,
+                    response.content().readableBytes());
+            response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+        }
 
-		boolean keepAlive = HttpHeaders.isKeepAlive(request);
-		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
-				status, Unpooled.copiedBuffer(responseBody, CharsetUtil.UTF_8));
+        String cookieString = request.headers().get(COOKIE);
+        if (cookieString != null) {
+            Set<Cookie> cookies = CookieDecoder.decode(cookieString);
+            if (!cookies.isEmpty()) {
+                for (Cookie cookie : cookies) {
+                    response.headers().add(SET_COOKIE,
+                            ServerCookieEncoder.encode(cookie));
+                }
+            }
+        }
+        // ChannelFuture f = ctx.channel().write(response);
+        // if (response.getStatus().code() != 200)
+        // f.addListener(ChannelFutureListener.CLOSE);
+        ctx.write(response);
+        channelReadComplete(ctx);
+    }
 
-		response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
-		if (keepAlive) {
-			response.headers().set(CONTENT_LENGTH,
-					response.content().readableBytes());
-			response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-		}
+    private void sendMessageToActiveMQ(String jsonBody, String queue) {
+        Producer p = new Producer(new ActiveMQConfig(queue.toUpperCase() + ".INQUEUE"));
+        try {
+            p.send(jsonBody, "1");
+        } catch (JMSException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
-		String cookieString = request.headers().get(COOKIE);
-		if (cookieString != null) {
-			Set<Cookie> cookies = CookieDecoder.decode(cookieString);
-			if (!cookies.isEmpty()) {
-				for (Cookie cookie : cookies) {
-					response.headers().add(SET_COOKIE,
-							ServerCookieEncoder.encode(cookie));
-				}
-			}
-		}
-		// ChannelFuture f = ctx.channel().write(response);
-		// if (response.getStatus().code() != 200)
-		// f.addListener(ChannelFutureListener.CLOSE);
-		ctx.write(response);
-		channelReadComplete(ctx);
-	}
+    private static void send100Continue(ChannelHandlerContext ctx) {
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
+                CONTINUE);
+        ctx.write(response);
+    }
 
-	private void sendMessageToActiveMQ(String jsonBody, String queue) {
-		Producer p = new Producer(new ActiveMQConfig(queue.toUpperCase() + ".INQUEUE"));
-		try {
-			p.send(jsonBody, "1");
-		} catch (JMSException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
+        ctx.close();
+    }
 
-	private static void send100Continue(ChannelHandlerContext ctx) {
-		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
-				CONTINUE);
-		ctx.write(response);
-	}
+    public String getResponseBody() {
+        return responseBody;
+    }
 
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		cause.printStackTrace();
-		ctx.close();
-	}
+    public void setResponseBody(String responseBody) {
+        this.responseBody = responseBody;
+    }
 
-	public String getResponseBody() {
-		return responseBody;
-	}
+    public String getRequestBody() {
+        return requestBody;
+    }
 
-	public void setResponseBody(String responseBody) {
-		this.responseBody = responseBody;
-	}
-
-	public String getRequestBody() {
-		return requestBody;
-	}
-
-	public void setRequestBody(String requestBody) {
-		this.requestBody = requestBody;
-	}
+    public void setRequestBody(String requestBody) {
+        this.requestBody = requestBody;
+    }
 }
