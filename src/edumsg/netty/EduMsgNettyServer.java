@@ -24,8 +24,11 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import org.apache.log4j.Logger;
 
-public class EduMsgNettyServer {
+import java.util.Scanner;
 
+public class EduMsgNettyServer {
+    private static Scanner sc = new Scanner(System.in);
+    private static String value;
     static final boolean SSL = System.getProperty("ssl") != null;
 
 

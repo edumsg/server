@@ -17,20 +17,29 @@ import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PostgresConnection {
     private static final Logger LOGGER = Logger
             .getLogger(PostgresConnection.class.getName());
-    private static final String DB_USERNAME = "ahmed";   //your db username
-    private static final String DB_PASSWORD = "Ahmed53"; //your db password
-    private static final String DB_NAME = "EduMsgReplicaTest";
+    private static String DB_USERNAME;   //your db username
+    private static String DB_PASSWORD; //your db password
+    private static String DB_PORT;
+    private static String DB_HOST;
+    private static String DB_NAME;
     private static final String DB_INIT_CONNECTIONS = "10";
     private static final String DB_MAX_CONNECTIONS = "15";
-    private static final String URI = "jdbc:postgresql://localhost:5432/" + DB_NAME;
+    private static String DB_URL;
     private static PoolingDriver dbDriver;
     private static PoolingDataSource<PoolableConnection> dataSource;
 
@@ -82,15 +91,20 @@ public class PostgresConnection {
                 LOGGER.log(Level.SEVERE,
                         "Error loading Postgres driver: " + ex.getMessage(), ex);
             }
-
+            try{
+                readConfFile();
+            }   catch (Exception e){
+                e.printStackTrace();
+            }
             Properties props = new Properties();
+          //  System.out.println(DB_USERNAME);
             props.setProperty("user", DB_USERNAME);
             props.setProperty("password", DB_PASSWORD);
             props.setProperty("initialSize", DB_INIT_CONNECTIONS);
             props.setProperty("maxActive", DB_MAX_CONNECTIONS);
 
             ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(
-                    URI, props);
+                    DB_URL, props);
             PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory(
                     connectionFactory, null);
             poolableConnectionFactory.setPoolStatements(true);
@@ -113,4 +127,87 @@ public class PostgresConnection {
                     + ex.getMessage(), ex);
         }
     }
+
+    public static void setDBUser(String name) {
+        DB_USERNAME = name;
+    }
+
+    public static void setDBPassword(String pass) {
+        DB_PASSWORD = pass;
+    }
+
+    public static void setDBPort(String port) {
+        DB_PORT = port;
+    }
+
+    public static void setDBHost(String host) {
+        DB_HOST = host;
+    }
+
+    public static void setDBURL(String url) {
+        DB_URL = url;
+    }
+
+    public static void setDBName(String name) {
+        DB_NAME = name;
+    }
+
+    private static boolean formatURL() {
+        setDBURL("jdbc:postgresql://" + DB_HOST + ":" + DB_PORT + "/" + DB_NAME);
+        System.out.println(DB_URL);
+        Pattern pattern = Pattern.compile("^\\w+:\\w+:\\/{2}\\w+:\\d+\\/\\w+(?:\\W|\\w)*$");
+        Matcher matcher = pattern.matcher(DB_URL);
+        return matcher.matches();
+    }
+
+    public static void readConfFile() throws Exception {
+        String file = System.getProperty("user.dir") + "/Postgres.conf";
+        java.util.List<String> lines = new ArrayList<String>();
+        Pattern pattern = Pattern.compile("\\[(.+)\\]");
+        Matcher matcher;
+        Exception e;
+        Stream<String> stream = Files.lines(Paths.get(file));
+        lines = stream.filter(line -> !line.startsWith("#")).collect(Collectors.toList());
+
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).contains("user")) {
+                matcher = pattern.matcher(lines.get(i));
+                if(matcher.find())
+                    setDBUser(matcher.group(1));
+                 else
+                    throw  e = new Exception("empty user in Postgres.conf");
+            }
+            if (lines.get(i).contains("database")) {
+                matcher = pattern.matcher(lines.get(i));
+                if(matcher.find())
+                    setDBName(matcher.group(1));
+                else
+                    throw  e = new Exception("empty database name in Postgres.conf");
+            }
+            if (lines.get(i).contains("pass")) {
+                matcher = pattern.matcher(lines.get(i));
+                matcher.find();
+                setDBPassword(matcher.group(1));
+            }
+            if (lines.get(i).contains("host")) {
+                matcher = pattern.matcher(lines.get(i));
+                if (matcher.find())
+                    setDBHost(matcher.group(1));
+                else
+                    setDBHost("localhost");
+            }
+            if (lines.get(i).contains("port")) {
+                matcher = pattern.matcher(lines.get(i));
+                if (matcher.find())
+                    setDBPort(matcher.group(1));
+                else
+                    setDBPort("5432");
+            }
+        }
+        if (!formatURL()) {
+             e = new Exception("Wrong Format in Postgres.conf");
+            throw e;
+        }
+    }
+
 }
