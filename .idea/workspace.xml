@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="105f4f5b-1077-4868-8259-2b3100b1f6d9" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/edumsg/database/PostgresConnection.class" afterPath="$PROJECT_DIR$/bin/edumsg/database/PostgresConnection.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/edumsg/netty/EduMsgNettyServer.class" afterPath="$PROJECT_DIR$/bin/edumsg/netty/EduMsgNettyServer.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" afterPath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edumsg/database/PostgresConnection.java" afterPath="$PROJECT_DIR$/src/edumsg/database/PostgresConnection.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edumsg/netty/EduMsgNettyServer.java" afterPath="$PROJECT_DIR$/src/edumsg/netty/EduMsgNettyServer.java" />
     </list>
     <ignored path="TwitterBackend.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -804,12 +798,12 @@
       <workItem from="1455638516680" duration="16941000" />
       <workItem from="1456069368749" duration="1192000" />
       <workItem from="1456084184080" duration="7277000" />
-      <workItem from="1456145289125" duration="6082000" />
+      <workItem from="1456145289125" duration="6210000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="78822000" />
+    <option name="totallyTimeSpent" value="78950000" />
   </component>
   <component name="TodoView" selected-index="1">
     <todo-panel id="selected-file">
