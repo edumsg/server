@@ -772,4 +772,9 @@ public class BCrypt {
     public static boolean checkpw(String plaintext, String hashed) {
         return (hashed.compareTo(hashpw(plaintext, hashed)) == 0);
     }
+
+    public static void main(String[] args) {
+        System.out.println( BCrypt.hashpw("1", BCrypt.gensalt()));
+        System.out.println(BCrypt.checkpw("1", "$2a$10$LWTMQA4F1.jqctvsJtFapu7X.wTo8lXhLybg5.7haAF2Vt7k7DKIG"));
+    }
 }

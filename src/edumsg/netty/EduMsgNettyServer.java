@@ -59,7 +59,7 @@ public class EduMsgNettyServer {
 
             Channel ch = b.bind(PORT).sync().channel();
 
-            System.err.println("Open your web browser and navigate to "
+            System.err.println("Server is listening on"
                     + (SSL ? "https" : "http") + "://127.0.0.1:" + PORT + '/');
 
             ch.closeFuture().sync();
