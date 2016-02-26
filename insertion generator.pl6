@@ -16,8 +16,40 @@ sub tweets_insertions{
     }
 }
 
-sub dm_insertions{
-    
+sub followships_insertions{
+    my @temp;
+    for 1..10 -> $i {
+        for 1..10 -> $j {
+            next if ($i == $j);
+            @temp.push("INSERT INTO fellowships VALUES(DEFAULT, $i, $j, true, CURRENT_TIMESTAMP);");
+            @temp.push("INSERT INTO fellowships VALUES(DEFAULT, $j, $i, true, CURRENT_TIMESTAMP);");
+        }
+    }
+    @temp.unique>>.say;
 }
 
-tweets_insertions;
+sub conversations_insertions{
+    my @temp;
+    for 1..10 -> $i {
+        for 1..10 -> $j {
+            next if ($i == $j);
+            @temp.push("INSERT INTO conversations VALUES(DEFAULT, $i, $j);");
+            @temp.push("INSERT INTO conversations VALUES(DEFAULT, $j, $i);");
+        }
+    }
+    @temp.unique>>.say;
+}
+
+sub dm_insertions{
+    my @temp;
+    for 1..10 -> $i {
+        for 1..10 -> $j {
+            next if ($i == $j);
+            @temp.push("INSERT INTO direct_messages VALUES(DEFAULT, $i, $j, 'Hello', NULL, true,);");
+            @temp.push("INSERT INTO direct_messages VALUES(DEFAULT, $j, $i, 'Hello', NULL, true,);");
+        }
+    }
+    @temp.unique>>.say;
+}
+
+dm_insertions;
