@@ -52,4 +52,9 @@ sub dm_insertions{
     @temp.unique>>.say;
 }
 
-dm_insertions;
+sub replies_insertions{
+    my $c= 1;
+    for 1..10{
+        say "INSERT INTO replies VALUES(DEFAULT, $c,  );";
+    }
+}
