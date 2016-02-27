@@ -121,7 +121,6 @@ CREATE TABLE conversations(
   id serial PRIMARY KEY NOT NULL,
   user_id integer REFERENCES users(id),
   user2_id integer REFERENCES users(id),
-  UNIQUE(user_id,user2_id)
 );
 
 DROP TABLE IF EXISTS replies CASCADE;

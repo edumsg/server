@@ -9,11 +9,13 @@ sub user_insertions{
 }
 
 sub tweets_insertions{
+    my @temp;
     for %ids.kv -> $name , $id {
-        for 0..5 {
-            say "INSERT INTO tweets VALUES(DEFAULT, 'HELLO', $id, CURRENT_TIMESTAMP, NULL);\n";
+        for 1..20 {
+            @temp.push("INSERT INTO tweets VALUES(DEFAULT, 'HELLO', $id, CURRENT_TIMESTAMP, NULL);");
         }
     }
+    @temp.sort>>.say
 }
 
 sub followships_insertions{
@@ -49,8 +51,9 @@ sub dm_insertions{
 sub replies_insertions{
     my $c= 1;
     for 1..10 {
-        say "INSERT INTO replies VALUES(DEFAULT, $c,  );";
+        say "INSERT INTO replies VALUES(DEFAULT, $c, " ~$c+20~ ", CURRENT_TIMESTAMP);";
+        $c+=20;
     }
 }
 
-dm_insertions;
+replies_insertions;
