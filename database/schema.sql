@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS users CASCADE;
 
 CREATE TABLE users(
   id serial PRIMARY KEY NOT NULL,
-  username varchar(30) UNIQUE NOT NULL, 
+  username varchar(30) UNIQUE NOT NULL,
   email varchar(100) UNIQUE NOT NULL,
   encrypted_password varchar(150) NOT NULL,
   name varchar(100) NOT NULL,
@@ -120,7 +120,8 @@ DROP TABLE IF EXISTS conversations CASCADE;
 CREATE TABLE conversations(
   id serial PRIMARY KEY NOT NULL,
   user_id integer REFERENCES users(id),
-  user2_id integer REFERENCES users(id)
+  user2_id integer REFERENCES users(id),
+  UNIQUE(user_id,user2_id)
 );
 
 DROP TABLE IF EXISTS replies CASCADE;
