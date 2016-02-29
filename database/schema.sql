@@ -6,8 +6,6 @@ CREATE TABLE users(
   email varchar(100) UNIQUE NOT NULL,
   encrypted_password varchar(150) NOT NULL,
   name varchar(100) NOT NULL,
-  date_of_birth varchar(50),
-  gender varchar(50),
   language varchar(50),
   country varchar(50),
   bio varchar(160) CHECK (char_length(bio) <= 160),
