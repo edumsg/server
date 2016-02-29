@@ -116,8 +116,8 @@ public class LoginCommand implements Command, Runnable {
 					Boolean protected_tweets = set.getBoolean(15);
 					String session_id = set.getString(16);
 					
-					String date_of_birth = set.getString(17);
-					String gender = set.getString(18);
+//					String date_of_birth = set.getString(17);
+//					String gender = set.getString(18);
 					
 					user.setId(id);
 					user.setUsername(username);
@@ -134,8 +134,8 @@ public class LoginCommand implements Command, Runnable {
 					user.setBackgroundColor(background_color);
 					user.setProtectedTweets(protected_tweets);
 					user.setSessionID(session_id);
-					user.setDate_of_birth(date_of_birth);
-					user.setGender(gender);
+//					user.setDate_of_birth(date_of_birth);
+//					user.setGender(gender);
 				}
 
 				POJONode child = nf.POJONode(user);
