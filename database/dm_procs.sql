@@ -1,7 +1,7 @@
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION create_dm(sender_id integer, reciever_id integer,
   dm_text varchar(140), created_at timestamp, image_url varchar(100) DEFAULT null)
-RETURNS boolean AS $$
+RETURNS boolean AS $$  --Delimiter for functions and strings
 DECLARE followers integer;
 DECLARE conv integer;
 DECLARE conv_id integer;
@@ -15,7 +15,7 @@ DECLARE conv_id integer;
     IF followers > 0 THEN
       IF conv = 0 THEN
         INSERT INTO conversations(user_id, user2_id) VALUES ($1, $2);
-        
+
         SELECT C.id INTO conv_id FROM conversations C
         WHERE C.user_id = $1 AND C.user2_id = $2 LIMIT 1;
       ELSE
@@ -25,7 +25,7 @@ DECLARE conv_id integer;
 
       INSERT INTO direct_messages(sender_id, reciever_id, dm_text, image_url, conv_id, created_at)
       VALUES (sender_id, reciever_id, dm_text, image_url, conv_id, created_at);
-      
+
       RETURN TRUE;
     ELSE
       RETURN FALSE;
@@ -44,7 +44,7 @@ LANGUAGE PLPGSQL;
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION get_conversation(conv_id integer)
 RETURNS refcursor AS $$
-DECLARE cursor refcursor := 'cur';
+DECLARE cursor refcursor := 'cur'; --Points to query rows
   BEGIN
     OPEN cursor FOR
     SELECT U.id, U.name, X.id, X.name, D.dm_text, D.image_url, D.created_at
@@ -85,7 +85,7 @@ LANGUAGE PLPGSQL;
 CREATE OR REPLACE FUNCTION mark_all_read()
 RETURNS void AS $$
   BEGIN
-    UPDATE direct_messages SET read = TRUE;
+    UPDATE direct_messages SET read = TRUE; --All users??
   END; $$
 LANGUAGE PLPGSQL;
 

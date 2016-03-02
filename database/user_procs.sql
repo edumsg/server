@@ -254,9 +254,13 @@ DECLARE is_private boolean;
 LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION login(user_name varchar, session_id text)
-RETURNS void AS $$
+RETURNS refcursor AS $$
+DECLARE cursor refcursor := 'cur';
   BEGIN
     UPDATE users SET session_id = $2 WHERE username = $1;
+    OPEN cursor FOR
+    SELECT * FROM users WHERE username = $1;
+    RETURN cursor;
   END; $$
 LANGUAGE PLPGSQL;
 

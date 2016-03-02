@@ -1,0 +1,9 @@
+#host and port can be left empty for default value
+#rename this file to Postgres.conf and type values between square brackets
+username=[]
+password=[]
+host=
+port=
+database=[]
+
+

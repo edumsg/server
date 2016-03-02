@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS users CASCADE;
 
 CREATE TABLE users(
   id serial PRIMARY KEY NOT NULL,
-  username varchar(30) UNIQUE NOT NULL, 
+  username varchar(30) UNIQUE NOT NULL,
   email varchar(100) UNIQUE NOT NULL,
   encrypted_password varchar(150) NOT NULL,
   name varchar(100) NOT NULL,
@@ -102,6 +102,14 @@ CREATE TABLE memberships(
   UNIQUE(member_id, list_id)
 );
 
+DROP TABLE IF EXISTS conversations CASCADE;
+
+CREATE TABLE conversations(
+  id serial PRIMARY KEY NOT NULL,
+  user_id integer REFERENCES users(id),
+  user2_id integer REFERENCES users(id)
+);
+
 DROP TABLE IF EXISTS direct_messages CASCADE;
 
 CREATE TABLE direct_messages(
@@ -113,14 +121,6 @@ CREATE TABLE direct_messages(
   read boolean DEFAULT '0', -- read 1 and unread 0
   conv_id integer REFERENCES conversations(id) ON DELETE CASCADE,
   created_at timestamp NOT NULL
-);
-
-DROP TABLE IF EXISTS conversations CASCADE;
-
-CREATE TABLE conversations(
-  id serial PRIMARY KEY NOT NULL,
-  user_id integer REFERENCES users(id),
-  user2_id integer REFERENCES users(id)
 );
 
 DROP TABLE IF EXISTS replies CASCADE;
