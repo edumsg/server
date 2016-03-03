@@ -45,3 +45,5 @@ Temporary Items
 /Postgres.conf
 /.idea/workspace.xml
 *.class
+
+/libs
