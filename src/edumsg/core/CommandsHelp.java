@@ -28,35 +28,35 @@ import edumsg.shared.MyObjectMapper;
 
 public class CommandsHelp {
 
-	public static void handleError(String app, String method, String errorMsg,
-			String correlationID, Logger logger) {
-		JsonNodeFactory nf = JsonNodeFactory.instance;
-		MyObjectMapper mapper = new MyObjectMapper();
-		ObjectNode node = nf.objectNode();
-		node.put("app", app);
-		node.put("method", method);
-		node.put("status", "Bad Request");
-		node.put("code", "400");
-		node.put("message", errorMsg);
-		try {
-			submit(app, mapper.writeValueAsString(node), correlationID, logger);
-		} catch (JsonGenerationException e) {
-			//logger.log(Level.SEVERE, e.getMessage(), e);
-		} catch (JsonMappingException e) {
-			//logger.log(Level.SEVERE, e.getMessage(), e);
-		} catch (IOException e) {
-			//logger.log(Level.SEVERE, e.getMessage(), e);
-		}
-	}
+    public static void handleError(String app, String method, String errorMsg,
+                                   String correlationID, Logger logger) {
+        JsonNodeFactory nf = JsonNodeFactory.instance;
+        MyObjectMapper mapper = new MyObjectMapper();
+        ObjectNode node = nf.objectNode();
+        node.put("app", app);
+        node.put("method", method);
+        node.put("status", "Bad Request");
+        node.put("code", "400");
+        node.put("message", errorMsg);
+        try {
+            submit(app, mapper.writeValueAsString(node), correlationID, logger);
+        } catch (JsonGenerationException e) {
+            //logger.log(Level.SEVERE, e.getMessage(), e);
+        } catch (JsonMappingException e) {
+            //logger.log(Level.SEVERE, e.getMessage(), e);
+        } catch (IOException e) {
+            //logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
 
-	public static void submit(String app, String json, String correlationID,
-			Logger logger) {
-		Producer p = new Producer(new ActiveMQConfig(app.toUpperCase()
-				+ ".OUTQUEUE"));
-		try {
-			p.send(json, correlationID);
-		} catch (JMSException e) {
-			//logger.log(Level.SEVERE, e.getMessage(), e);
-		}
-	}
+    public static void submit(String app, String json, String correlationID,
+                              Logger logger) {
+        Producer p = new Producer(new ActiveMQConfig(app.toUpperCase()
+                + ".OUTQUEUE"));
+        try {
+            p.send(json, correlationID);
+        } catch (JMSException e) {
+            //logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
 }

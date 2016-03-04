@@ -14,8 +14,12 @@ package edumsg.core;
 
 import java.util.HashMap;
 
-public interface Command {
-	void execute();
+public abstract class Command {
+    protected HashMap<String, String> map;
 
-	void setMap(HashMap<String, String> map);
+    public abstract void execute();
+
+    public void setMap(HashMap<String, String> map) {
+        this.map=map;
+    }
 }

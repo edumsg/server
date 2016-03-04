@@ -30,7 +30,7 @@ import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
 import edumsg.shared.MyObjectMapper;
 
-public class LogoutCommand implements Command, Runnable {
+public class diLogoutCommand implements Command, Runnable {
 	private final Logger LOGGER = Logger
 			.getLogger(LogoutCommand.class.getName());
 	private HashMap<String, String> map;

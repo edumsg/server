@@ -27,8 +27,6 @@ import org.apache.log4j.Logger;
 import java.util.Scanner;
 
 public class EduMsgNettyServer {
-    private static Scanner sc = new Scanner(System.in);
-    private static String value;
     static final boolean SSL = System.getProperty("ssl") != null;
 
 
@@ -59,7 +57,7 @@ public class EduMsgNettyServer {
 
             Channel ch = b.bind(PORT).sync().channel();
 
-            System.err.println("Server is listening on"
+            System.err.println("Server is listening on "
                     + (SSL ? "https" : "http") + "://127.0.0.1:" + PORT + '/');
 
             ch.closeFuture().sync();

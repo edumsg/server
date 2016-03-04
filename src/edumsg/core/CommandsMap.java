@@ -61,59 +61,59 @@ import edumsg.core.commands.user.UnconfirmedFollowersCommand;
 import edumsg.core.commands.user.UpdateUserCommand;
 
 public class CommandsMap {
-	private static Map<String, Class<?>> cmdMap;
+    private static Map<String, Class<?>> cmdMap;
 
-	public static void instantiate() {
-		cmdMap = new HashMap<String, Class<?>>();
-		cmdMap.put("register", RegisterCommand.class);
-		cmdMap.put("follow", FollowCommand.class);
-		cmdMap.put("unfollow", UnFollowCommand.class);
-		cmdMap.put("confirm_follow", ConfirmFollowCommand.class);
-		cmdMap.put("report_user", ReportUserCommand.class);
-		cmdMap.put("tweet", NewTweetCommand.class);
-		cmdMap.put("delete_tweet", DeleteTweetCommand.class);
-		cmdMap.put("report_tweet", ReportTweetCommand.class);
-		cmdMap.put("favorite", FavoriteCommand.class);
-		cmdMap.put("unfavorite", UnFavoriteCommand.class);
-		cmdMap.put("retweet", RetweetCommand.class);
-		cmdMap.put("unretweet", UnRetweetCommand.class);
-		cmdMap.put("get_users", GetUsersCommand.class);
-		cmdMap.put("followers", FollowersCommand.class);
-		cmdMap.put("following", FollowingCommand.class);
-		cmdMap.put("unconfirmed_followers", UnconfirmedFollowersCommand.class);
-		cmdMap.put("update_user", UpdateUserCommand.class);
-		cmdMap.put("get_user", GetUserCommand.class);
-		cmdMap.put("get_mentions", GetMentionsCommand.class);
-		cmdMap.put("get_tweet", GetTweetCommand.class);
-		cmdMap.put("timeline", GetTimelineCommand.class);
-		cmdMap.put("get_favorites", GetFavoritesCommand.class);
-		cmdMap.put("get_feeds", GetFeedsCommand.class);
-		cmdMap.put("get_subscribed_lists", GetSubscribedListsCommand.class);
-		cmdMap.put("get_list_memberships", GetListMembershipsCommand.class);
-		cmdMap.put("login", LoginCommand.class);
-		cmdMap.put("logout", LogoutCommand.class);
+    public static void instantiate() {
+        cmdMap = new HashMap<String, Class<?>>();
+        cmdMap.put("register", RegisterCommand.class);
+        cmdMap.put("follow", FollowCommand.class);
+        cmdMap.put("unfollow", UnFollowCommand.class);
+        cmdMap.put("confirm_follow", ConfirmFollowCommand.class);
+        cmdMap.put("report_user", ReportUserCommand.class);
+        cmdMap.put("tweet", NewTweetCommand.class);
+        cmdMap.put("delete_tweet", DeleteTweetCommand.class);
+        cmdMap.put("report_tweet", ReportTweetCommand.class);
+        cmdMap.put("favorite", FavoriteCommand.class);
+        cmdMap.put("unfavorite", UnFavoriteCommand.class);
+        cmdMap.put("retweet", RetweetCommand.class);
+        cmdMap.put("unretweet", UnRetweetCommand.class);
+        cmdMap.put("get_users", GetUsersCommand.class);
+        cmdMap.put("followers", FollowersCommand.class);
+        cmdMap.put("following", FollowingCommand.class);
+        cmdMap.put("unconfirmed_followers", UnconfirmedFollowersCommand.class);
+        cmdMap.put("update_user", UpdateUserCommand.class);
+        cmdMap.put("get_user", GetUserCommand.class);
+        cmdMap.put("get_mentions", GetMentionsCommand.class);
+        cmdMap.put("get_tweet", GetTweetCommand.class);
+        cmdMap.put("timeline", GetTimelineCommand.class);
+        cmdMap.put("get_favorites", GetFavoritesCommand.class);
+        cmdMap.put("get_feeds", GetFeedsCommand.class);
+        cmdMap.put("get_subscribed_lists", GetSubscribedListsCommand.class);
+        cmdMap.put("get_list_memberships", GetListMembershipsCommand.class);
+        cmdMap.put("login", LoginCommand.class);
+        cmdMap.put("logout", LogoutCommand.class);
 
-		cmdMap.put("create_dm", CreateDmCommand.class);
-		cmdMap.put("delete_dm", DeleteDmCommand.class);
-		cmdMap.put("get_conv", GetConversationCommand.class);
-		cmdMap.put("get_convs", GetConversationsCommand.class);
-		cmdMap.put("delete_conv", DeleteConversationCommand.class);
-		cmdMap.put("mark_conv_read", MarkReadCommand.class);
-		cmdMap.put("mark_all_conv_read", MarkAllReadCommand.class);
+        cmdMap.put("create_dm", CreateDmCommand.class);
+        cmdMap.put("delete_dm", DeleteDmCommand.class);
+        cmdMap.put("get_conv", GetConversationCommand.class);
+        cmdMap.put("get_convs", GetConversationsCommand.class);
+        cmdMap.put("delete_conv", DeleteConversationCommand.class);
+        cmdMap.put("mark_conv_read", MarkReadCommand.class);
+        cmdMap.put("mark_all_conv_read", MarkAllReadCommand.class);
 
-		cmdMap.put("add_member", AddMemberCommand.class);
-		cmdMap.put("create_list", CreateListCommand.class);
-		cmdMap.put("delete_list", DeleteListCommand.class);
-		cmdMap.put("delete_member", DeleteMemberCommand.class);
-		cmdMap.put("list_members", GetListMembersCommand.class);
-		cmdMap.put("list_subscribers", GetListSubscribersCommand.class);
-		cmdMap.put("subscribe", SubscribeCommand.class);
-		cmdMap.put("unsubscribe", UnSubscribeCommand.class);
-		cmdMap.put("update_list", UpdateListCommand.class);
-		cmdMap.put("get_list_feeds", GetListFeedsCommand.class);
-	}
+        cmdMap.put("add_member", AddMemberCommand.class);
+        cmdMap.put("create_list", CreateListCommand.class);
+        cmdMap.put("delete_list", DeleteListCommand.class);
+        cmdMap.put("delete_member", DeleteMemberCommand.class);
+        cmdMap.put("list_members", GetListMembersCommand.class);
+        cmdMap.put("list_subscribers", GetListSubscribersCommand.class);
+        cmdMap.put("subscribe", SubscribeCommand.class);
+        cmdMap.put("unsubscribe", UnSubscribeCommand.class);
+        cmdMap.put("update_list", UpdateListCommand.class);
+        cmdMap.put("get_list_feeds", GetListFeedsCommand.class);
+    }
 
-	public static Class<?> queryClass(String cmd) {
-		return cmdMap.get(cmd);
-	}
+    public static Class<?> queryClass(String cmd) {
+        return cmdMap.get(cmd);
+    }
 }

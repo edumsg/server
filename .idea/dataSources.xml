@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" hash="664672398">
+    <data-source source="LOCAL" name="PostgreSQL - EduMsgNetty@localhost" uuid="5a7f9f99-4cff-4fe8-a1f3-9f467e513c7f">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432/EduMsgNetty</jdbc-url>
+    </data-source>
+  </component>
+</project>

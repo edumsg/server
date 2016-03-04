@@ -35,101 +35,101 @@ import edumsg.redis.EduMsgRedis;
 import edumsg.shared.MyObjectMapper;
 
 public class RegisterCommand implements Command, Runnable {
-	private final Logger LOGGER = Logger.getLogger(RegisterCommand.class
-			.getName());
-	private HashMap<String, String> map;
+    private final Logger LOGGER = Logger.getLogger(RegisterCommand.class
+            .getName());
+    private HashMap<String, String> map;
 
-	@Override
-	public void setMap(HashMap<String, String> map) {
-		this.map = map;
-	}
+    @Override
+    public void setMap(HashMap<String, String> map) {
+        this.map = map;
+    }
 
-	@Override
-	public void execute() {
-		Connection dbConn = null;
-		CallableStatement proc = null;
-		try {
-			dbConn = PostgresConnection.getDataSource().getConnection();
-			dbConn.setAutoCommit(true);
-			String password = BCrypt.hashpw(map.get("password"), BCrypt.gensalt());
-			if (map.containsKey("avatar_url")) {
-				proc = dbConn
-						.prepareCall("{call create_user(?,?,?,?,now()::timestamp,?)}");
+    @Override
+    public void execute() {
+        Connection dbConn = null;
+        CallableStatement proc = null;
+        try {
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(true);
+            String password = BCrypt.hashpw(map.get("password"), BCrypt.gensalt());
+            if (map.containsKey("avatar_url")) {
+                proc = dbConn
+                        .prepareCall("{call create_user(?,?,?,?,now()::timestamp,?)}");
 
-			} else {
-				proc = dbConn
-						.prepareCall("{call create_user(?,?,?,?,now()::timestamp)}");
-			}
+            } else {
+                proc = dbConn
+                        .prepareCall("{call create_user(?,?,?,?,now()::timestamp)}");
+            }
 
-			proc.setPoolable(true);
-			proc.setString(1, map.get("username"));
-			proc.setString(2, map.get("email"));
-			proc.setString(3, password);
-			proc.setString(4, map.get("name"));
+            proc.setPoolable(true);
+            proc.setString(1, map.get("username"));
+            proc.setString(2, map.get("email"));
+            proc.setString(3, password);
+            proc.setString(4, map.get("name"));
 
-			if (map.containsKey("avatar_url")) {
-				proc.setString(5, map.get("avatar_url"));
-			}
+            if (map.containsKey("avatar_url")) {
+                proc.setString(5, map.get("avatar_url"));
+            }
 
-			proc.execute();
+            proc.execute();
 
-			MyObjectMapper mapper = new MyObjectMapper();
-			JsonNodeFactory nf = JsonNodeFactory.instance;
-			ObjectNode root = nf.objectNode();
-			root.put("app", map.get("app"));
-			root.put("method", map.get("method"));
-			root.put("status", "ok");
-			root.put("code", "200");
-			try {
-				CommandsHelp.submit(map.get("app"),
-						mapper.writeValueAsString(root),
-						map.get("correlation_id"), LOGGER);
-				String cacheEntry = EduMsgRedis.redisCache.get("get_users");
-				if(cacheEntry != null){
-					JSONObject cacheEntryJson = new JSONObject(cacheEntry);
-					cacheEntryJson.put("cacheStatus", "invalid");
-					EduMsgRedis.redisCache.set("get_users", cacheEntryJson.toString());
-				}
-			} catch (JsonGenerationException e) {
-				//Logger.log(Level.SEVERE, e.getMessage(), e);
-			} catch (JsonMappingException e) {
-				//Logger.log(Level.SEVERE, e.getMessage(), e);
-			} catch (IOException e) {
-				//Logger.log(Level.SEVERE, e.getMessage(), e);
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+            MyObjectMapper mapper = new MyObjectMapper();
+            JsonNodeFactory nf = JsonNodeFactory.instance;
+            ObjectNode root = nf.objectNode();
+            root.put("app", map.get("app"));
+            root.put("method", map.get("method"));
+            root.put("status", "ok");
+            root.put("code", "200");
+            try {
+                CommandsHelp.submit(map.get("app"),
+                        mapper.writeValueAsString(root),
+                        map.get("correlation_id"), LOGGER);
+                String cacheEntry = EduMsgRedis.redisCache.get("get_users");
+                if (cacheEntry != null) {
+                    JSONObject cacheEntryJson = new JSONObject(cacheEntry);
+                    cacheEntryJson.put("cacheStatus", "invalid");
+                    EduMsgRedis.redisCache.set("get_users", cacheEntryJson.toString());
+                }
+            } catch (JsonGenerationException e) {
+                //Logger.log(Level.SEVERE, e.getMessage(), e);
+            } catch (JsonMappingException e) {
+                //Logger.log(Level.SEVERE, e.getMessage(), e);
+            } catch (IOException e) {
+                //Logger.log(Level.SEVERE, e.getMessage(), e);
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
-		} catch (PSQLException e) {
-			if (e.getMessage().contains("unique constraint")) {
-				if (e.getMessage().contains("(username)")) {
-					CommandsHelp.handleError(map.get("app"), map.get("method"),
-							"Username already exists",
-							map.get("correlation_id"), LOGGER);
-				}
-				if (e.getMessage().contains("(email)")) {
-					CommandsHelp.handleError(map.get("app"), map.get("method"),
-							"Email already exists", map.get("correlation_id"),
-							LOGGER);
-				}
-			} else {
-				CommandsHelp.handleError(map.get("app"), map.get("method"),
-						e.getMessage(), map.get("correlation_id"), LOGGER);
-			}
+        } catch (PSQLException e) {
+            if (e.getMessage().contains("unique constraint")) {
+                if (e.getMessage().contains("(username)")) {
+                    CommandsHelp.handleError(map.get("app"), map.get("method"),
+                            "Username already exists",
+                            map.get("correlation_id"), LOGGER);
+                }
+                if (e.getMessage().contains("(email)")) {
+                    CommandsHelp.handleError(map.get("app"), map.get("method"),
+                            "Email already exists", map.get("correlation_id"),
+                            LOGGER);
+                }
+            } else {
+                CommandsHelp.handleError(map.get("app"), map.get("method"),
+                        e.getMessage(), map.get("correlation_id"), LOGGER);
+            }
 
-			//Logger.log(Level.SEVERE, e.getMessage(), e);
-		} catch (SQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			//Logger.log(Level.SEVERE, e.getMessage(), e);
-		} finally {
-			PostgresConnection.disconnect(null, proc, dbConn);
-		}
-	}
+            //Logger.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"),
+                    e.getMessage(), map.get("correlation_id"), LOGGER);
+            //Logger.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            PostgresConnection.disconnect(null, proc, dbConn);
+        }
+    }
 
-	@Override
-	public void run() {
-		execute();
-	}
+    @Override
+    public void run() {
+        execute();
+    }
 }
