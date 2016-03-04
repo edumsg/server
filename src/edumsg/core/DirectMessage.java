@@ -10,28 +10,45 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 IN THE SOFTWARE.
 */
 
-package edumsg.shared;
+package edumsg.core;
 
-import java.io.IOException;
-import java.util.HashMap;
+import java.sql.Timestamp;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
+@SuppressWarnings("unused")
+public class DirectMessage {
+	private Integer id;
+	private User sender;
+	private User reciever;
+	private String dm_text;
+	private String image_url;
+	private Boolean read;
+	private String created_at;
 
-public class JsonMapper {
-    private String json;
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    public JsonMapper(String json) {
-        this.json = json;
-    }
+	public void setSender(User sender) {
+		this.sender = sender;
+	}
 
-    public HashMap<String, String> deserialize() throws JsonParseException,
-            JsonMappingException, IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json,
-                new TypeReference<HashMap<String, String>>() {
-                });
-    }
+	public void setReciever(User reciever) {
+		this.reciever = reciever;
+	}
+
+	public void setDmText(String dm_text) {
+		this.dm_text = dm_text;
+	}
+
+	public void setImageUrl(String image_url) {
+		this.image_url = image_url;
+	}
+
+	public void setRead(boolean read) {
+		this.read = read;
+	}
+
+	public void setCreatedAt(Timestamp created_at) {
+		this.created_at = created_at.toString();
+	}
 }

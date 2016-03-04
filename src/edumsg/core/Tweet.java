@@ -10,28 +10,55 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 IN THE SOFTWARE.
 */
 
-package edumsg.shared;
+package edumsg.core;
 
-import java.io.IOException;
-import java.util.HashMap;
+import java.sql.Timestamp;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
+@SuppressWarnings("unused")
+public class Tweet {
+	private Integer id;
+	private String tweet_text;
+	private String image_url;
+	private String created_at;
+	private User creator;
+	private User retweeter;
+	private User favoriter;
+	private Integer retweets;
+	private Integer favorites;
 
-public class JsonMapper {
-    private String json;
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public JsonMapper(String json) {
-        this.json = json;
-    }
+	public void setTweetText(String tweet_text) {
+		this.tweet_text = tweet_text;
+	}
 
-    public HashMap<String, String> deserialize() throws JsonParseException,
-            JsonMappingException, IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json,
-                new TypeReference<HashMap<String, String>>() {
-                });
-    }
+	public void setImageUrl(String image_url) {
+		this.image_url = image_url;
+	}
+
+	public void setCreatedAt(Timestamp timestamp) {
+		this.created_at = timestamp.toString();
+	}
+
+	public void setCreator(User creator) {
+		this.creator = creator;
+	}
+
+	public void setRetweeter(User retweeter) {
+		this.retweeter = retweeter;
+	}
+
+	public void setFavoriter(User favoriter) {
+		this.favoriter = favoriter;
+	}
+
+	public void setRetweets(Integer retweets) {
+		this.retweets = retweets;
+	}
+
+	public void setFavorites(Integer favorites) {
+		this.favorites = favorites;
+	}
 }

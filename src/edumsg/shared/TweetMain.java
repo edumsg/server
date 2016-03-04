@@ -16,9 +16,9 @@ import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Consumer;
 import edumsg.activemq.Producer;
 import edumsg.concurrent.WorkerPool;
-import edumsg.database.Command;
-import edumsg.database.CommandsMap;
-import edumsg.database.PostgresConnection;
+import edumsg.core.Command;
+import edumsg.core.CommandsMap;
+import edumsg.core.PostgresConnection;
 import edumsg.redis.EduMsgRedis;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class TweetMain {
+public class TweetMain extends RunnableClasses{
     private static final Logger LOGGER = Logger.getLogger(TweetMain.class
             .getName());
     private static WorkerPool pool = new WorkerPool(10);
@@ -51,12 +51,12 @@ public class TweetMain {
                 Message msg = consumer.receive();
                 if (msg instanceof TextMessage) {
                     String msgTxt = ((TextMessage) msg).getText();
-                    handleMsg(msgTxt, msg.getJMSCorrelationID());
+                    handleMsg(msgTxt, msg.getJMSCorrelationID(),"tweet",LOGGER,pool);
                 }
             }
 
             c.disconnect();
-        } catch (JMSException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
@@ -65,64 +65,5 @@ public class TweetMain {
         run = false;
     }
 
-    private static void handleMsg(String msg, String correlationID) {
-        JsonMapper json = new JsonMapper(msg);
-        HashMap<String, String> map = null;
-        try {
-            map = json.deserialize();
-        } catch (JsonParseException e1) {
-            LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-        } catch (JsonMappingException e1) {
-            LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-        } catch (IOException e1) {
-            LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
-        }
 
-        if (map != null) {
-            String cachedEntry = EduMsgRedis.redisCache.get(map.get("method"));
-            if (cachedEntry != null) {
-                System.out.println(cachedEntry);
-                JSONObject cachedEntryJson;
-                try {
-                    cachedEntryJson = new JSONObject(cachedEntry);
-                    String dataStatus = cachedEntryJson.getString("cacheStatus");
-                    if (dataStatus.equals("valid")) {
-                        Producer p = new Producer(new ActiveMQConfig(
-                                "TWEET.OUTQUEUE"));
-                        p.send(cachedEntryJson.get("response").toString(),
-                                correlationID);
-                        //System.out.println("sent from cache");
-                        return;
-                    }
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (JMSException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        if (map != null) {
-            map.put("app", "tweet");
-            if (map.containsKey("method")) {
-                map.put("correlation_id", correlationID);
-                Class<?> cmdClass = CommandsMap.queryClass(map.get("method"));
-                if (cmdClass == null) {
-                    LOGGER.log(Level.SEVERE,
-                            "Invalid Request. Class \"" + map.get("method")
-                                    + "\" Not Found");
-                } else {
-                    try {
-                        Command c = (Command) cmdClass.newInstance();
-                        c.setMap(map);
-                        pool.execute((Runnable) c);
-                    } catch (InstantiationException | IllegalAccessException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    }
-                }
-            }
-        }
-    }
 }

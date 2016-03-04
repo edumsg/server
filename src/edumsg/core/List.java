@@ -10,28 +10,40 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 IN THE SOFTWARE.
 */
 
-package edumsg.shared;
+package edumsg.core;
 
-import java.io.IOException;
-import java.util.HashMap;
+import java.sql.Timestamp;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
+@SuppressWarnings("unused")
+public class List {
+	private Integer id;
+	private String name;
+	private String description;
+	private User creator;
+	private Boolean is_private;
+	private String created_at;
 
-public class JsonMapper {
-    private String json;
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    public JsonMapper(String json) {
-        this.json = json;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public HashMap<String, String> deserialize() throws JsonParseException,
-            JsonMappingException, IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json,
-                new TypeReference<HashMap<String, String>>() {
-                });
-    }
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setCreator(User creator) {
+		this.creator = creator;
+	}
+
+	public void setIs_private(boolean is_private) {
+		this.is_private = is_private;
+	}
+
+	public void setCreatedAt(Timestamp created_at) {
+		this.created_at = created_at.toString();
+	}
 }
