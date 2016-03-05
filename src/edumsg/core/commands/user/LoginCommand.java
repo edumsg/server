@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import edumsg.redis.Cache;
@@ -42,8 +43,6 @@ import edumsg.shared.MyObjectMapper;
 
 public class LoginCommand extends Command {
     private final Logger LOGGER = Logger.getLogger(LoginCommand.class.getName());
-
-    private HashMap<String, String> details;
     private Integer id;
     private String username, name, email, language, country, bio, website, link_color, background_color, session_id;
     private Timestamp created_at;
@@ -79,12 +78,10 @@ public class LoginCommand extends Command {
             if (authenticated) {
                 details = Cache.returnUser(map.get("username"));
                 User user = new User();
-                if (details.equals(null)) {
+                if (details==null) {
                     proc = dbConn.prepareCall("{call login(?,?)}");
                     proc.setPoolable(true);
-
                     proc.registerOutParameter(1, Types.OTHER); //new
-
                     proc.setString(1, map.get("username"));
                     proc.setString(2, sessionID);
                     proc.execute();
@@ -139,9 +136,6 @@ public class LoginCommand extends Command {
 
                     Cache.cacheUser(id.toString(), username, email, name, language, country, bio, website, created_at.toString(), avatar_url, overlay.toString(), link_color, background_color, protected_tweets.toString(), sessionID);
 
-                    POJONode child = nf.POJONode(user);
-                    root.put("user", child);
-
                 } else {
 
                     root.put("app", map.get("app"));
@@ -166,16 +160,13 @@ public class LoginCommand extends Command {
                     user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
                     user.setSessionID(details.get("session_id"));
 
-                    POJONode child = nf.POJONode(user);
-                    root.put("user", child);
                 }
 
-                //-------------------------------------
+                POJONode child = nf.POJONode(user);
+                root.put("user", child);
 
                 try {
-                    CommandsHelp.submit(map.get("app"),
-                            mapper.writeValueAsString(root),
-                            map.get("correlation_id"), LOGGER);
+                    CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
                 } catch (JsonGenerationException e) {
                     //Logger.log(Level.SEVERE, e.getMessage(), e);
                 } catch (JsonMappingException e) {
@@ -186,17 +177,14 @@ public class LoginCommand extends Command {
 
 
             } else {
-                CommandsHelp.handleError(map.get("app"), map.get("method"),
-                        "Invalid Password", map.get("correlation_id"), LOGGER);
+                CommandsHelp.handleError(map.get("app"), map.get("method"), "Invalid Password", map.get("correlation_id"), LOGGER);
             }
 
         } catch (PSQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"),
-                    e.getMessage(), map.get("correlation_id"), LOGGER);
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"),
-                    e.getMessage(), map.get("correlation_id"), LOGGER);
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } catch (UnsupportedEncodingException e) {
             //Logger.log(Level.SEVERE, e.getMessage(), e);

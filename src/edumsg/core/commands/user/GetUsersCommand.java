@@ -75,9 +75,7 @@ public class GetUsersCommand extends Command implements Runnable {
 
             root.put("users", usersArray);
             try {
-                CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
+                CommandsHelp.submit(map.get("app"),mapper.writeValueAsString(root),map.get("correlation_id"), LOGGER);
                 JSONObject cacheEntry = new JSONObject();
                 cacheEntry.put("cacheStatus", "valid");
                 cacheEntry.put("response", new JSONObject(mapper.writeValueAsString(root)));

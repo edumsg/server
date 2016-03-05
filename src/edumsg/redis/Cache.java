@@ -1,8 +1,6 @@
 package edumsg.redis;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.util.Hashing;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +18,7 @@ public class Cache {
             return null;
         }
     }
+
 
     public static void cacheUser(String id, String username, String email, String name, String language, String country, String bio, String website, String created_at, String avatar_url, String overlay, String link_color, String background_color, String protected_tweets, String session_id) {
         details.put("id", id);
