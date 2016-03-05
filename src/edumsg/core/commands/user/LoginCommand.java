@@ -77,7 +77,7 @@ public class LoginCommand extends Command {
             boolean authenticated = BCrypt.checkpw(map.get("password"), enc_password);
 
             if (authenticated) {
-                details = Cache.returnUser(map.get("username"));
+                details = (HashMap<String, String>) Cache.returnUser(map.get("username"));
                 User user = new User();
                 if (details.equals(null)) {
                     proc = dbConn.prepareCall("{call login(?,?)}");
