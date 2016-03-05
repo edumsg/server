@@ -40,7 +40,7 @@ import edumsg.core.PostgresConnection;
 import edumsg.core.User;
 import edumsg.shared.MyObjectMapper;
 
-public class LoginCommand extends Command implements Runnable  {
+public class LoginCommand extends Command {
     private final Logger LOGGER = Logger.getLogger(LoginCommand.class.getName());
 
     private HashMap<String, String> details;
@@ -52,9 +52,7 @@ public class LoginCommand extends Command implements Runnable  {
 
     @Override
     public void execute() {
-        Connection dbConn = null;
-        CallableStatement proc = null;
-        ResultSet set = null; //new
+
         try {
             String sessionID = URLEncoder.encode(new UID().toString(), "UTF-8");
             dbConn = PostgresConnection.getDataSource().getConnection();
@@ -72,13 +70,11 @@ public class LoginCommand extends Command implements Runnable  {
                         "Invalid username", map.get("correlation_id"), LOGGER);
                 return;
             }
+
             dbConn.commit();
             proc.close();
 
             boolean authenticated = BCrypt.checkpw(map.get("password"), enc_password);
-            MyObjectMapper mapper = new MyObjectMapper();
-            JsonNodeFactory nf = JsonNodeFactory.instance;
-            ObjectNode root = nf.objectNode();
 
             if (authenticated) {
                 details = Cache.returnUser(map.get("username"));
@@ -148,7 +144,6 @@ public class LoginCommand extends Command implements Runnable  {
 
                 } else {
 
-
                     root.put("app", map.get("app"));
                     root.put("method", map.get("method"));
                     root.put("status", "ok");
@@ -208,10 +203,5 @@ public class LoginCommand extends Command implements Runnable  {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    @Override
-    public void run() {
-        execute();
     }
 }

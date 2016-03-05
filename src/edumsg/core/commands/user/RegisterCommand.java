@@ -34,31 +34,21 @@ import edumsg.core.PostgresConnection;
 import edumsg.redis.EduMsgRedis;
 import edumsg.shared.MyObjectMapper;
 
-public class RegisterCommand implements Command, Runnable {
-    private final Logger LOGGER = Logger.getLogger(RegisterCommand.class
-            .getName());
-    private HashMap<String, String> map;
-
-    @Override
-    public void setMap(HashMap<String, String> map) {
-        this.map = map;
-    }
+public class RegisterCommand extends Command implements Runnable {
+    private final Logger LOGGER = Logger.getLogger(RegisterCommand.class.getName());
 
     @Override
     public void execute() {
-        Connection dbConn = null;
-        CallableStatement proc = null;
+
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
             String password = BCrypt.hashpw(map.get("password"), BCrypt.gensalt());
             if (map.containsKey("avatar_url")) {
-                proc = dbConn
-                        .prepareCall("{call create_user(?,?,?,?,now()::timestamp,?)}");
+                proc = dbConn.prepareCall("{call create_user(?,?,?,?,now()::timestamp,?)}");
 
             } else {
-                proc = dbConn
-                        .prepareCall("{call create_user(?,?,?,?,now()::timestamp)}");
+                proc = dbConn.prepareCall("{call create_user(?,?,?,?,now()::timestamp)}");
             }
 
             proc.setPoolable(true);
@@ -73,9 +63,6 @@ public class RegisterCommand implements Command, Runnable {
 
             proc.execute();
 
-            MyObjectMapper mapper = new MyObjectMapper();
-            JsonNodeFactory nf = JsonNodeFactory.instance;
-            ObjectNode root = nf.objectNode();
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
@@ -104,32 +91,21 @@ public class RegisterCommand implements Command, Runnable {
         } catch (PSQLException e) {
             if (e.getMessage().contains("unique constraint")) {
                 if (e.getMessage().contains("(username)")) {
-                    CommandsHelp.handleError(map.get("app"), map.get("method"),
-                            "Username already exists",
-                            map.get("correlation_id"), LOGGER);
+                    CommandsHelp.handleError(map.get("app"), map.get("method"), "Username already exists", map.get("correlation_id"), LOGGER);
                 }
                 if (e.getMessage().contains("(email)")) {
-                    CommandsHelp.handleError(map.get("app"), map.get("method"),
-                            "Email already exists", map.get("correlation_id"),
-                            LOGGER);
+                    CommandsHelp.handleError(map.get("app"), map.get("method"), "Email already exists", map.get("correlation_id"), LOGGER);
                 }
             } else {
-                CommandsHelp.handleError(map.get("app"), map.get("method"),
-                        e.getMessage(), map.get("correlation_id"), LOGGER);
+                CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             }
 
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"),
-                    e.getMessage(), map.get("correlation_id"), LOGGER);
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    @Override
-    public void run() {
-        execute();
     }
 }

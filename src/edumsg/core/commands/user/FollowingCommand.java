@@ -35,82 +35,65 @@ import edumsg.core.PostgresConnection;
 import edumsg.core.User;
 import edumsg.shared.MyObjectMapper;
 
-public class FollowingCommand implements Command, Runnable {
-	private final Logger LOGGER = Logger.getLogger(FollowingCommand.class
-			.getName());
-	private HashMap<String, String> map;
+public class FollowingCommand extends Command implements Runnable {
+    private final Logger LOGGER = Logger.getLogger(FollowingCommand.class.getName());
 
-	@Override
-	public void setMap(HashMap<String, String> map) {
-		this.map = map;
-	}
 
-	@Override
-	public void execute() {
-		Connection dbConn = null;
-		CallableStatement proc = null;
-		try {
-			dbConn = PostgresConnection.getDataSource().getConnection();
-			dbConn.setAutoCommit(false);
-			proc = dbConn.prepareCall("{? = call get_following(?)}");
-			proc.setPoolable(true);
-			proc.registerOutParameter(1, Types.OTHER);
-			proc.setInt(2, Integer.parseInt(map.get("user_id")));
-			proc.execute();
+    @Override
+    public void execute() {
 
-			ResultSet set = (ResultSet) proc.getObject(1);
+        try {
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(false);
+            proc = dbConn.prepareCall("{? = call get_following(?)}");
+            proc.setPoolable(true);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.setInt(2, Integer.parseInt(map.get("user_id")));
+            proc.execute();
 
-			MyObjectMapper mapper = new MyObjectMapper();
-			JsonNodeFactory nf = JsonNodeFactory.instance;
-			ObjectNode root = nf.objectNode();
-			ArrayNode usersArray = nf.arrayNode();
-			root.put("app", map.get("app"));
-			root.put("method", map.get("method"));
-			root.put("status", "ok");
-			root.put("code", "200");
+            set = (ResultSet) proc.getObject(1);
 
-			while (set.next()) {
-				String username = set.getString(1);
-				String name = set.getString(2);
-				String avatar_url = set.getString(3);
+            ArrayNode usersArray = nf.arrayNode();
+            root.put("app", map.get("app"));
+            root.put("method", map.get("method"));
+            root.put("status", "ok");
+            root.put("code", "200");
 
-				User user = new User();
-				user.setUsername(username);
-				user.setName(name);
-				user.setAvatarUrl(avatar_url);
+            while (set.next()) {
+                String username = set.getString(1);
+                String name = set.getString(2);
+                String avatar_url = set.getString(3);
 
-				usersArray.addPOJO(user);
-			}
+                User user = new User();
+                user.setUsername(username);
+                user.setName(name);
+                user.setAvatarUrl(avatar_url);
 
-			root.put("following", usersArray);
-			try {
-				CommandsHelp.submit(map.get("app"),
-						mapper.writeValueAsString(root),
-						map.get("correlation_id"), LOGGER);
-			} catch (JsonGenerationException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} catch (JsonMappingException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			}
+                usersArray.addPOJO(user);
+            }
 
-			dbConn.commit();
-		} catch (PSQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} catch (SQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} finally {
-			PostgresConnection.disconnect(null, proc, dbConn);
-		}
-	}
+            root.put("following", usersArray);
+            try {
+                CommandsHelp.submit(map.get("app"),
+                        mapper.writeValueAsString(root),
+                        map.get("correlation_id"), LOGGER);
+            } catch (JsonGenerationException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } catch (JsonMappingException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
 
-	@Override
-	public void run() {
-		execute();
-	}
+            dbConn.commit();
+        } catch (PSQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            PostgresConnection.disconnect(null, proc, dbConn);
+        }
+    }
 }

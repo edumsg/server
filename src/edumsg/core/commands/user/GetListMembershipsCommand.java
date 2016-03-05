@@ -36,91 +36,77 @@ import edumsg.core.PostgresConnection;
 import edumsg.core.User;
 import edumsg.shared.MyObjectMapper;
 
-public class GetListMembershipsCommand implements Command, Runnable {
-	private final Logger LOGGER = Logger
-			.getLogger(GetListMembershipsCommand.class.getName());
-	private HashMap<String, String> map;
+public class GetListMembershipsCommand extends Command implements Runnable {
+    private final Logger LOGGER = Logger.getLogger(GetListMembershipsCommand.class.getName());
 
-	@Override
-	public void setMap(HashMap<String, String> map) {
-		this.map = map;
-	}
+    @Override
+    public void run() {
+        execute();
+    }
 
-	@Override
-	public void execute() {
-		Connection dbConn = null;
-		CallableStatement proc = null;
-		ResultSet set = null;
-		try {
-			dbConn = PostgresConnection.getDataSource().getConnection();
-			dbConn.setAutoCommit(false);
-			proc = dbConn.prepareCall("{? = call get_list_memberships(?)}");
-			proc.setPoolable(true);
-			proc.registerOutParameter(1, Types.OTHER);
-			proc.setInt(2, Integer.parseInt(map.get("user_id")));
-			proc.execute();
+    @Override
+    public void execute() {
 
-			set = (ResultSet) proc.getObject(1);
+        try {
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(false);
+            proc = dbConn.prepareCall("{? = call get_list_memberships(?)}");
+            proc.setPoolable(true);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.setInt(2, Integer.parseInt(map.get("user_id")));
+            proc.execute();
 
-			MyObjectMapper mapper = new MyObjectMapper();
-			JsonNodeFactory nf = JsonNodeFactory.instance;
-			ObjectNode root = nf.objectNode();
-			ArrayNode lists = nf.arrayNode();
-			root.put("app", map.get("app"));
-			root.put("method", map.get("method"));
-			root.put("status", "ok");
-			root.put("code", "200");
+            set = (ResultSet) proc.getObject(1);
 
-			while (set.next()) {
-				Integer id = set.getInt(1);
-				String name = set.getString(2);
-				String description = set.getString(3);
-				String creator_name = set.getString(4);
-				String creator_username = set.getString(5);
-				String creator_avatar = set.getString(6);
+            ArrayNode lists = nf.arrayNode();
+            root.put("app", map.get("app"));
+            root.put("method", map.get("method"));
+            root.put("status", "ok");
+            root.put("code", "200");
 
-				List list = new List();
-				list.setId(id);
-				list.setName(name);
-				list.setDescription(description);
-				User creator = new User();
-				creator.setName(creator_name);
-				creator.setAvatarUrl(creator_avatar);
-				creator.setUsername(creator_username);
-				list.setCreator(creator);
+            while (set.next()) {
+                Integer id = set.getInt(1);
+                String name = set.getString(2);
+                String description = set.getString(3);
+                String creator_name = set.getString(4);
+                String creator_username = set.getString(5);
+                String creator_avatar = set.getString(6);
 
-				lists.addPOJO(list);
-			}
+                List list = new List();
+                list.setId(id);
+                list.setName(name);
+                list.setDescription(description);
+                User creator = new User();
+                creator.setName(creator_name);
+                creator.setAvatarUrl(creator_avatar);
+                creator.setUsername(creator_username);
+                list.setCreator(creator);
 
-			root.put("memberships", lists);
-			try {
-				CommandsHelp.submit(map.get("app"),
-						mapper.writeValueAsString(root),
-						map.get("correlation_id"), LOGGER);
-			} catch (JsonGenerationException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} catch (JsonMappingException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			}
+                lists.addPOJO(list);
+            }
 
-			dbConn.commit();
-		} catch (PSQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} catch (SQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} finally {
-			PostgresConnection.disconnect(set, proc, dbConn);
-		}
-	}
+            root.put("memberships", lists);
+            try {
+                CommandsHelp.submit(map.get("app"),
+                        mapper.writeValueAsString(root),
+                        map.get("correlation_id"), LOGGER);
+            } catch (JsonGenerationException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } catch (JsonMappingException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
 
-	@Override
-	public void run() {
-		execute();
-	}
+            dbConn.commit();
+        } catch (PSQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            PostgresConnection.disconnect(set, proc, dbConn);
+        }
+    }
 }

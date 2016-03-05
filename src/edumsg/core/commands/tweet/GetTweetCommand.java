@@ -36,95 +36,75 @@ import edumsg.core.Tweet;
 import edumsg.core.User;
 import edumsg.shared.MyObjectMapper;
 
-public class GetTweetCommand implements Command, Runnable {
-	private final Logger LOGGER = Logger.getLogger(GetTweetCommand.class
-			.getName());
-	private HashMap<String, String> map;
+public class GetTweetCommand extends Command implements Runnable {
+    private final Logger LOGGER = Logger.getLogger(GetTweetCommand.class.getName());
 
-	@Override
-	public void setMap(HashMap<String, String> map) {
-		this.map = map;
-	}
+    @Override
+    public void execute() {
+        try {
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(false);
+            proc = dbConn.prepareCall("{? = call get_tweet(?)}");
+            proc.setPoolable(true);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.setInt(2, Integer.parseInt(map.get("tweet_id")));
+            proc.execute();
 
-	@Override
-	public void execute() {
-		Connection dbConn = null;
-		CallableStatement proc = null;
-		ResultSet set = null;
-		try {
-			dbConn = PostgresConnection.getDataSource().getConnection();
-			dbConn.setAutoCommit(false);
-			proc = dbConn.prepareCall("{? = call get_tweet(?)}");
-			proc.setPoolable(true);
-			proc.registerOutParameter(1, Types.OTHER);
-			proc.setInt(2, Integer.parseInt(map.get("tweet_id")));
-			proc.execute();
+            set = (ResultSet) proc.getObject(1);
 
-			set = (ResultSet) proc.getObject(1);
+            root.put("app", map.get("app"));
+            root.put("method", map.get("method"));
+            root.put("status", "ok");
+            root.put("code", "200");
 
-			MyObjectMapper mapper = new MyObjectMapper();
-			JsonNodeFactory nf = JsonNodeFactory.instance;
-			ObjectNode root = nf.objectNode();
-			root.put("app", map.get("app"));
-			root.put("method", map.get("method"));
-			root.put("status", "ok");
-			root.put("code", "200");
+            Tweet t = new Tweet();
+            if (set.next()) {
+                Integer id = set.getInt(1);
+                String tweet = set.getString(2);
+                String image_url = set.getString(5);
+                Timestamp created_at = set.getTimestamp(4);
+                String creator_username = set.getString(6);
+                String creator_name = set.getString(7);
+                String creator_avatar = set.getString(8);
+                int retweets = set.getInt(9);
+                int favorites = set.getInt(10);
 
-			Tweet t = new Tweet();
-			if (set.next()) {
-				Integer id = set.getInt(1);
-				String tweet = set.getString(2);
-				String image_url = set.getString(5);
-				Timestamp created_at = set.getTimestamp(4);
-				String creator_username = set.getString(6);
-				String creator_name = set.getString(7);
-				String creator_avatar = set.getString(8);
-				int retweets = set.getInt(9);
-				int favorites = set.getInt(10);
+                t.setId(id);
+                t.setTweetText(tweet);
+                t.setImageUrl(image_url);
+                t.setCreatedAt(created_at);
+                t.setRetweets(retweets);
+                t.setFavorites(favorites);
+                User creator = new User();
+                creator.setName(creator_name);
+                creator.setAvatarUrl(creator_avatar);
+                creator.setUsername(creator_username);
+                t.setCreator(creator);
+            }
 
-				t.setId(id);
-				t.setTweetText(tweet);
-				t.setImageUrl(image_url);
-				t.setCreatedAt(created_at);
-				t.setRetweets(retweets);
-				t.setFavorites(favorites);
-				User creator = new User();
-				creator.setName(creator_name);
-				creator.setAvatarUrl(creator_avatar);
-				creator.setUsername(creator_username);
-				t.setCreator(creator);
-			}
+            POJONode child = nf.POJONode(t);
+            root.put("tweet", child);
+            try {
+                CommandsHelp.submit(map.get("app"),
+                        mapper.writeValueAsString(root),
+                        map.get("correlation_id"), LOGGER);
+            } catch (JsonGenerationException e) {
+                //Logger.log(Level.SEVERE, e.getMessage(), e);
+            } catch (JsonMappingException e) {
+                //Logger.log(Level.SEVERE, e.getMessage(), e);
+            } catch (IOException e) {
+                //Logger.log(Level.SEVERE, e.getMessage(), e);
+            }
 
-			POJONode child = nf.POJONode(t);
-			root.put("tweet", child);
-			try {
-				CommandsHelp.submit(map.get("app"),
-						mapper.writeValueAsString(root),
-						map.get("correlation_id"), LOGGER);
-			} catch (JsonGenerationException e) {
-				//Logger.log(Level.SEVERE, e.getMessage(), e);
-			} catch (JsonMappingException e) {
-				//Logger.log(Level.SEVERE, e.getMessage(), e);
-			} catch (IOException e) {
-				//Logger.log(Level.SEVERE, e.getMessage(), e);
-			}
-
-			dbConn.commit();
-		} catch (PSQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			//Logger.log(Level.SEVERE, e.getMessage(), e);
-		} catch (SQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			//Logger.log(Level.SEVERE, e.getMessage(), e);
-		} finally {
-			PostgresConnection.disconnect(set, proc, dbConn);
-		}
-	}
-
-	@Override
-	public void run() {
-		execute();
-	}
+            dbConn.commit();
+        } catch (PSQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            //Logger.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            //Logger.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            PostgresConnection.disconnect(set, proc, dbConn);
+        }
+    }
 }

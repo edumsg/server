@@ -37,92 +37,74 @@ import edumsg.core.Tweet;
 import edumsg.core.User;
 import edumsg.shared.MyObjectMapper;
 
-public class GetMentionsCommand implements Command, Runnable {
-	private final Logger LOGGER = Logger.getLogger(GetUserCommand.class
-			.getName());
-	private HashMap<String, String> map;
+public class GetMentionsCommand extends Command implements Runnable {
+    private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
 
-	@Override
-	public void setMap(HashMap<String, String> map) {
-		this.map = map;
-	}
+    @Override
+    public void execute() {
 
-	@Override
-	public void execute() {
-		Connection dbConn = null;
-		CallableStatement proc = null;
-		try {
-			dbConn = PostgresConnection.getDataSource().getConnection();
-			dbConn.setAutoCommit(false);
-			proc = dbConn.prepareCall("{? = call get_mentions(?)}");
-			proc.setPoolable(true);
-			proc.registerOutParameter(1, Types.OTHER);
-			proc.setString(2, map.get("username"));
-			proc.execute();
+        try {
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(false);
+            proc = dbConn.prepareCall("{? = call get_mentions(?)}");
+            proc.setPoolable(true);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.setString(2, map.get("username"));
+            proc.execute();
 
-			ResultSet set = (ResultSet) proc.getObject(1);
+            set = (ResultSet) proc.getObject(1);
 
-			MyObjectMapper mapper = new MyObjectMapper();
-			JsonNodeFactory nf = JsonNodeFactory.instance;
-			ObjectNode root = nf.objectNode();
-			ArrayNode mentions = nf.arrayNode();
-			root.put("app", map.get("app"));
-			root.put("method", map.get("method"));
-			root.put("status", "ok");
-			root.put("code", "200");
+            ArrayNode mentions = nf.arrayNode();
+            root.put("app", map.get("app"));
+            root.put("method", map.get("method"));
+            root.put("status", "ok");
+            root.put("code", "200");
 
-			while (set.next()) {
-				Integer id = set.getInt(1);
-				String tweet = set.getString(2);
-				String image_url = set.getString(3);
-				Timestamp created_at = set.getTimestamp(4);
-				String creator_name = set.getString(5);
-				String creator_username = set.getString(6);
-				String creator_avatar = set.getString(7);
+            while (set.next()) {
+                Integer id = set.getInt(1);
+                String tweet = set.getString(2);
+                String image_url = set.getString(3);
+                Timestamp created_at = set.getTimestamp(4);
+                String creator_name = set.getString(5);
+                String creator_username = set.getString(6);
+                String creator_avatar = set.getString(7);
 
-				Tweet t = new Tweet();
-				t.setId(id);
-				t.setTweetText(tweet);
-				t.setImageUrl(image_url);
-				t.setCreatedAt(created_at);
-				User creator = new User();
-				creator.setName(creator_name);
-				creator.setAvatarUrl(creator_avatar);
-				creator.setUsername(creator_username);
-				t.setCreator(creator);
+                Tweet t = new Tweet();
+                t.setId(id);
+                t.setTweetText(tweet);
+                t.setImageUrl(image_url);
+                t.setCreatedAt(created_at);
+                User creator = new User();
+                creator.setName(creator_name);
+                creator.setAvatarUrl(creator_avatar);
+                creator.setUsername(creator_username);
+                t.setCreator(creator);
 
-				mentions.addPOJO(t);
-			}
+                mentions.addPOJO(t);
+            }
 
-			root.put("mentions", mentions);
-			try {
-				CommandsHelp.submit(map.get("app"),
-						mapper.writeValueAsString(root),
-						map.get("correlation_id"), LOGGER);
-			} catch (JsonGenerationException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} catch (JsonMappingException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			}
+            root.put("mentions", mentions);
+            try {
+                CommandsHelp.submit(map.get("app"),
+                        mapper.writeValueAsString(root),
+                        map.get("correlation_id"), LOGGER);
+            } catch (JsonGenerationException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } catch (JsonMappingException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
 
-			dbConn.commit();
-		} catch (PSQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} catch (SQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} finally {
-			PostgresConnection.disconnect(null, proc, dbConn);
-		}
-	}
-
-	@Override
-	public void run() {
-		execute();
-	}
+            dbConn.commit();
+        } catch (PSQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            PostgresConnection.disconnect(null, proc, dbConn);
+        }
+    }
 }

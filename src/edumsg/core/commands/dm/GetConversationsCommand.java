@@ -39,100 +39,81 @@ import edumsg.core.PostgresConnection;
 import edumsg.core.User;
 import edumsg.shared.MyObjectMapper;
 
-public class GetConversationsCommand implements Command, Runnable {
-	private final Logger LOGGER = Logger
-			.getLogger(GetConversationsCommand.class.getName());
-	private HashMap<String, String> map;
+public class GetConversationsCommand extends Command implements Runnable {
+    private final Logger LOGGER = Logger.getLogger(GetConversationsCommand.class.getName());
 
-	@Override
-	public void setMap(HashMap<String, String> map) {
-		this.map = map;
-	}
 
-	@Override
-	public void execute() {
-		Connection dbConn = null;
-		CallableStatement proc = null;
-		ResultSet set = null;
-		try {
-			dbConn = PostgresConnection.getDataSource().getConnection();
-			dbConn.setAutoCommit(false);
-			proc = dbConn.prepareCall("{? = call get_conversations(?)}");
-			proc.setPoolable(true);
-			proc.registerOutParameter(1, Types.OTHER);
-			proc.setInt(2, Integer.parseInt(map.get("user_id")));
-			proc.execute();
+    @Override
+    public void execute() {
 
-			set = (ResultSet) proc.getObject(1);
+        ResultSet set = null;
+        try {
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(false);
+            proc = dbConn.prepareCall("{? = call get_conversations(?)}");
+            proc.setPoolable(true);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.setInt(2, Integer.parseInt(map.get("user_id")));
+            proc.execute();
 
-			MyObjectMapper mapper = new MyObjectMapper();
-			JsonNodeFactory nf = JsonNodeFactory.instance;
-			ObjectNode root = nf.objectNode();
-			root.put("app", map.get("app"));
-			root.put("method", map.get("method"));
-			root.put("status", "ok");
-			root.put("code", "200");
+            set = (ResultSet) proc.getObject(1);
 
-			ArrayList<Conversation> convs = new ArrayList<>();
-			while (set.next()) {
-				int conv_id = set.getInt(1);
-				int sender_id = set.getInt(2);
-				String sender_name = set.getString(3);
-				int reciever_id = set.getInt(4);
-				String reciever_name = set.getString(5);
-				String dm_text = set.getString(6);
-				Timestamp created_at = set.getTimestamp(7);
+            root.put("app", map.get("app"));
+            root.put("method", map.get("method"));
+            root.put("status", "ok");
+            root.put("code", "200");
 
-				User sender = new User();
-				sender.setId(sender_id);
-				sender.setName(sender_name);
+            ArrayList<Conversation> convs = new ArrayList<>();
+            while (set.next()) {
+                int conv_id = set.getInt(1);
+                int sender_id = set.getInt(2);
+                String sender_name = set.getString(3);
+                int reciever_id = set.getInt(4);
+                String reciever_name = set.getString(5);
+                String dm_text = set.getString(6);
+                Timestamp created_at = set.getTimestamp(7);
 
-				User reciever = new User();
-				reciever.setId(reciever_id);
-				reciever.setName(reciever_name);
+                User sender = new User();
+                sender.setId(sender_id);
+                sender.setName(sender_name);
 
-				Conversation conv = new Conversation();
-				conv.setId(conv_id);
-				DirectMessage dm = new DirectMessage();
-				dm.setSender(sender);
-				dm.setReciever(reciever);
-				dm.setDmText(dm_text);
-				dm.setCreatedAt(created_at);
-				conv.setLastDM(dm);
+                User reciever = new User();
+                reciever.setId(reciever_id);
+                reciever.setName(reciever_name);
 
-				convs.add(conv);
-			}
+                Conversation conv = new Conversation();
+                conv.setId(conv_id);
+                DirectMessage dm = new DirectMessage();
+                dm.setSender(sender);
+                dm.setReciever(reciever);
+                dm.setDmText(dm_text);
+                dm.setCreatedAt(created_at);
+                conv.setLastDM(dm);
 
-			POJONode child = nf.POJONode(convs);
-			root.put("convs", child);
-			try {
-				CommandsHelp.submit(map.get("app"),
-						mapper.writeValueAsString(root),
-						map.get("correlation_id"), LOGGER);
-			} catch (JsonGenerationException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} catch (JsonMappingException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			}
+                convs.add(conv);
+            }
 
-			dbConn.commit();
-		} catch (PSQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} catch (SQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} finally {
-			PostgresConnection.disconnect(set, proc, dbConn);
-		}
-	}
+            POJONode child = nf.POJONode(convs);
+            root.put("convs", child);
+            try {
+                CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+            } catch (JsonGenerationException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } catch (JsonMappingException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
 
-	@Override
-	public void run() {
-		execute();
-	}
+            dbConn.commit();
+        } catch (PSQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            PostgresConnection.disconnect(set, proc, dbConn);
+        }
+    }
 }

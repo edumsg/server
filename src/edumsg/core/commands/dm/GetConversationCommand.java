@@ -39,99 +39,77 @@ import edumsg.core.PostgresConnection;
 import edumsg.core.User;
 import edumsg.shared.MyObjectMapper;
 
-public class GetConversationCommand implements Command, Runnable {
-	private final Logger LOGGER = Logger.getLogger(GetConversationCommand.class
-			.getName());
-	private HashMap<String, String> map;
+public class GetConversationCommand extends Command implements Runnable {
+    private final Logger LOGGER = Logger.getLogger(GetConversationCommand.class.getName());
 
-	@Override
-	public void setMap(HashMap<String, String> map) {
-		this.map = map;
-	}
+    @Override
+    public void execute() {
+        try {
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(false);
+            proc = dbConn.prepareCall("{? = call get_conversation(?)}");
+            proc.setPoolable(true);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.setInt(2, Integer.parseInt(map.get("conv_id")));
+            proc.execute();
 
-	@Override
-	public void execute() {
-		Connection dbConn = null;
-		CallableStatement proc = null;
-		ResultSet set = null;
-		try {
-			dbConn = PostgresConnection.getDataSource().getConnection();
-			dbConn.setAutoCommit(false);
-			proc = dbConn.prepareCall("{? = call get_conversation(?)}");
-			proc.setPoolable(true);
-			proc.registerOutParameter(1, Types.OTHER);
-			proc.setInt(2, Integer.parseInt(map.get("conv_id")));
-			proc.execute();
+            set = (ResultSet) proc.getObject(1);
 
-			set = (ResultSet) proc.getObject(1);
+            root.put("app", map.get("app"));
+            root.put("method", map.get("method"));
+            root.put("status", "ok");
+            root.put("code", "200");
 
-			MyObjectMapper mapper = new MyObjectMapper();
-			JsonNodeFactory nf = JsonNodeFactory.instance;
-			ObjectNode root = nf.objectNode();
-			root.put("app", map.get("app"));
-			root.put("method", map.get("method"));
-			root.put("status", "ok");
-			root.put("code", "200");
+            Conversation conv = new Conversation();
+            ArrayList<DirectMessage> dms = new ArrayList<>();
+            while (set.next()) {
+                int sender_id = set.getInt(1);
+                String sender_name = set.getString(2);
+                int reciever_id = set.getInt(3);
+                String reciever_name = set.getString(4);
+                String dm_text = set.getString(5);
+                String image_url = set.getString(6);
+                Timestamp created_at = set.getTimestamp(7);
 
-			Conversation conv = new Conversation();
-			ArrayList<DirectMessage> dms = new ArrayList<>();
-			while (set.next()) {
-				int sender_id = set.getInt(1);
-				String sender_name = set.getString(2);
-				int reciever_id = set.getInt(3);
-				String reciever_name = set.getString(4);
-				String dm_text = set.getString(5);
-				String image_url = set.getString(6);
-				Timestamp created_at = set.getTimestamp(7);
+                User sender = new User();
+                sender.setId(sender_id);
+                sender.setName(sender_name);
 
-				User sender = new User();
-				sender.setId(sender_id);
-				sender.setName(sender_name);
+                User reciever = new User();
+                reciever.setId(reciever_id);
+                reciever.setName(reciever_name);
 
-				User reciever = new User();
-				reciever.setId(reciever_id);
-				reciever.setName(reciever_name);
+                DirectMessage dm = new DirectMessage();
+                dm.setDmText(dm_text);
+                dm.setSender(sender);
+                dm.setReciever(reciever);
+                dm.setCreatedAt(created_at);
+                dm.setImageUrl(image_url);
+                dms.add(dm);
+            }
 
-				DirectMessage dm = new DirectMessage();
-				dm.setDmText(dm_text);
-				dm.setSender(sender);
-				dm.setReciever(reciever);
-				dm.setCreatedAt(created_at);
-				dm.setImageUrl(image_url);
-				dms.add(dm);
-			}
+            conv.setDms(dms);
+            POJONode child = nf.POJONode(conv);
+            root.put("conv", child);
+            try {
+                CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+            } catch (JsonGenerationException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } catch (JsonMappingException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
 
-			conv.setDms(dms);
-			POJONode child = nf.POJONode(conv);
-			root.put("conv", child);
-			try {
-				CommandsHelp.submit(map.get("app"),
-						mapper.writeValueAsString(root),
-						map.get("correlation_id"), LOGGER);
-			} catch (JsonGenerationException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} catch (JsonMappingException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			}
-
-			dbConn.commit();
-		} catch (PSQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} catch (SQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} finally {
-			PostgresConnection.disconnect(set, proc, dbConn);
-		}
-	}
-
-	@Override
-	public void run() {
-		execute();
-	}
+            dbConn.commit();
+        } catch (PSQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            PostgresConnection.disconnect(set, proc, dbConn);
+        }
+    }
 }

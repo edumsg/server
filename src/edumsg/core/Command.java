@@ -12,14 +12,34 @@ IN THE SOFTWARE.
 
 package edumsg.core;
 
+import edumsg.shared.MyObjectMapper;
+import org.codehaus.jackson.node.JsonNodeFactory;
+import org.codehaus.jackson.node.ObjectNode;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.HashMap;
 
-public abstract class Command {
+public abstract class Command implements Runnable {
     protected HashMap<String, String> map;
+    protected Connection dbConn;
+    protected CallableStatement proc;
+    protected ResultSet set;
+    protected MyObjectMapper mapper = new MyObjectMapper();
+    protected JsonNodeFactory nf = JsonNodeFactory.instance;
+    protected ObjectNode root = nf.objectNode();
+
+
 
     public abstract void execute();
 
     public void setMap(HashMap<String, String> map) {
         this.map=map;
+    }
+
+    @Override
+    public void run() {
+        execute();
     }
 }

@@ -35,92 +35,71 @@ import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
 import edumsg.shared.MyObjectMapper;
 
-public class UpdateListCommand implements Command, Runnable {
-	private final Logger LOGGER = Logger.getLogger(UpdateListCommand.class
-			.getName());
-	private HashMap<String, String> map;
+public class UpdateListCommand extends Command implements Runnable {
+    private final Logger LOGGER = Logger.getLogger(UpdateListCommand.class.getName());
 
-	@Override
-	public void setMap(HashMap<String, String> map) {
-		this.map = map;
-	}
+    @Override
+    public void execute() {
+        String app = map.get("app");
+        String method = map.get("method");
+        String correlationID = map.get("correlation_id");
+        try {
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(true);
+            proc = dbConn.prepareCall("{call update_list(?,?)}");
+            proc.setPoolable(true);
+            proc.setInt(1, Integer.parseInt(map.get("list_id")));
 
-	@Override
-	public void execute() {
-		String app = map.get("app");
-		String method = map.get("method");
-		String correlationID = map.get("correlation_id");
-		Connection dbConn = null;
-		CallableStatement proc = null;
-		try {
-			dbConn = PostgresConnection.getDataSource().getConnection();
-			dbConn.setAutoCommit(true);
-			proc = dbConn.prepareCall("{call update_list(?,?)}");
-			proc.setPoolable(true);
+            map.remove("list_id");
+            map.remove("app");
+            map.remove("method");
+            map.remove("correlation_id");
+            Set<Entry<String, String>> set = map.entrySet();
+            Iterator<Entry<String, String>> iterator = set.iterator();
+            String[][] arraySet = new String[set.size()][2];
+            int i = 0;
 
-			proc.setInt(1, Integer.parseInt(map.get("list_id")));
-			map.remove("list_id");
-			map.remove("app");
-			map.remove("method");
-			map.remove("correlation_id");
-			Set<Entry<String, String>> set = map.entrySet();
-			Iterator<Entry<String, String>> iterator = set.iterator();
-			String[][] arraySet = new String[set.size()][2];
-			int i = 0;
+            while (iterator.hasNext()) {
+                Entry<String, String> entry = iterator.next();
+                String[] temp = {entry.getKey(), entry.getValue()};
+                arraySet[i] = temp;
+                i++;
+            }
+            Array array = dbConn.createArrayOf("text", arraySet);
+            proc.setArray(2, array);
+            proc.execute();
 
-			while (iterator.hasNext()) {
-				Entry<String, String> entry = iterator.next();
-				String[] temp = { entry.getKey(), entry.getValue() };
-				arraySet[i] = temp;
-				i++;
-			}
-			Array array = dbConn.createArrayOf("text", arraySet);
-			proc.setArray(2, array);
-			proc.execute();
+            root.put("app", app);
+            root.put("method", method);
+            root.put("status", "ok");
+            root.put("code", "200");
+            try {
+                CommandsHelp.submit(app, mapper.writeValueAsString(root),
+                        correlationID, LOGGER);
+            } catch (JsonGenerationException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } catch (JsonMappingException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
 
-			MyObjectMapper mapper = new MyObjectMapper();
-			JsonNodeFactory nf = JsonNodeFactory.instance;
-			ObjectNode root = nf.objectNode();
-			root.put("app", app);
-			root.put("method", method);
-			root.put("status", "ok");
-			root.put("code", "200");
-			try {
-				CommandsHelp.submit(app, mapper.writeValueAsString(root),
-						correlationID, LOGGER);
-			} catch (JsonGenerationException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} catch (JsonMappingException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			}
-
-		} catch (PSQLException e) {
-			if (e.getMessage().contains("unique constraint")) {
-				if (e.getMessage().contains("(name)")) {
-					CommandsHelp.handleError(app, method,
-							"List name already exists", correlationID, LOGGER);
-				}
-			}
-			if (e.getMessage().contains("value too long")) {
-				CommandsHelp.handleError(app, method, "Too long input",
-						correlationID, LOGGER);
-			}
-			CommandsHelp.handleError(app, method, "List name already exists",
-					correlationID, LOGGER);
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} catch (SQLException e) {
-			CommandsHelp.handleError(app, method, e.getMessage(),
-					correlationID, LOGGER);
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		} finally {
-			PostgresConnection.disconnect(null, proc, dbConn);
-		}
-	}
-
-	@Override
-	public void run() {
-		execute();
-	}
+        } catch (PSQLException e) {
+            if (e.getMessage().contains("unique constraint")) {
+                if (e.getMessage().contains("(name)")) {
+                    CommandsHelp.handleError(app, method, "List name already exists", correlationID, LOGGER);
+                }
+            }
+            if (e.getMessage().contains("value too long")) {
+                CommandsHelp.handleError(app, method, "Too long input", correlationID, LOGGER);
+            }
+            CommandsHelp.handleError(app, method, "List name already exists", correlationID, LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SQLException e) {
+            CommandsHelp.handleError(app, method, e.getMessage(), correlationID, LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            PostgresConnection.disconnect(null, proc, dbConn);
+        }
+    }
 }

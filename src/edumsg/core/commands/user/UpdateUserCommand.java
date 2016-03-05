@@ -34,96 +34,73 @@ import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
 import edumsg.shared.MyObjectMapper;
 
-public class UpdateUserCommand implements Command, Runnable {
-	private final Logger LOGGER = Logger.getLogger(UpdateUserCommand.class
-			.getName());
-	private HashMap<String, String> map;
+public class UpdateUserCommand extends Command implements Runnable {
+    private final Logger LOGGER = Logger.getLogger(UpdateUserCommand.class.getName());
 
-	@Override
-	public void setMap(HashMap<String, String> map) {
-		this.map = map;
-	}
+    @Override
+    public void execute() {
 
-	@Override
-	public void execute() {
-		Connection dbConn = null;
-		CallableStatement proc = null;
-		String app = map.get("app");
-		String method = map.get("method");
-		String correlationID = map.get("correlation_id");
-		try {
-			dbConn = PostgresConnection.getDataSource().getConnection();
-			dbConn.setAutoCommit(true);
+        String app = map.get("app");
+        String method = map.get("method");
+        String correlationID = map.get("correlation_id");
+        try {
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(true);
+            proc = dbConn.prepareCall("{call edit_user(?,?)}");
+            proc.setPoolable(true);
+            proc.setInt(1, Integer.parseInt(map.get("user_id")));
 
-			proc = dbConn.prepareCall("{call edit_user(?,?)}");
+            map.remove("user_id");
+            map.remove("app");
+            map.remove("method");
+            map.remove("correlation_id");
+            map.remove("queue");
+            Set<Entry<String, String>> set = map.entrySet();
+            Iterator<Entry<String, String>> iterator = set.iterator();
+            String[][] arraySet = new String[set.size()][2];
+            int i = 0;
 
-			proc.setPoolable(true);
-			proc.setInt(1, Integer.parseInt(map.get("user_id")));
+            while (iterator.hasNext()) {
+                Entry<String, String> entry = iterator.next();
+                String[] temp = {entry.getKey(), entry.getValue()};
+                arraySet[i] = temp;
+                i++;
+            }
+            Array array = dbConn.createArrayOf("text", arraySet);
+            proc.setArray(2, array);
+            proc.execute();
 
-			map.remove("user_id");
-			map.remove("app");
-			map.remove("method");
-			map.remove("correlation_id");
-			map.remove("queue");
-			Set<Entry<String, String>> set = map.entrySet();
-			Iterator<Entry<String, String>> iterator = set.iterator();
-			String[][] arraySet = new String[set.size()][2];
-			int i = 0;
+            root.put("app", app);
+            root.put("method", method);
+            root.put("status", "ok");
+            root.put("code", "200");
+            try {
+                CommandsHelp.submit(app, mapper.writeValueAsString(root),
+                        correlationID, LOGGER);
+            } catch (JsonGenerationException e) {
+                //Logger.log(Level.SEVERE, e.getMessage(), e);
+            } catch (JsonMappingException e) {
+                //Logger.log(Level.SEVERE, e.getMessage(), e);
+            } catch (IOException e) {
+                //Logger.log(Level.SEVERE, e.getMessage(), e);
+            }
 
-			while (iterator.hasNext()) {
-				Entry<String, String> entry = iterator.next();
-				String[] temp = { entry.getKey(), entry.getValue() };
-				arraySet[i] = temp;
-				i++;
-			}
-			Array array = dbConn.createArrayOf("text", arraySet);
-			proc.setArray(2, array);
+        } catch (PSQLException e) {
+            if (e.getMessage().contains("unique constraint")) {
+                if (e.getMessage().contains("(username)"))
+                    CommandsHelp.handleError(app, method, "Username already exists", correlationID, LOGGER);
+                if (e.getMessage().contains("(email)"))
+                    CommandsHelp.handleError(app, method, "Email already exists", correlationID, LOGGER);
+            } else {
+                CommandsHelp.handleError(app, method, e.getMessage(), correlationID, LOGGER);
+            }
 
-			proc.execute();
-
-			MyObjectMapper mapper = new MyObjectMapper();
-			JsonNodeFactory nf = JsonNodeFactory.instance;
-			ObjectNode root = nf.objectNode();
-			root.put("app", app);
-			root.put("method", method);
-			root.put("status", "ok");
-			root.put("code", "200");
-			try {
-				CommandsHelp.submit(app, mapper.writeValueAsString(root),
-						correlationID, LOGGER);
-			} catch (JsonGenerationException e) {
-				//Logger.log(Level.SEVERE, e.getMessage(), e);
-			} catch (JsonMappingException e) {
-				//Logger.log(Level.SEVERE, e.getMessage(), e);
-			} catch (IOException e) {
-				//Logger.log(Level.SEVERE, e.getMessage(), e);
-			}
-
-		} catch (PSQLException e) {
-			if (e.getMessage().contains("unique constraint")) {
-				if (e.getMessage().contains("(username)"))
-					CommandsHelp.handleError(app, method,
-							"Username already exists", correlationID, LOGGER);
-				if (e.getMessage().contains("(email)"))
-					CommandsHelp.handleError(app, method,
-							"Email already exists", correlationID, LOGGER);
-			} else {
-				CommandsHelp.handleError(app, method, e.getMessage(),
-						correlationID, LOGGER);
-			}
-
-			//Logger.log(Level.SEVERE, e.getMessage(), e);
-		} catch (SQLException e) {
-			CommandsHelp.handleError(app, method, e.getMessage(),
-					correlationID, LOGGER);
-			//Logger.log(Level.SEVERE, e.getMessage(), e);
-		} finally {
-			PostgresConnection.disconnect(null, proc, dbConn);
-		}
-	}
-
-	@Override
-	public void run() {
-		execute();
-	}
+            //Logger.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SQLException e) {
+            CommandsHelp.handleError(app, method, e.getMessage(), correlationID, LOGGER);
+            //Logger.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            PostgresConnection.disconnect(null, proc, dbConn);
+        }
+    }
 }

@@ -39,107 +39,88 @@ import edumsg.core.User;
 import edumsg.redis.EduMsgRedis;
 import edumsg.shared.MyObjectMapper;
 
-public class GetFeedsCommand implements Command, Runnable {
-	private final Logger LOGGER = Logger.getLogger(GetFeedsCommand.class
-			.getName());
-	private HashMap<String, String> map;
+public class GetFeedsCommand extends Command implements Runnable {
+    private final Logger LOGGER = Logger.getLogger(GetFeedsCommand.class.getName());
 
-	@Override
-	public void setMap(HashMap<String, String> map) {
-		this.map = map;
-	}
+    @Override
+    public void execute() {
 
-	@Override
-	public void execute() {
-		Connection dbConn = null;
-		CallableStatement proc = null;
-		ResultSet set = null;
-		try {
-			dbConn = PostgresConnection.getDataSource().getConnection();
-			dbConn.setAutoCommit(false);
-			proc = dbConn.prepareCall("{? = call get_feeds(?)}");
-			proc.setPoolable(true);
-			proc.registerOutParameter(1, Types.OTHER);
-			proc.setInt(2, Integer.parseInt(map.get("user_id")));
-			proc.execute();
+        try {
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(false);
+            proc = dbConn.prepareCall("{? = call get_feeds(?)}");
+            proc.setPoolable(true);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.setInt(2, Integer.parseInt(map.get("user_id")));
+            proc.execute();
 
-			set = (ResultSet) proc.getObject(1);
+            set = (ResultSet) proc.getObject(1);
 
-			MyObjectMapper mapper = new MyObjectMapper();
-			JsonNodeFactory nf = JsonNodeFactory.instance;
-			ObjectNode root = nf.objectNode();
-			ArrayNode tweets = nf.arrayNode();
-			root.put("app", map.get("app"));
-			root.put("method", map.get("method"));
-			root.put("status", "ok");
-			root.put("code", "200");
+            ArrayNode tweets = nf.arrayNode();
+            root.put("app", map.get("app"));
+            root.put("method", map.get("method"));
+            root.put("status", "ok");
+            root.put("code", "200");
 
-			while (set.next()) {
-				Integer id = set.getInt(1);
-				String tweet = set.getString(2);
-				String image_url = set.getString(3);
-				Timestamp created_at = set.getTimestamp(4);
-				String creator_name = set.getString(5);
-				String creator_username = set.getString(6);
-				String creator_avatar = set.getString(7);
-				String retweeter = set.getString(8);
+            while (set.next()) {
+                Integer id = set.getInt(1);
+                String tweet = set.getString(2);
+                String image_url = set.getString(3);
+                Timestamp created_at = set.getTimestamp(4);
+                String creator_name = set.getString(5);
+                String creator_username = set.getString(6);
+                String creator_avatar = set.getString(7);
+                String retweeter = set.getString(8);
 
-				Tweet t = new Tweet();
-				t.setId(id);
-				t.setTweetText(tweet);
-				t.setImageUrl(image_url);
-				t.setCreatedAt(created_at);
-				User creator = new User();
-				creator.setName(creator_name);
-				creator.setAvatarUrl(creator_avatar);
-				creator.setUsername(creator_username);
-				t.setCreator(creator);
-				if (!creator_name.equals(retweeter)) {
-					User r = new User();
-					r.setName(retweeter);
-					t.setRetweeter(r);
-				}
+                Tweet t = new Tweet();
+                t.setId(id);
+                t.setTweetText(tweet);
+                t.setImageUrl(image_url);
+                t.setCreatedAt(created_at);
+                User creator = new User();
+                creator.setName(creator_name);
+                creator.setAvatarUrl(creator_avatar);
+                creator.setUsername(creator_username);
+                t.setCreator(creator);
+                if (!creator_name.equals(retweeter)) {
+                    User r = new User();
+                    r.setName(retweeter);
+                    t.setRetweeter(r);
+                }
 
-				tweets.addPOJO(t);
-			}
+                tweets.addPOJO(t);
+            }
 
-			root.put("feeds", tweets);
-			try {
-				CommandsHelp.submit(map.get("app"),
-						mapper.writeValueAsString(root),
-						map.get("correlation_id"), LOGGER);
-				JSONObject cacheEntry = new JSONObject();
-				cacheEntry.put("cacheStatus", "valid");
-				cacheEntry.put("response", new JSONObject(mapper.writeValueAsString(root)));
-				System.out.println("sent from db");
-				EduMsgRedis.redisCache.set("get_feeds", cacheEntry.toString());
-			} catch (JsonGenerationException e) {
-				//Logger.log(Level.SEVERE, e.getMessage(), e);
-			} catch (JsonMappingException e) {
-				//Logger.log(Level.SEVERE, e.getMessage(), e);
-			} catch (IOException e) {
-				//Logger.log(Level.SEVERE, e.getMessage(), e);
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+            root.put("feeds", tweets);
+            try {
+                CommandsHelp.submit(map.get("app"),
+                        mapper.writeValueAsString(root),
+                        map.get("correlation_id"), LOGGER);
+                JSONObject cacheEntry = new JSONObject();
+                cacheEntry.put("cacheStatus", "valid");
+                cacheEntry.put("response", new JSONObject(mapper.writeValueAsString(root)));
+                System.out.println("sent from db");
+                EduMsgRedis.redisCache.set("get_feeds", cacheEntry.toString());
+            } catch (JsonGenerationException e) {
+                //Logger.log(Level.SEVERE, e.getMessage(), e);
+            } catch (JsonMappingException e) {
+                //Logger.log(Level.SEVERE, e.getMessage(), e);
+            } catch (IOException e) {
+                //Logger.log(Level.SEVERE, e.getMessage(), e);
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
-			dbConn.commit();
-		} catch (PSQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			//Logger.log(Level.SEVERE, e.getMessage(), e);
-		} catch (SQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			//Logger.log(Level.SEVERE, e.getMessage(), e);
-		} finally {
-			PostgresConnection.disconnect(set, proc, dbConn);
-		}
-	}
-
-	@Override
-	public void run() {
-		execute();
-	}
+            dbConn.commit();
+        } catch (PSQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            //Logger.log(Level.SEVERE, e.getMessage(), e);
+        } catch (SQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            //Logger.log(Level.SEVERE, e.getMessage(), e);
+        } finally {
+            PostgresConnection.disconnect(set, proc, dbConn);
+        }
+    }
 }

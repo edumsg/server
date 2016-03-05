@@ -34,93 +34,68 @@ import edumsg.core.PostgresConnection;
 import edumsg.redis.EduMsgRedis;
 import edumsg.shared.MyObjectMapper;
 
-public class FavoriteCommand implements Command, Runnable {
-	private final Logger LOGGER = Logger.getLogger(FavoriteCommand.class
-			.getName());
-	private HashMap<String, String> map;
+public class FavoriteCommand extends Command implements Runnable {
+    private final Logger LOGGER = Logger.getLogger(FavoriteCommand.class.getName());
 
-	@Override
-	public void setMap(HashMap<String, String> map) {
-		this.map = map;
-	}
+    @Override
+    public void execute() {
+        try {
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(true);
+            proc = dbConn.prepareCall("{? = call favorite(?,?,now()::timestamp)}");
+            proc.setPoolable(true);
+            proc.registerOutParameter(1, Types.INTEGER);
+            proc.setInt(2, Integer.parseInt(map.get("tweet_id")));
+            proc.setInt(3, Integer.parseInt(map.get("user_id")));
+            proc.execute();
 
-	@Override
-	public void execute() {
-		Connection dbConn = null;
-		CallableStatement proc = null;
-		try {
-			dbConn = PostgresConnection.getDataSource().getConnection();
-			dbConn.setAutoCommit(true);
-			proc = dbConn
-					.prepareCall("{? = call favorite(?,?,now()::timestamp)}");
-			proc.setPoolable(true);
+            int favorites = proc.getInt(1);
 
-			proc.registerOutParameter(1, Types.INTEGER);
-			proc.setInt(2, Integer.parseInt(map.get("tweet_id")));
-			proc.setInt(3, Integer.parseInt(map.get("user_id")));
-			proc.execute();
+            root.put("app", map.get("app"));
+            root.put("method", map.get("method"));
+            root.put("status", "ok");
+            root.put("code", "200");
+            root.put("favorites", favorites);
+            try {
+                CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+                String cacheEntry = EduMsgRedis.redisCache.get("timeline");
+                if (cacheEntry != null) {
+                    JSONObject cacheEntryJson = new JSONObject(cacheEntry);
+                    cacheEntryJson.put("cacheStatus", "invalid");
+                    System.out.println("invalidated");
+                    EduMsgRedis.redisCache.set("timeline", cacheEntryJson.toString());
+                }
+                String cacheEntry1 = EduMsgRedis.redisCache.get("get_feeds");
+                if (cacheEntry1 != null) {
+                    JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
+                    cacheEntryJson.put("cacheStatus", "invalid");
+                    System.out.println("invalidated");
+                    EduMsgRedis.redisCache.set("get_feeds", cacheEntryJson.toString());
+                }
+            } catch (JsonGenerationException e) {
+                //LOGGER.log(Level.OFF, e.getMessage(), e);
+            } catch (JsonMappingException e) {
+                //LOGGER.log(Level.OFF, e.getMessage(), e);
+            } catch (IOException e) {
+                //LOGGER.log(Level.OFF, e.getMessage(), e);
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
-			int favorites = proc.getInt(1);
+        } catch (PSQLException e) {
+            if (e.getMessage().contains("unique constraint")) {
+                CommandsHelp.handleError(map.get("app"), map.get("method"), "You already favorited this tweet", map.get("correlation_id"), LOGGER);
+            } else {
+                CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            }
 
-			MyObjectMapper mapper = new MyObjectMapper();
-			JsonNodeFactory nf = JsonNodeFactory.instance;
-			ObjectNode root = nf.objectNode();
-			root.put("app", map.get("app"));
-			root.put("method", map.get("method"));
-			root.put("status", "ok");
-			root.put("code", "200");
-			root.put("favorites", favorites);
-			try {
-				CommandsHelp.submit(map.get("app"),
-						mapper.writeValueAsString(root),
-						map.get("correlation_id"), LOGGER);
-				String cacheEntry = EduMsgRedis.redisCache.get("timeline");
-				if(cacheEntry != null){
-					JSONObject cacheEntryJson = new JSONObject(cacheEntry);
-					cacheEntryJson.put("cacheStatus", "invalid");
-					System.out.println("invalidated");
-					EduMsgRedis.redisCache.set("timeline", cacheEntryJson.toString());
-				}
-				String cacheEntry1 = EduMsgRedis.redisCache.get("get_feeds");
-				if(cacheEntry1 != null){
-					JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
-					cacheEntryJson.put("cacheStatus", "invalid");
-					System.out.println("invalidated");
-					EduMsgRedis.redisCache.set("get_feeds", cacheEntryJson.toString());
-				}
-			} catch (JsonGenerationException e) {
-				//LOGGER.log(Level.OFF, e.getMessage(), e);
-			} catch (JsonMappingException e) {
-				//LOGGER.log(Level.OFF, e.getMessage(), e);
-			} catch (IOException e) {
-				//LOGGER.log(Level.OFF, e.getMessage(), e);
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		} catch (PSQLException e) {
-			if (e.getMessage().contains("unique constraint")) {
-				CommandsHelp.handleError(map.get("app"), map.get("method"),
-						"You already favorited this tweet",
-						map.get("correlation_id"), LOGGER);
-			} else {
-				CommandsHelp.handleError(map.get("app"), map.get("method"),
-						e.getMessage(), map.get("correlation_id"), LOGGER);
-			}
-
-			//LOGGER.log(Level.OFF, e.getMessage(), e);
-		} catch (SQLException e) {
-			CommandsHelp.handleError(map.get("app"), map.get("method"),
-					e.getMessage(), map.get("correlation_id"), LOGGER);
-			//LOGGER.log(Level.OFF, e.getMessage(), e);
-		} finally {
-			PostgresConnection.disconnect(null, proc, dbConn);
-		}
-	}
-
-	@Override
-	public void run() {
-		execute();
-	}
+            //LOGGER.log(Level.OFF, e.getMessage(), e);
+        } catch (SQLException e) {
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            //LOGGER.log(Level.OFF, e.getMessage(), e);
+        } finally {
+            PostgresConnection.disconnect(null, proc, dbConn);
+        }
+    }
 }

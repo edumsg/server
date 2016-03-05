@@ -37,21 +37,12 @@ import edumsg.core.User;
 import edumsg.redis.EduMsgRedis;
 import edumsg.shared.MyObjectMapper;
 
-public class GetUsersCommand implements Command, Runnable {
-    private final Logger LOGGER = Logger.getLogger(GetUsersCommand.class
-            .getName());
-    private HashMap<String, String> map;
-
-    @Override
-    public void setMap(HashMap<String, String> map) {
-        this.map = map;
-    }
+public class GetUsersCommand extends Command implements Runnable {
+    private final Logger LOGGER = Logger.getLogger(GetUsersCommand.class.getName());
 
     @Override
     public void execute() {
-        Connection dbConn = null;
-        CallableStatement proc = null;
-        ResultSet set = null;
+
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
@@ -63,9 +54,6 @@ public class GetUsersCommand implements Command, Runnable {
 
             set = (ResultSet) proc.getObject(1);
 
-            MyObjectMapper mapper = new MyObjectMapper();
-            JsonNodeFactory nf = JsonNodeFactory.instance;
-            ObjectNode root = nf.objectNode();
             ArrayNode usersArray = nf.arrayNode();
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
@@ -108,20 +96,13 @@ public class GetUsersCommand implements Command, Runnable {
 
             dbConn.commit();
         } catch (PSQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"),
-                    e.getMessage(), map.get("correlation_id"), LOGGER);
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"),
-                    e.getMessage(), map.get("correlation_id"), LOGGER);
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn);
         }
-    }
-
-    @Override
-    public void run() {
-        execute();
     }
 }
