@@ -79,7 +79,7 @@ public class LoginCommand extends Command {
             if (authenticated) {
                 details = (HashMap<String, String>) Cache.returnUser(map.get("username"));
                 User user = new User();
-                if (details.equals(null)) {
+                if (details == null) {
                     proc = dbConn.prepareCall("{call login(?,?)}");
                     proc.setPoolable(true);
 
