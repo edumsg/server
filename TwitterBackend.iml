@@ -117,33 +117,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
-      <library name="netty-all-4.0.26.Final.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/libs/netty-all-4.0.26.Final.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library name="jedis-2.7.2.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/libs/jedis-2.7.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library name="jedis-2.7.2-sources.jar">
-        <CLASSES />
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/libs/jedis-2.7.2-sources.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
       <library name="org.json-20120521.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/org.json-20120521.jar!/" />
@@ -153,15 +126,28 @@
       </library>
     </orderEntry>
     <orderEntry type="library" exported="" name="java-8-jdk" level="project" />
+    <orderEntry type="library" exported="" name="activemq-all-5.13.1" level="project" />
     <orderEntry type="module-library" exported="">
-      <library name="netty-all-4.0.26.Final-sources.jar">
-        <CLASSES />
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/libs/netty-all-4.0.34.Final.jar!/" />
+        </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/libs/netty-all-4.0.26.Final-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/libs/netty-all-4.0.34.Final-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="library" exported="" name="activemq-all-5.13.1" level="project" />
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/libs/jedis-2.7.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/libs/jedis-2.7.2-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>

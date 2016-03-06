@@ -55,9 +55,10 @@ DROP TABLE IF EXISTS retweets CASCADE;
 CREATE TABLE retweets(
   id serial PRIMARY KEY NOT NULL,
   tweet_id integer REFERENCES tweets(id) ON DELETE CASCADE,
-  user_id integer REFERENCES users(id) ON DELETE CASCADE,
+  creator_id integer REFERENCES users(id) ON DELETE CASCADE,
+  retweeter_id integer REFERENCES users(id) ON DELETE CASCADE,
   created_at timestamp NOT NULL,
-  UNIQUE (tweet_id, user_id)
+  UNIQUE (tweet_id, creator_id, retweeter_id)
 );
 
 DROP TABLE IF EXISTS followships CASCADE;
