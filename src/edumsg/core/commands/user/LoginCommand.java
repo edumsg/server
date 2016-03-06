@@ -16,12 +16,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.rmi.server.UID;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -137,7 +132,7 @@ public class LoginCommand extends Command {
                     Cache.cacheUser(id.toString(), username, email, name, language, country, bio, website, created_at.toString(), avatar_url, overlay.toString(), link_color, background_color, protected_tweets.toString(), sessionID);
 
                 } else {
-
+                    sessionID=URLEncoder.encode(new UID().toString(), "UTF-8");
                     root.put("app", map.get("app"));
                     root.put("method", map.get("method"));
                     root.put("status", "ok");
@@ -158,8 +153,10 @@ public class LoginCommand extends Command {
                     user.setLinkColor(details.get("link_color"));
                     user.setBackgroundColor(details.get("background_color"));
                     user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
-                    user.setSessionID(details.get("session_id"));
+                    user.setSessionID(sessionID);
 
+                    Statement query = dbConn.createStatement();
+                    set = query.executeQuery("UPDATE users set session_id = " + sessionID + " where username = " + username);
                 }
 
                 POJONode child = nf.POJONode(user);

@@ -67,6 +67,11 @@ public class RegisterCommand extends Command implements Runnable {
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
+
+            details.put("username", map.get("username"));
+            details.put("email", map.get("email"));
+            details.put("name", map.get("name"));
+
             try {
                 CommandsHelp.submit(map.get("app"),
                         mapper.writeValueAsString(root),
