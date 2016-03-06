@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -48,19 +49,23 @@ public class NewTweetCommand extends Command implements Runnable {
             }
 
             proc.setPoolable(true);
-            proc.setString(1, map.get("tweet_text"));
-            proc.setInt(2, Integer.parseInt(map.get("creator_id")));
+            proc.registerOutParameter(1, Types.INTEGER);
+            proc.setString(2, map.get("tweet_text"));
+            proc.setInt(3, Integer.parseInt(map.get("creator_id")));
 
             if (map.containsKey("image_url")) {
-                proc.setString(3, map.get("image_url"));
+                proc.setString(4, map.get("image_url"));
             }
 
             proc.execute();
+
+            int tweet_id = proc.getInt(1);
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
+            root.put("id", tweet_id);
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
                 String cacheEntry = EduMsgRedis.redisCache.get("timeline");
