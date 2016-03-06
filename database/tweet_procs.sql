@@ -80,7 +80,7 @@ DECLARE temp integer;
   BEGIN
     SELECT T.creator_id INTO temp FROM tweets T WHERE T.id = $1 LIMIT 1;
     IF temp != user_id THEN
-      INSERT INTO retweets(tweet_id, user_id, created_at) VALUES (tweet_id, user_id, created_at);
+      INSERT INTO retweets(tweet_id, creator_id, retweeter_id, created_at) VALUES (tweet_id, temp, user_id, created_at);
     END IF;
     RETURN get_retweets_count(tweet_id);
   END; $$
