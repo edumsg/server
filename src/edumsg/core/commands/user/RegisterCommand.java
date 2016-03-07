@@ -16,9 +16,11 @@ import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import edumsg.redis.Cache;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.node.JsonNodeFactory;
@@ -46,7 +48,6 @@ public class RegisterCommand extends Command implements Runnable {
             String password = BCrypt.hashpw(map.get("password"), BCrypt.gensalt());
             if (map.containsKey("avatar_url")) {
                 proc = dbConn.prepareCall("{call create_user(?,?,?,?,now()::timestamp,?)}");
-
             } else {
                 proc = dbConn.prepareCall("{call create_user(?,?,?,?,now()::timestamp)}");
             }
@@ -67,6 +68,16 @@ public class RegisterCommand extends Command implements Runnable {
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
+
+            Statement query = dbConn.createStatement();
+            set = query.executeQuery("SELECT id from users WHERE username = " + map.get("username"));
+
+            int id = set.getInt("id");
+            details.put("username", map.get("username"));
+            details.put("email", map.get("email"));
+            details.put("name", map.get("name"));
+            Cache.registerUser("user:"+id, details);
+
             try {
                 CommandsHelp.submit(map.get("app"),
                         mapper.writeValueAsString(root),

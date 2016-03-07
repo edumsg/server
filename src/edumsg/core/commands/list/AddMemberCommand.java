@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,6 +46,19 @@ public class AddMemberCommand extends Command implements Runnable {
             proc.setInt(1, Integer.parseInt(map.get("user_id")));
             proc.setInt(2, Integer.parseInt(map.get("list_id")));
             proc.execute();
+
+            Statement query = dbConn.createStatement();
+            set = query.executeQuery("SELECT * from lists WHERE id = " + map.get("list_id"));
+
+            details.put("list_id",map.get("list_id"));
+            details.put("name",set.getString("name"));
+            details.put("description",set.getString("description"));
+            details.put("private",set.getBoolean("private").toString());
+            details.put("creator_id",set.getString("creator_id"));
+
+            cac
+
+
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
