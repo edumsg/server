@@ -180,6 +180,19 @@ DECLARE cursor refcursor := 'cur';
   END; $$
 LANGUAGE PLPGSQL;
 
+CREATE OR REPLACE FUNCTION get_retweets_ids(user_id integer)
+RETURNS refcursor AS $$
+DECLARE cursor refcursor := 'cur';
+  BEGIN
+    OPEN cursor FOR
+    SELECT R.tweet_id
+    FROM retweets R INNER JOIN users U ON R.retweeter_id = U.id
+    WHERE U.id = $1
+    ORDER BY R.created_at DESC;
+    RETURN cursor;
+  END; $$
+LANGUAGE PLPGSQL;
+
 -- JAVA DONE / JAVA DONE
 CREATE OR REPLACE FUNCTION get_user_favorites(user_id integer)
 RETURNS refcursor AS $$

@@ -33,25 +33,7 @@ import edumsg.core.commands.list.SubscribeCommand;
 import edumsg.core.commands.list.UnSubscribeCommand;
 import edumsg.core.commands.list.UpdateListCommand;
 import edumsg.core.commands.tweet.*;
-import edumsg.core.commands.user.ConfirmFollowCommand;
-import edumsg.core.commands.user.FollowCommand;
-import edumsg.core.commands.user.FollowersCommand;
-import edumsg.core.commands.user.FollowingCommand;
-import edumsg.core.commands.user.GetFavoritesCommand;
-import edumsg.core.commands.user.GetFeedsCommand;
-import edumsg.core.commands.user.GetListMembershipsCommand;
-import edumsg.core.commands.user.GetMentionsCommand;
-import edumsg.core.commands.user.GetSubscribedListsCommand;
-import edumsg.core.commands.user.GetTimelineCommand;
-import edumsg.core.commands.user.GetUserCommand;
-import edumsg.core.commands.user.GetUsersCommand;
-import edumsg.core.commands.user.LoginCommand;
-import edumsg.core.commands.user.LogoutCommand;
-import edumsg.core.commands.user.RegisterCommand;
-import edumsg.core.commands.user.ReportUserCommand;
-import edumsg.core.commands.user.UnFollowCommand;
-import edumsg.core.commands.user.UnconfirmedFollowersCommand;
-import edumsg.core.commands.user.UpdateUserCommand;
+import edumsg.core.commands.user.*;
 
 public class CommandsMap {
     private static Map<String, Class<?>> cmdMap;
@@ -78,6 +60,7 @@ public class CommandsMap {
         cmdMap.put("update_user", UpdateUserCommand.class);
         cmdMap.put("get_user", GetUserCommand.class);
         cmdMap.put("get_mentions", GetMentionsCommand.class);
+        cmdMap.put("get_retweets", GetRetweetsCommand.class);
         cmdMap.put("get_tweet", GetTweetCommand.class);
         cmdMap.put("timeline", GetTimelineCommand.class);
         cmdMap.put("get_favorites", GetFavoritesCommand.class);
