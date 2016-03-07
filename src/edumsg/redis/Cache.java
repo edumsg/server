@@ -37,7 +37,19 @@ public class Cache {
         details.put("protected_tweets", protected_tweets);
         details.put("session_id", session_id);
 
-        redisCache.hmset(username, details);
+        redisCache.hmset("user:"+id, details);
+    }
+
+    public static void registerUser(String id, Map<String,String> registerDetails){
+        redisCache.hmset(id,registerDetails);
+    }
+
+    public static void createTweet(String id, Map<String,String> tweetDetails){
+        redisCache.hmset(id,details);
+    }
+
+    public static void  cacheList(String id){
+        redisCache.
     }
 
     public static void main(String[] args) {

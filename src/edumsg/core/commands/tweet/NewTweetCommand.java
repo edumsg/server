@@ -13,13 +13,11 @@ IN THE SOFTWARE.
 package edumsg.core.commands.tweet;
 
 import java.io.IOException;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import edumsg.redis.Cache;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.node.JsonNodeFactory;
@@ -60,6 +58,19 @@ public class NewTweetCommand extends Command implements Runnable {
             proc.execute();
 
             int tweet_id = proc.getInt(1);
+
+            Statement query = dbConn.createStatement();
+            set = query.executeQuery("SELECT * FROM tweets WHERE tweet_text = " + map.get("tweet_text"));
+
+            details.put("id",set.getInt("id")+"");
+            details.put("tweet_text",set.getString("tweet_text"));
+            details.put("creator_id",set.getInt("creator_id")+"");
+            details.put("image_url",set.getString("image_url"));
+
+            Cache.createTweet("tweet:"+set.getInt("id"), details);
+
+
+
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
