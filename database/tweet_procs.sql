@@ -93,7 +93,7 @@ LANGUAGE PLPGSQL;
 CREATE OR REPLACE FUNCTION unretweet(tweet_id integer, user_id integer)
 RETURNS integer AS $$
   BEGIN
-    DELETE FROM retweets R WHERE R.tweet_id = $1 AND R.user_id = $2;
+    DELETE FROM retweets R WHERE R.tweet_id = $1 AND R.retweeter_id = $2;
     RETURN get_retweets_count(tweet_id);
   END; $$
 LANGUAGE PLPGSQL;
@@ -119,11 +119,12 @@ DECLARE res integer;
 LANGUAGE PLPGSQL;
 
 -- ???????????????????????????????????????????????????????????????????????
-CREATE OR REPLACE FUNCTION reply(tweet_id integer, tweet_text varchar(140), created_at timestamp)
+CREATE OR REPLACE FUNCTION reply(tweet_id integer, tweet_text varchar(140), creator_id integer, created_at timestamp, image_url varchar(100) DEFAULT null)
 RETURNS void AS $$
+DECLARE reply_id integer;
   BEGIN
-    SELECT create_tweet(tweet_text, $3);
-    INSERT INTO replies VALUES (tweet_id, reply_id, created_at);
+    SELECT create_tweet(tweet_text, creator_id, created_at, image_url) INTO reply_id;
+    INSERT INTO replies(original_tweet_id, reply_id, created_at) VALUES (tweet_id, reply_id, created_at);
   END; $$
 LANGUAGE PLPGSQL;
 

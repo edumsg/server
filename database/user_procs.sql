@@ -136,7 +136,7 @@ DECLARE cursor refcursor := 'cur';
       UNION
       (SELECT T.id, T.tweet_text, T.image_url, T.created_at, C.name, C.username, C.avatar_url, R.created_at AS "creation"
       FROM tweets T INNER JOIN retweets R ON T.id = R.tweet_id 
-        INNER JOIN users U ON R.user_id = U.id INNER JOIN users C ON T.creator_id = C.id
+        INNER JOIN users U ON R.retweeter_id = U.id INNER JOIN users C ON T.creator_id = C.id
       WHERE U.id = $1)) AS timeline
     ORDER BY creation DESC;
     RETURN cursor;
@@ -173,7 +173,7 @@ DECLARE cursor refcursor := 'cur';
     OPEN cursor FOR
     SELECT T.id, T.tweet_text, T.image_url, C.name, C.username, C.avatar_url
     FROM tweets T INNER JOIN retweets R ON T.id = R.tweet_id 
-      INNER JOIN users U ON R.user_id = U.id INNER JOIN users C ON T.creator_id = C.id
+      INNER JOIN users U ON R.retweeter_id = U.id INNER JOIN users C ON T.creator_id = C.id
     WHERE U.id = $1
     ORDER BY R.created_at DESC;
     RETURN cursor;
