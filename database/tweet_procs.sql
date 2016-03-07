@@ -93,7 +93,7 @@ LANGUAGE PLPGSQL;
 CREATE OR REPLACE FUNCTION unretweet(tweet_id integer, user_id integer)
 RETURNS integer AS $$
   BEGIN
-    DELETE FROM retweets R WHERE R.tweet_id = $1 AND R.user_id = $2;
+    DELETE FROM retweets R WHERE R.tweet_id = $1 AND R.retweeter_id = $2;
     RETURN get_retweets_count(tweet_id);
   END; $$
 LANGUAGE PLPGSQL;
