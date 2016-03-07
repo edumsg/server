@@ -1,8 +1,11 @@
 -- JAVA DONE
 CREATE OR REPLACE FUNCTION create_tweet(tweet_text varchar(140), creator_id integer, created_at timestamp, image_url varchar(100) DEFAULT null)
-RETURNS void AS $$
+RETURNS integer AS $$
+DECLARE tweet_id integer;
   BEGIN
     INSERT INTO tweets(tweet_text, creator_id, created_at, image_url) VALUES (tweet_text, creator_id, created_at, image_url);
+    SELECT CURRVAL(pg_get_serial_sequence('tweets','id')) INTO tweet_id;
+    RETURN tweet_id;
   END; $$
 LANGUAGE PLPGSQL;
 
@@ -80,7 +83,7 @@ DECLARE temp integer;
   BEGIN
     SELECT T.creator_id INTO temp FROM tweets T WHERE T.id = $1 LIMIT 1;
     IF temp != user_id THEN
-      INSERT INTO retweets(tweet_id, user_id, created_at) VALUES (tweet_id, user_id, created_at);
+      INSERT INTO retweets(tweet_id, creator_id, retweeter_id, created_at) VALUES (tweet_id, temp, user_id, created_at);
     END IF;
     RETURN get_retweets_count(tweet_id);
   END; $$

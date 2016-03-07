@@ -53,7 +53,7 @@ public class RetweetCommand extends Command implements Runnable {
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
-            root.put("favorites", retweets);
+            root.put("retweet_count", retweets);
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
             } catch (JsonGenerationException e) {

@@ -51,3 +51,9 @@ sub replies_insertions{
         say "INSERT INTO replies VALUES(DEFAULT, (SELECT id FROM tweets LIMIT 1 OFFSET " ~$i~ "), (SELECT id FROM tweets LIMIT 1 OFFSET " ~$i+1~ "), CURRENT_TIMESTAMP);";
     }
 }
+
+sub retweets_insertions{
+    for 0..19 -> $i {
+        say "INSERT INTO retweets VALUES(DEFAULT, (SELECT id FROM tweets LIMIT 1 OFFSET " ~$i~ "), (SELECT id FROM users LIMIT 1 OFFSET " ~$i~ "), (SELECT id FROM users LIMIT 1 OFFSET " ~$i+1~ "), CURRENT_TIMESTAMP);"
+    }
+}
