@@ -20,6 +20,28 @@ import edumsg.core.commands.user.*;
 import java.util.HashMap;
 import java.util.Map;
 
+
+import edumsg.core.commands.dm.CreateDmCommand;
+import edumsg.core.commands.dm.DeleteConversationCommand;
+import edumsg.core.commands.dm.DeleteDmCommand;
+import edumsg.core.commands.dm.GetConversationCommand;
+import edumsg.core.commands.dm.GetConversationsCommand;
+import edumsg.core.commands.dm.MarkAllReadCommand;
+import edumsg.core.commands.dm.MarkReadCommand;
+import edumsg.core.commands.list.AddMemberCommand;
+import edumsg.core.commands.list.CreateListCommand;
+import edumsg.core.commands.list.DeleteListCommand;
+import edumsg.core.commands.list.DeleteMemberCommand;
+import edumsg.core.commands.list.GetListFeedsCommand;
+import edumsg.core.commands.list.GetListMembersCommand;
+import edumsg.core.commands.list.GetListSubscribersCommand;
+import edumsg.core.commands.list.SubscribeCommand;
+import edumsg.core.commands.list.UnSubscribeCommand;
+import edumsg.core.commands.list.UpdateListCommand;
+import edumsg.core.commands.tweet.*;
+import edumsg.core.commands.user.*;
+
+
 public class CommandsMap {
     private static Map<String, Class<?>> cmdMap;
 
@@ -45,6 +67,7 @@ public class CommandsMap {
         cmdMap.put("update_user", UpdateUserCommand.class);
         cmdMap.put("get_user", GetUserCommand.class);
         cmdMap.put("get_mentions", GetMentionsCommand.class);
+        cmdMap.put("get_retweets", GetRetweetsCommand.class);
         cmdMap.put("get_tweet", GetTweetCommand.class);
         cmdMap.put("timeline", GetTimelineCommand.class);
         cmdMap.put("get_favorites", GetFavoritesCommand.class);
