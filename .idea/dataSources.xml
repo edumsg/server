@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DataSourceManagerImpl" format="xml" hash="2633927135">
+  <component name="DataSourceManagerImpl" format="xml" hash="93185486">
     <data-source source="LOCAL" name="PostgreSQL - EduMsgNetty@localhost" uuid="72d4695f-5325-4c66-aa06-9f1ebf7925be">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>

@@ -100,9 +100,9 @@ public class GetTweetCommand extends Command implements Runnable {
                 t.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
                 t.setRetweets(Integer.parseInt(details.get("retweets")));
                 t.setFavorites(Integer.parseInt(details.get("favorites")));
-                creator.setName(creator_name);
-                creator.setAvatarUrl(creator_avatar);
-                creator.setUsername(creator_username);
+//                creator.setName(creator_name);
+//                creator.setAvatarUrl(creator_avatar);
+//                creator.setUsername(creator_username);
                 t.setCreator(creator);
             }
         } catch (PSQLException e) {

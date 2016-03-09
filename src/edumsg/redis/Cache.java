@@ -55,6 +55,7 @@ public class Cache {
     public static void createList(String id, Map<String, String> members) {
 
         redisCache.hmset("list:" + id, members);
+
     }
 
     public static void main(String[] args) {
