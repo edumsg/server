@@ -30,7 +30,7 @@ public abstract class Command implements Runnable {
     protected MyObjectMapper mapper = new MyObjectMapper();
     protected JsonNodeFactory nf = JsonNodeFactory.instance;
     protected ObjectNode root = nf.objectNode();
-    protected  Map<String, String> details;
+    protected Map<String, String> details;
 
 
 
