@@ -35,6 +35,8 @@ public class EduMsgNettyServer {
         Logger log = Logger.getLogger(EduMsgNettyServer.class);
         // Configure SSL.
         EduMsgRedis.redisCache.flushDB();
+        EduMsgRedis.bgSave();
+        System.out.println("continued");
         final SslContext sslCtx;
         if (SSL) {
             SelfSignedCertificate ssc = new SelfSignedCertificate();

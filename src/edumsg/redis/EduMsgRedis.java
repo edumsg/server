@@ -15,20 +15,24 @@ package edumsg.redis;
 import redis.clients.jedis.Jedis;
 
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+
 public class EduMsgRedis {
-    public static Jedis redisCache;
+    public static Jedis redisCache = new Jedis("localhost", 6379);
 
 
-
-    public static void main(String[] args) {
-        redisCache = new Jedis("localhost", 6379);
+    public static void bgSave(){
         Runnable runnable = new Runnable() {
-            @Override
             public void run() {
-                System.out.println("sddf");
+                String res;
+                res = redisCache.bgsave();
+                System.out.println(res);
             }
         };
-
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        service.scheduleAtFixedRate(runnable, 0, 1, TimeUnit.MINUTES);
     }
-
 }

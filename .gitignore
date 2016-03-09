@@ -43,6 +43,6 @@ Temporary Items
 .apdisk
 
 /Postgres.conf
-/.idea/workspace.xml
+/.idea
 *.class
 
