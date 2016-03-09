@@ -6,7 +6,6 @@ import edumsg.concurrent.WorkerPool;
 import edumsg.core.Command;
 import edumsg.core.CommandsMap;
 import edumsg.redis.EduMsgRedis;
-
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.json.JSONException;

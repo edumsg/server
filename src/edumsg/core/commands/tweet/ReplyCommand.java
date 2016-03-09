@@ -12,7 +12,6 @@ import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.logging.Logger;
 
 /**

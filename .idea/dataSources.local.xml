@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="dataSourceStorageLocal">
-    <data-source name="PostgreSQL - EduMsgNetty@localhost" uuid="5a7f9f99-4cff-4fe8-a1f3-9f467e513c7f">
+    <data-source name="PostgreSQL - EduMsgNetty@localhost" uuid="72d4695f-5325-4c66-aa06-9f1ebf7925be">
       <secret-storage>master_key</secret-storage>
       <user-name>ahmed</user-name>
     </data-source>

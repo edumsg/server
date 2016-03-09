@@ -12,46 +12,13 @@ IN THE SOFTWARE.
 
 package edumsg.core;
 
+import edumsg.core.commands.dm.*;
+import edumsg.core.commands.list.*;
+import edumsg.core.commands.tweet.*;
+import edumsg.core.commands.user.*;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import edumsg.core.commands.dm.CreateDmCommand;
-import edumsg.core.commands.dm.DeleteConversationCommand;
-import edumsg.core.commands.dm.DeleteDmCommand;
-import edumsg.core.commands.dm.GetConversationCommand;
-import edumsg.core.commands.dm.GetConversationsCommand;
-import edumsg.core.commands.dm.MarkAllReadCommand;
-import edumsg.core.commands.dm.MarkReadCommand;
-import edumsg.core.commands.list.AddMemberCommand;
-import edumsg.core.commands.list.CreateListCommand;
-import edumsg.core.commands.list.DeleteListCommand;
-import edumsg.core.commands.list.DeleteMemberCommand;
-import edumsg.core.commands.list.GetListFeedsCommand;
-import edumsg.core.commands.list.GetListMembersCommand;
-import edumsg.core.commands.list.GetListSubscribersCommand;
-import edumsg.core.commands.list.SubscribeCommand;
-import edumsg.core.commands.list.UnSubscribeCommand;
-import edumsg.core.commands.list.UpdateListCommand;
-import edumsg.core.commands.tweet.*;
-import edumsg.core.commands.user.ConfirmFollowCommand;
-import edumsg.core.commands.user.FollowCommand;
-import edumsg.core.commands.user.FollowersCommand;
-import edumsg.core.commands.user.FollowingCommand;
-import edumsg.core.commands.user.GetFavoritesCommand;
-import edumsg.core.commands.user.GetFeedsCommand;
-import edumsg.core.commands.user.GetListMembershipsCommand;
-import edumsg.core.commands.user.GetMentionsCommand;
-import edumsg.core.commands.user.GetSubscribedListsCommand;
-import edumsg.core.commands.user.GetTimelineCommand;
-import edumsg.core.commands.user.GetUserCommand;
-import edumsg.core.commands.user.GetUsersCommand;
-import edumsg.core.commands.user.LoginCommand;
-import edumsg.core.commands.user.LogoutCommand;
-import edumsg.core.commands.user.RegisterCommand;
-import edumsg.core.commands.user.ReportUserCommand;
-import edumsg.core.commands.user.UnFollowCommand;
-import edumsg.core.commands.user.UnconfirmedFollowersCommand;
-import edumsg.core.commands.user.UpdateUserCommand;
 
 public class CommandsMap {
     private static Map<String, Class<?>> cmdMap;

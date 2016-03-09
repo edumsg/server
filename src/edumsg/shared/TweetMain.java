@@ -14,23 +14,13 @@ package edumsg.shared;
 
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Consumer;
-import edumsg.activemq.Producer;
 import edumsg.concurrent.WorkerPool;
-import edumsg.core.Command;
 import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.EduMsgRedis;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.TextMessage;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

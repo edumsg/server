@@ -12,14 +12,10 @@ IN THE SOFTWARE.
 
 package edumsg.netty;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.TextMessage;
-
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Consumer;
+
+import javax.jms.*;
 
 public class NettyNotifier extends Thread {
 

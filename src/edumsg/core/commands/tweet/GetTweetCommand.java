@@ -12,91 +12,99 @@ IN THE SOFTWARE.
 
 package edumsg.core.commands.tweet;
 
+import edumsg.core.*;
+import edumsg.redis.Cache;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.node.POJONode;
+import org.postgresql.util.PSQLException;
+
 import java.io.IOException;
-import java.sql.CallableStatement;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.HashMap;
 import java.util.logging.Logger;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.node.JsonNodeFactory;
-import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.node.POJONode;
-import org.postgresql.util.PSQLException;
-
-import edumsg.core.Command;
-import edumsg.core.CommandsHelp;
-import edumsg.core.PostgresConnection;
-import edumsg.core.Tweet;
-import edumsg.core.User;
-import edumsg.shared.MyObjectMapper;
 
 public class GetTweetCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(GetTweetCommand.class.getName());
 
     @Override
     public void execute() {
+        details = Cache.returnTweet(map.get("tweet_id"));
+
         try {
-            dbConn = PostgresConnection.getDataSource().getConnection();
-            dbConn.setAutoCommit(false);
-            proc = dbConn.prepareCall("{? = call get_tweet(?)}");
-            proc.setPoolable(true);
-            proc.registerOutParameter(1, Types.OTHER);
-            proc.setInt(2, Integer.parseInt(map.get("tweet_id")));
-            proc.execute();
-
-            set = (ResultSet) proc.getObject(1);
-
-            root.put("app", map.get("app"));
-            root.put("method", map.get("method"));
-            root.put("status", "ok");
-            root.put("code", "200");
-
             Tweet t = new Tweet();
-            if (set.next()) {
-                Integer id = set.getInt(1);
-                String tweet = set.getString(2);
-                String image_url = set.getString(5);
-                Timestamp created_at = set.getTimestamp(4);
-                String creator_username = set.getString(6);
-                String creator_name = set.getString(7);
-                String creator_avatar = set.getString(8);
-                int retweets = set.getInt(9);
-                int favorites = set.getInt(10);
+            User creator = new User();
 
-                t.setId(id);
-                t.setTweetText(tweet);
-                t.setImageUrl(image_url);
-                t.setCreatedAt(created_at);
-                t.setRetweets(retweets);
-                t.setFavorites(favorites);
-                User creator = new User();
+            if(details == null) {
+
+                dbConn = PostgresConnection.getDataSource().getConnection();
+                dbConn.setAutoCommit(false);
+                proc = dbConn.prepareCall("{? = call get_tweet(?)}");
+                proc.setPoolable(true);
+                proc.registerOutParameter(1, Types.OTHER);
+                proc.setInt(2, Integer.parseInt(map.get("tweet_id")));
+                proc.execute();
+
+                set = (ResultSet) proc.getObject(1);
+
+                root.put("app", map.get("app"));
+                root.put("method", map.get("method"));
+                root.put("status", "ok");
+                root.put("code", "200");
+
+                if (set.next()) {
+                    Integer id = set.getInt(1);
+                    String tweet = set.getString(2);
+                    String image_url = set.getString(5);
+                    Timestamp created_at = set.getTimestamp(4);
+                    String creator_username = set.getString(6);
+                    String creator_name = set.getString(7);
+                    String creator_avatar = set.getString(8);
+                    int retweets = set.getInt(9);
+                    int favorites = set.getInt(10);
+
+                    t.setId(id);
+                    t.setTweetText(tweet);
+                    t.setImageUrl(image_url);
+                    t.setCreatedAt(created_at);
+                    t.setRetweets(retweets);
+                    t.setFavorites(favorites);
+                    creator.setName(creator_name);
+                    creator.setAvatarUrl(creator_avatar);
+                    creator.setUsername(creator_username);
+                    t.setCreator(creator);
+                }
+
+                POJONode child = nf.POJONode(t);
+                root.put("tweet", child);
+                try {
+                    CommandsHelp.submit(map.get("app"),
+                            mapper.writeValueAsString(root),
+                            map.get("correlation_id"), LOGGER);
+                } catch (JsonGenerationException e) {
+                    //Logger.log(Level.SEVERE, e.getMessage(), e);
+                } catch (JsonMappingException e) {
+                    //Logger.log(Level.SEVERE, e.getMessage(), e);
+                } catch (IOException e) {
+                    //Logger.log(Level.SEVERE, e.getMessage(), e);
+                }
+
+                dbConn.commit();
+
+            } else {
+                t.setId(Integer.parseInt(details.get("id")));
+                t.setTweetText(details.get("tweet_text"));
+                t.setImageUrl(details.get("image_url"));
+                t.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
+                t.setRetweets(Integer.parseInt(details.get("retweets")));
+                t.setFavorites(Integer.parseInt(details.get("favorites")));
                 creator.setName(creator_name);
                 creator.setAvatarUrl(creator_avatar);
                 creator.setUsername(creator_username);
                 t.setCreator(creator);
             }
-
-            POJONode child = nf.POJONode(t);
-            root.put("tweet", child);
-            try {
-                CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
-            } catch (JsonGenerationException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            }
-
-            dbConn.commit();
         } catch (PSQLException e) {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);

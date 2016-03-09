@@ -12,29 +12,20 @@ IN THE SOFTWARE.
 
 package edumsg.core.commands.user;
 
+import edumsg.core.*;
+import edumsg.redis.Cache;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.node.POJONode;
+import org.postgresql.util.PSQLException;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.rmi.server.UID;
 import java.sql.*;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
-
-import edumsg.redis.Cache;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.node.JsonNodeFactory;
-import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.node.POJONode;
-import org.postgresql.util.PSQLException;
-
-import edumsg.core.BCrypt;
-import edumsg.core.Command;
-import edumsg.core.CommandsHelp;
-import edumsg.core.PostgresConnection;
-import edumsg.core.User;
-import edumsg.shared.MyObjectMapper;
 
 public class LoginCommand extends Command {
     private final Logger LOGGER = Logger.getLogger(LoginCommand.class.getName());
@@ -129,8 +120,22 @@ public class LoginCommand extends Command {
 //					user.setDate_of_birth(date_of_birth);
 //					user.setGender(gender);
                     }
-
-                    Cache.cacheUser(id.toString(), username, email, name, language, country, bio, website, created_at.toString(), avatar_url, overlay.toString(), link_color, background_color, protected_tweets.toString(), sessionID);
+                    details.put("id", id.toString());
+                    details.put("username", username);
+                    details.put("email", email);
+                    details.put("name", name);
+                    details.put("language", language);
+                    details.put("country", country);
+                    details.put("bio", bio);
+                    details.put("website", website);
+                    details.put("created_at", created_at.toString());
+                    details.put("avatar_url", avatar_url);
+                    details.put("overlay", overlay.toString());
+                    details.put("link_color", link_color);
+                    details.put("background_color", background_color);
+                    details.put("protected_tweets", protected_tweets.toString());
+                    details.put("session_id", session_id);
+                    Cache.cacheUser(id.toString(), details);
 
                 } else {
                     sessionID=URLEncoder.encode(new UID().toString(), "UTF-8");

@@ -12,25 +12,22 @@ IN THE SOFTWARE.
 
 package edumsg.core.commands.tweet;
 
-import java.io.IOException;
-import java.sql.*;
-import java.util.HashMap;
-import java.util.logging.Logger;
-
+import edumsg.core.Command;
+import edumsg.core.CommandsHelp;
+import edumsg.core.PostgresConnection;
 import edumsg.redis.Cache;
+import edumsg.redis.EduMsgRedis;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.node.JsonNodeFactory;
-import org.codehaus.jackson.node.ObjectNode;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
-import edumsg.core.Command;
-import edumsg.core.CommandsHelp;
-import edumsg.core.PostgresConnection;
-import edumsg.redis.EduMsgRedis;
-import edumsg.shared.MyObjectMapper;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
+import java.util.logging.Logger;
 
 public class NewTweetCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(NewTweetCommand.class.getName());
@@ -66,6 +63,7 @@ public class NewTweetCommand extends Command implements Runnable {
             details.put("tweet_text",set.getString("tweet_text"));
             details.put("creator_id",set.getInt("creator_id")+"");
             details.put("image_url",set.getString("image_url"));
+            details.put("creator_id", map.get("creator_id"));
 
             Cache.createTweet("tweet:"+set.getInt("id"), details);
 

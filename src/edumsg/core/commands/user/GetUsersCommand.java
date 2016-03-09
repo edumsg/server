@@ -12,30 +12,23 @@ IN THE SOFTWARE.
 
 package edumsg.core.commands.user;
 
-import java.io.IOException;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.HashMap;
-import java.util.logging.Logger;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.node.JsonNodeFactory;
-import org.codehaus.jackson.node.ObjectNode;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.postgresql.util.PSQLException;
-
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
 import edumsg.core.User;
 import edumsg.redis.EduMsgRedis;
-import edumsg.shared.MyObjectMapper;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.node.ArrayNode;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.postgresql.util.PSQLException;
+
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.logging.Logger;
 
 public class GetUsersCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(GetUsersCommand.class.getName());

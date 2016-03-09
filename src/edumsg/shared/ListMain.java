@@ -12,29 +12,17 @@ IN THE SOFTWARE.
 
 package edumsg.shared;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import edumsg.activemq.ActiveMQConfig;
+import edumsg.activemq.Consumer;
+import edumsg.concurrent.WorkerPool;
+import edumsg.core.CommandsMap;
+import edumsg.core.PostgresConnection;
 
-import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.TextMessage;
-
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import edumsg.activemq.ActiveMQConfig;
-import edumsg.activemq.Consumer;
-import edumsg.activemq.Producer;
-import edumsg.concurrent.WorkerPool;
-import edumsg.core.Command;
-import edumsg.core.CommandsMap;
-import edumsg.core.PostgresConnection;
-import edumsg.redis.EduMsgRedis;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ListMain extends RunnableClasses {
     private static final Logger LOGGER = Logger.getLogger(ListMain.class

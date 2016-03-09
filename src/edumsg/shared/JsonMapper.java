@@ -12,13 +12,13 @@ IN THE SOFTWARE.
 
 package edumsg.shared;
 
-import java.io.IOException;
-import java.util.HashMap;
-
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 public class JsonMapper {
     private String json;

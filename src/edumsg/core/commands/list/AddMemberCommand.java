@@ -12,25 +12,19 @@ IN THE SOFTWARE.
 
 package edumsg.core.commands.list;
 
-import java.io.IOException;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.node.JsonNodeFactory;
-import org.codehaus.jackson.node.ObjectNode;
-import org.postgresql.util.PSQLException;
-
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.shared.MyObjectMapper;
+import edumsg.redis.Cache;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.postgresql.util.PSQLException;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AddMemberCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(AddMemberCommand.class.getName());
@@ -50,15 +44,19 @@ public class AddMemberCommand extends Command implements Runnable {
             Statement query = dbConn.createStatement();
             set = query.executeQuery("SELECT * from lists WHERE id = " + map.get("list_id"));
 
-            details.put("list_id",map.get("list_id"));
-            details.put("name",set.getString("name"));
-            details.put("description",set.getString("description"));
-            details.put("private",set.getBoolean("private").toString());
-            details.put("creator_id",set.getString("creator_id"));
 
-            cac
+            if (Cache.listExists(map.get("list_id"))) {
+                Cache.addMemberList(map.get("list_id"), map.get("user_id"));
 
+            } else {
+                details.put("list_id", map.get("list_id"));
+                details.put("name", set.getString("name"));
+                details.put("description", set.getString("description"));
+                details.put("private", set.getBoolean("private") + "");
+                details.put("creator_id", set.getString("creator_id"));
+                Cache.createList(set.getInt("id") + "", details);
 
+            }
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
