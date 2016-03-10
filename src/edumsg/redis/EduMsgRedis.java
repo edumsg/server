@@ -33,6 +33,6 @@ public class EduMsgRedis {
             }
         };
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-        service.scheduleAtFixedRate(runnable, 0, 1, TimeUnit.MINUTES);
+        service.scheduleAtFixedRate(runnable, 0, 15, TimeUnit.MINUTES);
     }
 }

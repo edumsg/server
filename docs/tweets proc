@@ -1,0 +1,17 @@
+CREATE OR REPLACE FUNCTION create_tweet(tweet_text varchar(140),
+    creator_id integer, created_at timestamp with time zone,
+    image_url character varying DEFAULT NULL::character varying)
+  RETURNS SETOF tweets AS
+$BODY$
+  BEGIN
+    INSERT INTO tweets(tweet_text, creator_id, created_at, image_url) VALUES (tweet_text, creator_id, created_at, image_url);
+  return query
+    SELECT * from tweets where id = CURRVAL(pg_get_serial_sequence('tweets','id'));
+
+  END; $BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION public.create_tweet(character varying, integer, timestamp without time zone, character varying)
+  OWNER TO ahmed;
+
+DROP FUNCTION create_tweet(character varying,integer,timestamp with time zone,character varying)
