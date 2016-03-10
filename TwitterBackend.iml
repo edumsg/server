@@ -97,15 +97,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
-      <library name="postgresql-9.3-1101.jdbc41.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/libs/postgresql-9.3-1101.jdbc41.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
       <library name="spymemcached-2.10.3.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/spymemcached-2.10.3.jar!/" />
@@ -130,33 +121,14 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/libs/netty-all-4.0.34.Final.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/libs/netty-all-4.0.34.Final-sources.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/libs/jedis-2.7.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/libs/jedis-2.7.2-sources.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$APPLICATION_HOME_DIR$/redist/annotations-java8.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" exported="" name="postgresql-9.4.1208" level="project" />
+    <orderEntry type="library" exported="" name="jedis-2.8.0" level="project" />
+    <orderEntry type="library" exported="" name="netty-all-4.0.34.Final" level="project" />
   </component>
 </module>

@@ -23,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -37,44 +38,31 @@ public class NewTweetCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
-            if (map.containsKey("image_url")) {
-                proc = dbConn.prepareCall("{call create_tweet(?,?,now()::timestamp,?)}");
-            } else {
-                proc = dbConn.prepareCall("{call create_tweet(?,?,now()::timestamp)}");
-            }
-
-            proc.setPoolable(true);
-            proc.registerOutParameter(1, Types.INTEGER);
-            proc.setString(2, map.get("tweet_text"));
-            proc.setInt(3, Integer.parseInt(map.get("creator_id")));
-
-            if (map.containsKey("image_url")) {
-                proc.setString(4, map.get("image_url"));
-            }
-
-            proc.execute();
-
-            int tweet_id = proc.getInt(1);
-
             Statement query = dbConn.createStatement();
-            set = query.executeQuery("SELECT * FROM tweets WHERE tweet_text = " + map.get("tweet_text"));
-
-            details.put("id",set.getInt("id")+"");
-            details.put("tweet_text",set.getString("tweet_text"));
-            details.put("creator_id",set.getInt("creator_id")+"");
-            details.put("image_url",set.getString("image_url"));
-            details.put("creator_id", map.get("creator_id"));
-
+            query.setPoolable(true);
+            if (map.containsKey("image_url")) {
+                set = query.executeQuery(String.format("SELEXT * FROM create_tweet('%s',%d,now()::timestamp,'%s')",map
+                        .get("tweet_text"), map.get("creator_id"),map.get("image_url")));
+            } else {
+                set = query.executeQuery(String.format("SELEXT * FROM create_tweet('%s',%d,now()::timestamp)",map
+                        .get("tweet_text"), map.get("creator_id")));
+            }
+            while(set.next()) {
+                details.put("id", set.getInt("id") + "");
+                details.put("tweet_text", set.getString("tweet_text"));
+                details.put("creator_id", set.getInt("creator_id") + "");
+                details.put("image_url", set.getString("image_url"));
+                details.put("created_at", set.getTimestamp("created_at")+"");
+            }
             Cache.createTweet("tweet:"+set.getInt("id"), details);
-
-
-
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
-            root.put("id", tweet_id);
+            root.put("id", set.getInt("id"));
+            set.close();
+
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
                 String cacheEntry = EduMsgRedis.redisCache.get("timeline");
