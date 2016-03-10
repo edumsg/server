@@ -23,11 +23,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.logging.Logger;
 
 public class NewTweetCommand extends Command implements Runnable {
@@ -41,7 +39,7 @@ public class NewTweetCommand extends Command implements Runnable {
             Statement query = dbConn.createStatement();
             query.setPoolable(true);
             if (map.containsKey("image_url")) {
-                set = query.executeQuery(String.format("SELEXT * FROM create_tweet('%s',%d,now()::timestamp,'%s')",map
+                set = query.executeQuery(String.format("SELECT * FROM create_tweet('%s',%d,now()::timestamp,'%s')",map
                         .get("tweet_text"), map.get("creator_id"),map.get("image_url")));
             } else {
                 set = query.executeQuery(String.format("SELEXT * FROM create_tweet('%s',%d,now()::timestamp)",map

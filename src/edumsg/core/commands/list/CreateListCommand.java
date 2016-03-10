@@ -15,12 +15,14 @@ package edumsg.core.commands.list;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
+import edumsg.redis.Cache;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,14 +35,23 @@ public class CreateListCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
-            proc = dbConn.prepareCall("{call create_list(?,?,?,?,now()::timestamp)}");
-            proc.setPoolable(true);
+            Statement query = dbConn.createStatement();
+            query.setPoolable(true);
 
-            proc.setString(1, map.get("name"));
-            proc.setString(2, map.get("description"));
-            proc.setInt(3, Integer.parseInt(map.get("creator_id")));
-            proc.setBoolean(4, Boolean.parseBoolean(map.get("private")));
-            proc.execute();
+            set = query.executeQuery(String.format("SELECT * FROM create_list('%s','%s',%s, %s, now()::timestamp)",
+                    map.get("name"), map.get("description"), map.get("creator_id"), map.get("private")));
+
+            while(set.next()){
+                details.put("list_id", set.getInt("id")+"");
+                details.put("name", set.getString("name"));
+                details.put("description", set.getString("description"));
+                details.put("private", set.getBoolean("private") + "");
+                details.put("creator_id", set.getString("creator_id"));
+                details.put("created_at", set.getTimestamp("created_at")+"");
+                Cache.createList(set.getInt("id") + "", details);
+            }
+
+            set.close();
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));

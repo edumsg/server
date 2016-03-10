@@ -5,12 +5,15 @@ CREATE OR REPLACE FUNCTION create_user(username varchar(30),
   name varchar(100),
   created_at timestamp,
   avatar_url varchar(70) DEFAULT null)
-RETURNS void AS $$
+RETURNS SETOF users AS $$
   BEGIN
     INSERT INTO users(username, email, encrypted_password, name, created_at, avatar_url)
     VALUES (username, email, password, name, created_at, avatar_url);
+    RETURN QUERY
+    SELECT * FROM USERS WHERE id = CURRVAL(pg_get_serial_sequence('users','id'));
   END; $$
 LANGUAGE PLPGSQL;
+
 
 -- JAVA DONE
 CREATE OR REPLACE FUNCTION edit_user(user_id integer, params TEXT[][2])
@@ -31,7 +34,7 @@ DECLARE cursor refcursor := 'cur';
   BEGIN
     OPEN cursor FOR
     SELECT * FROM users U WHERE U.id = user_id LIMIT 1;
-    RETURN cursor; 
+    RETURN cursor;
   END; $$
 LANGUAGE PLPGSQL;
 
@@ -135,7 +138,7 @@ DECLARE cursor refcursor := 'cur';
       WHERE T.creator_id = $1)
       UNION
       (SELECT T.id, T.tweet_text, T.image_url, T.created_at, C.name, C.username, C.avatar_url, R.created_at AS "creation"
-      FROM tweets T INNER JOIN retweets R ON T.id = R.tweet_id 
+      FROM tweets T INNER JOIN retweets R ON T.id = R.tweet_id
         INNER JOIN users U ON R.retweeter_id = U.id INNER JOIN users C ON T.creator_id = C.id
       WHERE U.id = $1)) AS timeline
     ORDER BY creation DESC;
@@ -172,7 +175,7 @@ DECLARE cursor refcursor := 'cur';
   BEGIN
     OPEN cursor FOR
     SELECT T.id, T.tweet_text, T.image_url, C.name, C.username, C.avatar_url
-    FROM tweets T INNER JOIN retweets R ON T.id = R.tweet_id 
+    FROM tweets T INNER JOIN retweets R ON T.id = R.tweet_id
       INNER JOIN users U ON R.retweeter_id = U.id INNER JOIN users C ON T.creator_id = C.id
     WHERE U.id = $1
     ORDER BY R.created_at DESC;
@@ -201,7 +204,7 @@ DECLARE cursor refcursor := 'cur';
     OPEN cursor FOR
     SELECT T.id, T.tweet_text, T.image_url, T.created_at, C.name, C.username, C.avatar_url
     FROM tweets T INNER JOIN favorites F ON T.id = F.tweet_id
-      INNER JOIN users U ON F.user_id = U.id INNER JOIN users C ON T.creator_id = C.id 
+      INNER JOIN users U ON F.user_id = U.id INNER JOIN users C ON T.creator_id = C.id
     WHERE U.id = $1
     ORDER BY F.created_at DESC;
     RETURN cursor;
@@ -214,7 +217,7 @@ RETURNS refcursor AS $$
 DECLARE cursor refcursor := 'cur';
   BEGIN
     OPEN cursor FOR
-    SELECT L.id, L.name, L.description, C.name, C.username, C.avatar_url 
+    SELECT L.id, L.name, L.description, C.name, C.username, C.avatar_url
     FROM lists L INNER JOIN subscriptions S ON L.id = S.list_id INNER JOIN users C ON L.creator_id = C.id
     WHERE S.subscriber_id = $1;
     RETURN cursor;
@@ -227,7 +230,7 @@ RETURNS refcursor AS $$
 DECLARE cursor refcursor := 'cur';
   BEGIN
     OPEN cursor FOR
-    SELECT L.id, L.name, L.description, C.name, C.username, C.avatar_url 
+    SELECT L.id, L.name, L.description, C.name, C.username, C.avatar_url
     FROM lists L INNER JOIN memberships M ON L.id = M.list_id INNER JOIN users C ON L.creator_id = C.id
     WHERE M.member_id = $1;
     RETURN cursor;

@@ -1,13 +1,16 @@
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION create_list(name varchar(50), description varchar(140),
 creator_id integer, private boolean, created_at timestamp)
-RETURNS void AS $$
+RETURNS SETOF lists AS $$
 DECLARE list_id integer;
   BEGIN
     INSERT INTO lists(name, description, creator_id, private, created_at)
     VALUES (name, description, creator_id, private, created_at) RETURNING id INTO list_id;
 
     PERFORM subscribe(creator_id, list_id, created_at);
+RETURN QUERY
+SELECT * FROM lists WHERE id = CURRVAL(pg_get_serial_sequence('lists','id'));
+
   END; $$
 LANGUAGE PLPGSQL;
 

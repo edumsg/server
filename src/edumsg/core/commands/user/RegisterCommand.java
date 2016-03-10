@@ -39,37 +39,31 @@ public class RegisterCommand extends Command implements Runnable {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
             String password = BCrypt.hashpw(map.get("password"), BCrypt.gensalt());
+            Statement query = dbConn.createStatement();
+            query.setPoolable(true);
             if (map.containsKey("avatar_url")) {
-                proc = dbConn.prepareCall("{call create_user(?,?,?,?,now()::timestamp,?)}");
+                set = query.executeQuery(String.format("SELECT * FROM create_user('%s','%s','%s',now()::timestamp," +
+                        "'%s')",
+                        map.get("username"), map.get("email"), password, map.get("name"), map.get("avatar_url")));
             } else {
-                proc = dbConn.prepareCall("{call create_user(?,?,?,?,now()::timestamp)}");
+                set = query.executeQuery(String.format("SELECT * FROM create_user('%s','%s','%s',now()::timestamp)",
+                        map.get("username"), map.get("email"), password, map.get("name")));
             }
-
-            proc.setPoolable(true);
-            proc.setString(1, map.get("username"));
-            proc.setString(2, map.get("email"));
-            proc.setString(3, password);
-            proc.setString(4, map.get("name"));
-
-            if (map.containsKey("avatar_url")) {
-                proc.setString(5, map.get("avatar_url"));
-            }
-
-            proc.execute();
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
 
-            Statement query = dbConn.createStatement();
-            set = query.executeQuery("SELECT id from users WHERE username = " + map.get("username"));
-
-            int id = set.getInt("id");
+        while(set.next()) {
             details.put("username", map.get("username"));
             details.put("email", map.get("email"));
             details.put("name", map.get("name"));
-            Cache.registerUser("user:"+id, details);
+            details.put("created_at", set.getTimestamp("created_at")+"");
+            Cache.registerUser("user:" + set.getInt("id"), details);
+        }
+
+            set.close();
 
             try {
                 CommandsHelp.submit(map.get("app"),
