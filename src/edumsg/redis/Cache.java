@@ -2,6 +2,7 @@ package edumsg.redis;
 
 import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.Jedis;
+
 import java.util.Map;
 
 public class Cache {
@@ -21,23 +22,33 @@ public class Cache {
     }
 
     public static void cacheUser(String id, Map<String, String> userDetails) {
-        redisCache.hmset("user:" + id, userDetails);
+        if (!Cache.checkNulls(userDetails)) {
+            redisCache.hmset("user:" + id, userDetails);
+        }
     }
 
     public static void registerUser(String id, Map<String, String> registerDetails) {
-        redisCache.hmset(id, registerDetails);
+        if (!Cache.checkNulls(registerDetails)) {
+            redisCache.hmset(id, registerDetails);
+        }
     }
 
-    public static void cacheUserTweet(String user_id, String tweet_id){
-        redisCache.sadd("usertweets:"+user_id, tweet_id);
+    public static void cacheUserTweet(String user_id, String tweet_id) {
+        if ((user_id != null) && (tweet_id != null)) {
+            redisCache.sadd("usertweets:" + user_id, tweet_id);
+        }
     }
 
-    public static void cacheFollowing(String user_id, String user_to_follow_id){
-        redisCache.sadd("userfollowing:"+user_id,user_to_follow_id);
+    public static void cacheFollowing(String user_id, String user_to_follow_id) {
+        if ((user_id != null) && (user_to_follow_id != null)) {
+            redisCache.sadd("userfollowing:" + user_id, user_to_follow_id);
+        }
     }
 
-    public static void cacheFollowers(String user_id, String follower_id){
-        redisCache.sadd("userfollowers:"+user_id,follower_id);
+    public static void cacheFollowers(String user_id, String follower_id) {
+        if ((user_id != null) && (follower_id != null)) {
+            redisCache.sadd("userfollowers:" + user_id, follower_id);
+        }
     }
 
     /////////////////////////////////////
@@ -49,18 +60,22 @@ public class Cache {
     }
 
     public static void createList(String id, Map<String, String> members) {
-        redisCache.hmset("list:" + id, members);
+        if (!Cache.checkNulls(members)) {
+            redisCache.hmset("list:" + id, members);
+        }
     }
 
     public static void addMemberList(String list_id, String member_id) {
-        redisCache.sadd("listmember:" + list_id, member_id);
+        if ((list_id != null) && (member_id != null)) {
+            redisCache.sadd("listmember:" + list_id, member_id);
+        }
     }
 
 
-
-
     public static void createTweet(String id, Map<String, String> tweetDetails) {
-        redisCache.hmset("tweet:" + id, tweetDetails);
+        if (!Cache.checkNulls(tweetDetails)) {
+            redisCache.hmset("tweet:" + id, tweetDetails);
+        }
     }
 
     @Nullable
@@ -71,6 +86,10 @@ public class Cache {
             return null;
         }
 
+    }
+
+    private static boolean checkNulls(Map<String, String> map) {
+        return map.containsValue(null);
     }
 
 
