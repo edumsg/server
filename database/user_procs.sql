@@ -10,10 +10,9 @@ RETURNS SETOF users AS $$
     INSERT INTO users(username, email, encrypted_password, name, created_at, avatar_url)
     VALUES (username, email, password, name, created_at, avatar_url);
     RETURN QUERY
-    SELECT * FROM USERS WHERE id = CURRVAL(pg_get_serial_sequence('users','id'));
+    SELECT * FROM users WHERE id = CURRVAL(pg_get_serial_sequence('users','id'));
   END; $$
 LANGUAGE PLPGSQL;
-
 
 -- JAVA DONE
 CREATE OR REPLACE FUNCTION edit_user(user_id integer, params TEXT[][2])
@@ -177,19 +176,6 @@ DECLARE cursor refcursor := 'cur';
     SELECT T.id, T.tweet_text, T.image_url, C.name, C.username, C.avatar_url
     FROM tweets T INNER JOIN retweets R ON T.id = R.tweet_id
       INNER JOIN users U ON R.retweeter_id = U.id INNER JOIN users C ON T.creator_id = C.id
-    WHERE U.id = $1
-    ORDER BY R.created_at DESC;
-    RETURN cursor;
-  END; $$
-LANGUAGE PLPGSQL;
-
-CREATE OR REPLACE FUNCTION get_retweets_ids(user_id integer)
-RETURNS refcursor AS $$
-DECLARE cursor refcursor := 'cur';
-  BEGIN
-    OPEN cursor FOR
-    SELECT R.tweet_id
-    FROM retweets R INNER JOIN users U ON R.retweeter_id = U.id
     WHERE U.id = $1
     ORDER BY R.created_at DESC;
     RETURN cursor;

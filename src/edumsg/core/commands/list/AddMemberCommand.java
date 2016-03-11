@@ -41,22 +41,8 @@ public class AddMemberCommand extends Command implements Runnable {
             proc.setInt(2, Integer.parseInt(map.get("list_id")));
             proc.execute();
 
-            Statement query = dbConn.createStatement();
-            set = query.executeQuery("SELECT * from lists WHERE id = " + map.get("list_id"));
+            Cache.addMemberList(map.get("list_id"), map.get("user_id"));
 
-
-            if (Cache.listExists(map.get("list_id"))) {
-                Cache.addMemberList(map.get("list_id"), map.get("user_id"));
-
-            } else {
-                details.put("list_id", map.get("list_id"));
-                details.put("name", set.getString("name"));
-                details.put("description", set.getString("description"));
-                details.put("private", set.getBoolean("private") + "");
-                details.put("creator_id", set.getString("creator_id"));
-                Cache.createList(set.getInt("id") + "", details);
-
-            }
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));

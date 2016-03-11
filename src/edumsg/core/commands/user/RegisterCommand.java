@@ -41,12 +41,16 @@ public class RegisterCommand extends Command implements Runnable {
             String password = BCrypt.hashpw(map.get("password"), BCrypt.gensalt());
             Statement query = dbConn.createStatement();
             query.setPoolable(true);
+            System.out.println(String.format("SELECT * FROM create_user('%s','%s','%s','%s',now()::timestamp)",
+                    map.get("username"), map.get("email"), password, map.get("name")));
+
             if (map.containsKey("avatar_url")) {
-                set = query.executeQuery(String.format("SELECT * FROM create_user('%s','%s','%s',now()::timestamp," +
-                        "'%s')",
+                System.out.println("entered");
+                set = query.executeQuery(String.format("SELECT * FROM create_user('%s','%s','%s','%s',now()::timestamp,'%s')",
                         map.get("username"), map.get("email"), password, map.get("name"), map.get("avatar_url")));
             } else {
-                set = query.executeQuery(String.format("SELECT * FROM create_user('%s','%s','%s',now()::timestamp)",
+                set = query.executeQuery(String.format("SELECT * FROM create_user('%s','%s','%s', '%s',now()" +
+                        "::timestamp)",
                         map.get("username"), map.get("email"), password, map.get("name")));
             }
 

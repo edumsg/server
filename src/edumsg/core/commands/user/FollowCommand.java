@@ -15,6 +15,7 @@ package edumsg.core.commands.user;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
+import edumsg.redis.Cache;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.postgresql.util.PSQLException;
@@ -39,6 +40,9 @@ public class FollowCommand extends Command implements Runnable {
             proc.setInt(1, Integer.parseInt(map.get("user_id")));
             proc.setInt(2, Integer.parseInt(map.get("follower_id")));
             proc.execute();
+
+            Cache.cacheFollowing(map.get("follower_id"),map.get("user_id"));
+            Cache.cacheFollowers(map.get("user_id"),map.get("follower_id"));
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));

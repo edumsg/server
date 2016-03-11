@@ -1,4 +1,4 @@
--- JAVA / JSON DONE
+ -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION create_dm(sender_id integer, reciever_id integer,
   dm_text varchar(140), created_at timestamp, image_url varchar(100) DEFAULT null)
 RETURNS boolean AS $$  --Delimiter for functions and strings

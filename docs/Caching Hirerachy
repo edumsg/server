@@ -5,4 +5,5 @@ User is cached as a hash set being "user:$id" where $id is a var representing us
 Tweets caching:
 Tweets are cached as a hash set being "tweet:$id" where $id is a var representing tweet id and containing all details of tweet
 
-
+Lists caching:
+Lists are cached as a hash set being "list:$id" where $id is a var representing list id and containing all details of list

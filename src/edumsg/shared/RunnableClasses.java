@@ -25,6 +25,7 @@ public abstract class RunnableClasses {
         HashMap<String, String> map = null;
         try {
             map = json.deserialize();
+            System.out.println(map.toString());
         } catch (JsonParseException e1) {
             LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
         } catch (JsonMappingException e1) {

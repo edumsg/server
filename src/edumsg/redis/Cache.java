@@ -28,6 +28,18 @@ public class Cache {
         redisCache.hmset(id, registerDetails);
     }
 
+    public static void cacheUserTweet(String user_id, String tweet_id){
+        redisCache.sadd("usertweets:"+user_id, tweet_id);
+    }
+
+    public static void cacheFollowing(String user_id, String user_to_follow_id){
+        redisCache.sadd("userfollowing:"+user_id,user_to_follow_id);
+    }
+
+    public static void cacheFollowers(String user_id, String follower_id){
+        redisCache.sadd("userfollowers:"+user_id,follower_id);
+    }
+
     /////////////////////////////////////
     ///////////LIST OPERATIONS///////////
     /////////////////////////////////////
@@ -36,13 +48,12 @@ public class Cache {
         return redisCache.exists("lists:" + id);
     }
 
-
     public static void createList(String id, Map<String, String> members) {
         redisCache.hmset("list:" + id, members);
     }
 
-    public static void addMemberList(String id, String member_id) {
-        redisCache.sadd("listmember:" + id, member_id);
+    public static void addMemberList(String list_id, String member_id) {
+        redisCache.sadd("listmember:" + list_id, member_id);
     }
 
 

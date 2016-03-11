@@ -21,6 +21,7 @@ import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,24 +37,18 @@ public class CreateDmCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
-            if (map.containsKey("image_url")) {
-                proc = dbConn.prepareCall("{? = call create_dm(?,?,?,now()::timestamp,?))}");
-            } else {
-                proc = dbConn.prepareCall("{? = call create_dm(?,?,?,now()::timestamp)}");
-            }
+            Statement query = dbConn.createStatement();
+            query.setPoolable(true);
 
-            proc.setPoolable(true);
-            proc.registerOutParameter(1, Types.BOOLEAN);
-            proc.setInt(2, Integer.parseInt(map.get("sender_id")));
-            proc.setInt(3, Integer.parseInt(map.get("reciever_id")));
-            proc.setString(4, map.get("dm_text"));
+
             if (map.containsKey("image_url")) {
-                proc.setString(5, map.get("image_url"));
+                set = query.executeQuery(String.format("SELECT * FROM create_dm(%s,%s,'%s',now()::timestamp," +
+                        "'%s')",map.get("sender_id"),map.get("reciever_id"),map.get("dm_text"),map.get("image_url")));
+            } else {
+                set = query.executeQuery(String.format("SELECT * FROM create_dm(%s,%s,'%s',now()::timestamp)",map.get("sender_id"),map.get("reciever_id"),map.get("dm_text")));
             }
-            proc.execute();
 
             boolean sent = proc.getBoolean(1);
-
             if (sent) {
                 root.put("app", map.get("app"));
                 root.put("method", map.get("method"));

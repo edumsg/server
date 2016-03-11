@@ -48,7 +48,6 @@ public class EduMsgNettyServerHandler extends
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg)
             throws Exception {
-        System.out.println(msg+"\n=============");
 
         if (msg instanceof HttpRequest) {
             HttpRequest request = this.request = (HttpRequest) msg;
