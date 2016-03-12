@@ -2,34 +2,29 @@ package edumsg.redis;
 
 import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.Jedis;
-
+import redis.clients.jedis.Pipeline;
 import java.util.Map;
 
 public class Cache {
     public static Jedis redisCache = new Jedis("localhost", 6379);
+    private static Pipeline pipe = redisCache.pipelined();
 
     /////////////////////////////////////
-    //USER OPERATIONS
+    ////////////USER OPERATIONS//////////
     /////////////////////////////////////
 
     @Nullable
-    public static Map<String, String> returnUser(String username) {
-        if (redisCache.exists(username)) {
-            return redisCache.hgetAll(username);
+    public static Map<String, String> returnUser(String user_id) {
+        if (redisCache.exists("user:"+user_id)) {
+            return redisCache.hgetAll("user:"+user_id);
         } else {
             return null;
         }
     }
 
-    public static void cacheUser(String id, Map<String, String> userDetails) {
+    public static void cacheUser(String user_id, Map<String, String> userDetails) {
         if (!Cache.checkNulls(userDetails)) {
-            redisCache.hmset("user:" + id, userDetails);
-        }
-    }
-
-    public static void registerUser(String id, Map<String, String> registerDetails) {
-        if (!Cache.checkNulls(registerDetails)) {
-            redisCache.hmset(id, registerDetails);
+            redisCache.hmset("user:" + user_id, userDetails);
         }
     }
 
@@ -45,10 +40,28 @@ public class Cache {
         }
     }
 
+    public static void unFollow(String user_id, String user_being_followed_id){
+        pipe.srem("userfollowing:"+user_id, user_being_followed_id);
+        pipe.srem("userfollowers:"+user_being_followed_id,user_id);
+        pipe.sync();
+    }
+
     public static void cacheFollowers(String user_id, String follower_id) {
         if ((user_id != null) && (follower_id != null)) {
             redisCache.sadd("userfollowers:" + user_id, follower_id);
         }
+    }
+
+    public static void logoutUser(String user_id){
+        redisCache.hdel("user:"+user_id,"session_id");
+    }
+
+    public static void mapUsernameID(String username, String id){
+        redisCache.hset("usernameid", username, id); //maps username to id
+    }
+
+    public static String returnUserID(String username){
+        return redisCache.hget("usernameid",username); //returns id based on username
     }
 
     /////////////////////////////////////
@@ -71,6 +84,13 @@ public class Cache {
         }
     }
 
+    public static void deleteList(String list_id){
+
+    }
+
+    /////////////////////////////////////
+    ///////////TWEET OPERATIONS//////////
+    ////////////////////////////////////
 
     public static void createTweet(String id, Map<String, String> tweetDetails) {
         if (!Cache.checkNulls(tweetDetails)) {
@@ -88,6 +108,14 @@ public class Cache {
 
     }
 
+    public static void deleteTweet(String tweet_id) {
+        if (tweet_id != null) {
+            String user =  redisCache.hget("tweet:"+tweet_id,"creator_id");
+            pipe.del("tweet:"+tweet_id);
+            pipe.srem("usertweets:"+user,tweet_id);
+            pipe.sync();
+        }
+    }
     private static boolean checkNulls(Map<String, String> map) {
         return map.containsValue(null);
     }

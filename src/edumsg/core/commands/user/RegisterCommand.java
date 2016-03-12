@@ -29,6 +29,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Logger;
 
+import static edumsg.redis.Cache.mapUsernameID;
+
 public class RegisterCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(RegisterCommand.class.getName());
 
@@ -64,8 +66,9 @@ public class RegisterCommand extends Command implements Runnable {
             details.put("email", map.get("email"));
             details.put("name", map.get("name"));
             details.put("created_at", set.getTimestamp("created_at")+"");
-            Cache.registerUser("user:" + set.getInt("id"), details);
         }
+            Cache.cacheUser("user:" + set.getInt("id"), details);
+            Cache.mapUsernameID(map.get("username"), set.getInt("id")+"");
 
             set.close();
 

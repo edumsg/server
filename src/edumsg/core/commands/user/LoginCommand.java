@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 public class LoginCommand extends Command {
     private final Logger LOGGER = Logger.getLogger(LoginCommand.class.getName());
     private Integer id;
-    private String username, name, email, language, country, bio, website, link_color, background_color, session_id;
+    private String username, name, email, language, country, bio, website, link_color, background_color;
     private Timestamp created_at;
     private String avatar_url;
     private Boolean overlay, protected_tweets;
@@ -62,15 +62,16 @@ public class LoginCommand extends Command {
             boolean authenticated = BCrypt.checkpw(map.get("password"), enc_password);
 
             if (authenticated) {
-                details = (HashMap<String, String>) Cache.returnUser(map.get("username"));
+                String user_id = Cache.returnUserID(map.get("username"));
+                details = Cache.returnUser(user_id);
                 User user = new User();
 
-                if (details==null) {
+
+                if (details == null) {
                     proc = dbConn.prepareCall("{call login(?,?)}");
                     proc.setPoolable(true);
                     proc.registerOutParameter(1, Types.OTHER); //new
                     proc.setString(1, map.get("username"));
-                    proc.setString(2, sessionID);
                     proc.execute();
 
                     set = (ResultSet) proc.getObject(1); //new
@@ -97,10 +98,9 @@ public class LoginCommand extends Command {
                         link_color = set.getString(13);
                         background_color = set.getString(14);
                         protected_tweets = set.getBoolean(15);
-                        session_id = set.getString(16);
 
-//					String date_of_birth = set.getString(17);
-//					String gender = set.getString(18);
+//String date_of_birth = set.getString(17);
+//String gender = set.getString(18);
 
                         user.setId(id);
                         user.setUsername(username);
@@ -116,29 +116,29 @@ public class LoginCommand extends Command {
                         user.setLinkColor(link_color);
                         user.setBackgroundColor(background_color);
                         user.setProtectedTweets(protected_tweets);
-                        user.setSessionID(session_id);
-//					user.setDate_of_birth(date_of_birth);
-//					user.setGender(gender);
+                        user.setSessionID(sessionID);
+//user.setDate_of_birth(date_of_birth);
+//user.setGender(gender);
+                        details.put("id", id.toString());
+                        details.put("username", username);
+                        details.put("email", email);
+                        details.put("name", name);
+                        details.put("language", language);
+                        details.put("country", country);
+                        details.put("bio", bio);
+                        details.put("website", website);
+                        details.put("created_at", created_at.toString());
+                        details.put("avatar_url", avatar_url);
+                        details.put("overlay", overlay.toString());
+                        details.put("link_color", link_color);
+                        details.put("background_color", background_color);
+                        details.put("protected_tweets", protected_tweets.toString());
+                        details.put("session_id", sessionID);
                     }
-                    details.put("id", id.toString());
-                    details.put("username", username);
-                    details.put("email", email);
-                    details.put("name", name);
-                    details.put("language", language);
-                    details.put("country", country);
-                    details.put("bio", bio);
-                    details.put("website", website);
-                    details.put("created_at", created_at.toString());
-                    details.put("avatar_url", avatar_url);
-                    details.put("overlay", overlay.toString());
-                    details.put("link_color", link_color);
-                    details.put("background_color", background_color);
-                    details.put("protected_tweets", protected_tweets.toString());
-                    details.put("session_id", session_id);
+
                     Cache.cacheUser(id.toString(), details);
 
                 } else {
-                    sessionID=URLEncoder.encode(new UID().toString(), "UTF-8");
                     root.put("app", map.get("app"));
                     root.put("method", map.get("method"));
                     root.put("status", "ok");
@@ -160,9 +160,6 @@ public class LoginCommand extends Command {
                     user.setBackgroundColor(details.get("background_color"));
                     user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
                     user.setSessionID(sessionID);
-
-                    Statement query = dbConn.createStatement();
-                    set = query.executeQuery("UPDATE users set session_id = " + sessionID + " where username = " + username);
                 }
 
                 POJONode child = nf.POJONode(user);
@@ -177,7 +174,6 @@ public class LoginCommand extends Command {
                 } catch (IOException e) {
                     //Logger.log(Level.SEVERE, e.getMessage(), e);
                 }
-
 
             } else {
                 CommandsHelp.handleError(map.get("app"), map.get("method"), "Invalid Password", map.get("correlation_id"), LOGGER);
