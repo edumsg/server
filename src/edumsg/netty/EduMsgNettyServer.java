@@ -35,7 +35,7 @@ public class EduMsgNettyServer {
         Logger log = Logger.getLogger(EduMsgNettyServer.class);
         // Configure SSL.
         EduMsgRedis.redisCache.flushDB();
-        EduMsgRedis.bgSave();
+//        EduMsgRedis.bgSave();
         System.out.println("continued");
         final SslContext sslCtx;
         if (SSL) {

@@ -15,8 +15,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Created by Omar on 7/3/2016.
- */
+* Created by Omar on 7/3/2016.
+*/
 public class GetRetweetsCommand extends Command implements Runnable
 {
     private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
@@ -44,12 +44,13 @@ public class GetRetweetsCommand extends Command implements Runnable
             while (set.next()) {
                 tweetIds.add(set.getInt(1));
             }
-
+            set.close();
+            proc.close();
             root.put("tweet_ids", tweetIds);
             try {
                 CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
+                mapper.writeValueAsString(root),
+                map.get("correlation_id"), LOGGER);
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
@@ -66,7 +67,7 @@ public class GetRetweetsCommand extends Command implements Runnable
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn);
+            PostgresConnection.disconnect(set, proc, dbConn, null);
         }
     }
 }

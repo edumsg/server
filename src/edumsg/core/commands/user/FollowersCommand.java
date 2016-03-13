@@ -65,6 +65,9 @@ public class FollowersCommand extends Command implements Runnable {
                 usersArray.addPOJO(user);
             }
 
+            set.close();
+            proc.close();
+
             root.put("followers", usersArray);
             try {
                 CommandsHelp.submit(map.get("app"),
@@ -86,7 +89,7 @@ public class FollowersCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"),e.getMessage(), map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(set, proc, dbConn);
+            PostgresConnection.disconnect(set, proc, dbConn,null);
         }
     }
 }

@@ -76,6 +76,7 @@ public class GetTweetCommand extends Command implements Runnable {
                     creator.setUsername(creator_username);
                     t.setCreator(creator);
                 }
+                set.close();
 
                 POJONode child = nf.POJONode(t);
                 root.put("tweet", child);

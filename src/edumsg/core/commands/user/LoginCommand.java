@@ -56,8 +56,8 @@ public class LoginCommand extends Command {
                 return;
             }
 
-            dbConn.commit();
             proc.close();
+            dbConn.commit();
 
             boolean authenticated = BCrypt.checkpw(map.get("password"), enc_password);
 
@@ -78,7 +78,7 @@ public class LoginCommand extends Command {
                     root.put("session_id", sessionID);
 
                     //new
-                    if (set.next()) {
+                    while (set.next()) {
                         id = set.getInt("id");
                         username = set.getString("username");
                         email = set.getString("email");
@@ -127,7 +127,8 @@ public class LoginCommand extends Command {
                         details.put("protected_tweets", protected_tweets.toString());
                         details.put("session_id", sessionID);
                     }
-
+                    set.close();
+                    dbConn.commit();
                     Cache.cacheUser(id.toString(), details);
 
                 } else {
@@ -152,6 +153,7 @@ public class LoginCommand extends Command {
                     user.setBackgroundColor(details.get("background_color"));
                     user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
                     user.setSessionID(sessionID);
+                    Cache.cacheUserSession(details.get("id"), sessionID);
                 }
 
                 POJONode child = nf.POJONode(user);
@@ -180,7 +182,7 @@ public class LoginCommand extends Command {
         } catch (UnsupportedEncodingException e) {
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn);
+            PostgresConnection.disconnect(set, proc, dbConn,null);
         }
     }
 }

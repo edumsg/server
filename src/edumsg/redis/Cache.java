@@ -56,6 +56,10 @@ public class Cache {
         redisCache.hdel("user:"+user_id,"session_id");
     }
 
+    public static void cacheUserSession(String user_id, String session_id){
+        redisCache.hset("user:"+user_id, "session_id", session_id);
+    }
+
     public static void mapUsernameID(String username, String id){
         redisCache.hset("usernameid", username, id); //maps username to id
     }

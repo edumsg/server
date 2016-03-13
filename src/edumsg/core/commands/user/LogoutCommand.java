@@ -40,6 +40,8 @@ public class LogoutCommand extends Command implements Runnable {
 
            Cache.logoutUser(map.get("user_id"));
 
+           proc.close();
+
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
@@ -64,7 +66,7 @@ public class LogoutCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn);
+            PostgresConnection.disconnect(null, proc, dbConn,null);
         }
     }
 
