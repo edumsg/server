@@ -65,16 +65,11 @@ public class LoginCommand extends Command {
                 String user_id = Cache.returnUserID(map.get("username"));
                 details = Cache.returnUser(user_id);
                 User user = new User();
-
+                Statement query = dbConn.createStatement();
 
                 if (details == null) {
-                    proc = dbConn.prepareCall("{call login(?,?)}");
-                    proc.setPoolable(true);
-                    proc.registerOutParameter(1, Types.OTHER); //new
-                    proc.setString(1, map.get("username"));
-                    proc.execute();
-
-                    set = (ResultSet) proc.getObject(1); //new
+                    query.setPoolable(true);
+                    set = query.executeQuery(String.format("SELECT * FROM login('%s')", map.get("username")));
 
                     root.put("app", map.get("app"));
                     root.put("method", map.get("method"));
@@ -84,25 +79,21 @@ public class LoginCommand extends Command {
 
                     //new
                     if (set.next()) {
-                        id = set.getInt(1);
-                        username = set.getString(2);
-                        email = set.getString(3);
-                        name = set.getString(5);
-                        language = set.getString(6);
-                        country = set.getString(7);
-                        bio = set.getString(8);
-                        website = set.getString(9);
-                        created_at = set.getTimestamp(10);
-                        avatar_url = set.getString(11);
-                        overlay = set.getBoolean(12);
-                        link_color = set.getString(13);
-                        background_color = set.getString(14);
-                        protected_tweets = set.getBoolean(15);
+                        id = set.getInt("id");
+                        username = set.getString("username");
+                        email = set.getString("email");
+                        name = set.getString("name");
+                        language = set.getString("language");
+                        country = set.getString("country");
+                        bio = set.getString("bio");
+                        website = set.getString("website");
+                        created_at = set.getTimestamp("created_at");
+                        avatar_url = set.getString("avatar_url");
+                        overlay = set.getBoolean("overlay");
+                        link_color = set.getString("link_color");
+                        background_color = set.getString("background_color");
+                        protected_tweets = set.getBoolean("protected_tweets");
 
-//String date_of_birth = set.getString(17);
-//String gender = set.getString(18);
-
-                        user.setId(id);
                         user.setUsername(username);
                         user.setEmail(email);
                         user.setName(name);
@@ -117,8 +108,9 @@ public class LoginCommand extends Command {
                         user.setBackgroundColor(background_color);
                         user.setProtectedTweets(protected_tweets);
                         user.setSessionID(sessionID);
-//user.setDate_of_birth(date_of_birth);
-//user.setGender(gender);
+
+                        details = new HashMap<String, String>();
+
                         details.put("id", id.toString());
                         details.put("username", username);
                         details.put("email", email);

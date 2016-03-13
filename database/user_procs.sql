@@ -257,11 +257,10 @@ DECLARE is_private boolean;
 LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION login(user_name varchar)
-RETURNS refcursor AS $$
-DECLARE cursor refcursor := 'cur';
+RETURNS SETOF users AS $$
   BEGIN
+RETURN QUERY
     SELECT * FROM users WHERE username = $1;
-    RETURN cursor;
   END; $$
 LANGUAGE PLPGSQL;
 
