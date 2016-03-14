@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 public class GetTweetCommand extends Command implements Runnable {
@@ -31,11 +32,11 @@ public class GetTweetCommand extends Command implements Runnable {
 
     @Override
     public void execute() {
-        details = Cache.returnTweet(map.get("tweet_id"));
 
         try {
             Tweet t = new Tweet();
             User creator = new User();
+            details = Cache.returnTweet(map.get("tweet_id"));
 
             if(details == null) {
 
@@ -55,6 +56,7 @@ public class GetTweetCommand extends Command implements Runnable {
                 root.put("code", "200");
 
                 if (set.next()) {
+                    details =  new HashMap<>();
                     Integer id = set.getInt(1);
                     String tweet = set.getString(2);
                     String image_url = set.getString(5);
@@ -75,6 +77,14 @@ public class GetTweetCommand extends Command implements Runnable {
                     creator.setAvatarUrl(creator_avatar);
                     creator.setUsername(creator_username);
                     t.setCreator(creator);
+
+                    details.put("tweet_text",tweet);
+                    details.put("creator_id",Cache.returnUserID(creator_username));
+                    details.put("creator_at",created_at.toString());
+                    details.put("image_url",image_url);
+                    Cache.cacheTweet(id+"",details);
+
+
                 }
                 set.close();
 

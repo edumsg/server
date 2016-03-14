@@ -96,7 +96,7 @@ public class Cache {
     ///////////TWEET OPERATIONS//////////
     ////////////////////////////////////
 
-    public static void createTweet(String id, Map<String, String> tweetDetails) {
+    public static void cacheTweet(String id, Map<String, String> tweetDetails) {
         if (!Cache.checkNulls(tweetDetails)) {
             redisCache.hmset("tweet:" + id, tweetDetails);
         }
