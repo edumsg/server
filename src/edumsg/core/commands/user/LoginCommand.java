@@ -75,7 +75,6 @@ public class LoginCommand extends Command {
                     root.put("method", map.get("method"));
                     root.put("status", "ok");
                     root.put("code", "200");
-                    root.put("session_id", sessionID);
 
                     //new
                     while (set.next()) {
@@ -126,6 +125,10 @@ public class LoginCommand extends Command {
                         details.put("background_color", background_color);
                         details.put("protected_tweets", protected_tweets.toString());
                         details.put("session_id", sessionID);
+
+                        root.put("user_id", id);
+
+
                     }
                     set.close();
                     dbConn.commit();
@@ -136,7 +139,7 @@ public class LoginCommand extends Command {
                     root.put("method", map.get("method"));
                     root.put("status", "ok");
                     root.put("code", "200");
-                    root.put("session_id", sessionID);
+                    root.put("user_id", Integer.parseInt(details.get("id")));
 
                     user.setId(Integer.parseInt(details.get("id")));
                     user.setUsername(details.get("username"));
