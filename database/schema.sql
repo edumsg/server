@@ -124,6 +124,7 @@ CREATE TABLE direct_messages(
   created_at timestamp NOT NULL
 );
 
+
 DROP TABLE IF EXISTS replies CASCADE;
 
 CREATE TABLE replies(

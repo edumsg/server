@@ -3,7 +3,9 @@ package edumsg.redis;
 import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
-import java.util.Map;
+
+import java.lang.reflect.Array;
+import java.util.*;
 
 public class Cache {
     public static Jedis redisCache = new Jedis("localhost", 6379);
@@ -120,9 +122,56 @@ public class Cache {
             pipe.sync();
         }
     }
+
+    public static ArrayList getTimeline(String user_id){
+        ArrayList<Map<String,String>> tweets = new ArrayList<Map<String,String>>();  // Map of user details and set of their tweets
+        HashSet tweets_details = new HashSet();
+        redisCache.smembers("userfollowing:"+user_id).parallelStream()
+                .forEach(user -> getTweets(user).parallelStream()
+                .forEach(tweet_id -> tweets.add(returnTweet(tweet_id))));
+        return tweets;
+    }
+
+    public static Set<String> getTweets(String user_id){
+        return redisCache.smembers("usertweets:"+user_id);
+    }
+
+    public static void populateTimeline(){
+        Map<String, String> details = new HashMap<>();
+        for(int i=0; i<20;i++){
+            details.clear();
+            details.put("username", "ana"+i);
+            details.put("id", ""+i);
+            redisCache.hmset("user:"+i,details);
+        }
+
+        for(int i=1; i<20;i++){
+            redisCache.sadd("userfollowing:0",""+i);
+        }
+
+        for(int i=0; i<20;i++){
+            details.clear();
+            details.put("text", "ana"+i);
+            details.put("id", ""+i);
+            redisCache.hmset("tweet:"+i,details);
+            redisCache.sadd("usertweets:"+i,i+"");
+        }
+
+
+
+    }
+
+
     private static boolean checkNulls(Map<String, String> map) {
         return map.containsValue(null);
     }
 
+
+    public static void main(String[] args) {
+
+//        Cache.populateTimeline();
+//        redisCache.flushDB()
+        Cache.getTimeline("0").forEach(System.out::println);
+    }
 
 }

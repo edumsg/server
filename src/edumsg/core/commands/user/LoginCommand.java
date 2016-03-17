@@ -139,7 +139,7 @@ public class LoginCommand extends Command {
                     root.put("method", map.get("method"));
                     root.put("status", "ok");
                     root.put("code", "200");
-                    root.put("user_id", Integer.parseInt(details.get("id")));
+                    root.put("user_id", details.get("id"));
 
                     user.setId(Integer.parseInt(details.get("id")));
                     user.setUsername(details.get("username"));
