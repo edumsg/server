@@ -17,8 +17,8 @@ public class Cache {
 
     @Nullable
     public static Map<String, String> returnUser(String user_id) {
-        if (redisCache.exists("user:"+user_id)) {
-            return redisCache.hgetAll("user:"+user_id);
+        if (redisCache.exists("user:" + user_id)) {
+            return redisCache.hgetAll("user:" + user_id);
         } else {
             return null;
         }
@@ -42,9 +42,9 @@ public class Cache {
         }
     }
 
-    public static void unFollow(String user_id, String user_being_followed_id){
-        pipe.srem("userfollowing:"+user_id, user_being_followed_id);
-        pipe.srem("userfollowers:"+user_being_followed_id,user_id);
+    public static void unFollow(String user_id, String user_being_followed_id) {
+        pipe.srem("userfollowing:" + user_id, user_being_followed_id);
+        pipe.srem("userfollowers:" + user_being_followed_id, user_id);
         pipe.sync();
     }
 
@@ -54,20 +54,20 @@ public class Cache {
         }
     }
 
-    public static void logoutUser(String user_id){
-        redisCache.hdel("user:"+user_id,"session_id");
+    public static void logoutUser(String user_id) {
+        redisCache.hdel("user:" + user_id, "session_id");
     }
 
-    public static void cacheUserSession(String user_id, String session_id){
-        redisCache.hset("user:"+user_id, "session_id", session_id);
+    public static void cacheUserSession(String user_id, String session_id) {
+        redisCache.hset("user:" + user_id, "session_id", session_id);
     }
 
-    public static void mapUsernameID(String username, String id){
+    public static void mapUsernameID(String username, String id) {
         redisCache.hset("usernameid", username, id); //maps username to id
     }
 
-    public static String returnUserID(String username){
-        return redisCache.hget("usernameid",username); //returns id based on username
+    public static String returnUserID(String username) {
+        return redisCache.hget("usernameid", username); //returns id based on username
     }
 
     /////////////////////////////////////
@@ -90,7 +90,7 @@ public class Cache {
         }
     }
 
-    public static void deleteList(String list_id){
+    public static void deleteList(String list_id) {
 
     }
 
@@ -116,47 +116,60 @@ public class Cache {
 
     public static void deleteTweet(String tweet_id) {
         if (tweet_id != null) {
-            String user =  redisCache.hget("tweet:"+tweet_id,"creator_id");
-            pipe.del("tweet:"+tweet_id);
-            pipe.srem("usertweets:"+user,tweet_id);
+            String user = redisCache.hget("tweet:" + tweet_id, "creator_id");
+            pipe.del("tweet:" + tweet_id);
+            pipe.srem("usertweets:" + user, tweet_id);
             pipe.sync();
         }
     }
 
-    public static ArrayList getTimeline(String user_id){
-        ArrayList<Map<String,String>> tweets = new ArrayList<Map<String,String>>();  // Map of user details and set of their tweets
-        HashSet tweets_details = new HashSet();
-        redisCache.smembers("userfollowing:"+user_id).parallelStream()
-                .forEach(user -> getTweets(user).parallelStream()
-                .forEach(tweet_id -> tweets.add(returnTweet(tweet_id))));
-        return tweets;
+    public static ArrayList<Map<Map<String,String>,Map<String,String>>> getTimeline(String user_id) {
+        ArrayList<Map<String, String>> tweets = new ArrayList<>();  // Array list of tweets only
+        redisCache.smembers("userfollowing:" + user_id).parallelStream()
+                  .forEachOrdered(user -> getTweets(user).parallelStream()
+                  .forEachOrdered(tweet_id -> tweets.add(returnTweet(tweet_id))));
+
+        ArrayList<Map<Map<String,String>, Map<String,String>>> users_and_tweets = new ArrayList<>();  // Array list of tweets only
+
+        Map<Map<String,String>, Map<String,String>> temp = new HashMap<>();
+
+
+        tweets.parallelStream().forEachOrdered(tweet_map -> );
+
+        users_and_tweets.parallelStream().forEachOrdered(tweet_map -> System.out.println(tweet_map));
+
+
+
+//        System.out.println(users_and_tweets.get(0).values().toString());
+        return users_and_tweets;
     }
 
-    public static Set<String> getTweets(String user_id){
-        return redisCache.smembers("usertweets:"+user_id);
+    public static Set<String> getTweets(String user_id) {
+        return redisCache.smembers("usertweets:" + user_id);
     }
 
-    public static void populateTimeline(){
+    public static void populateTimeline() {
         Map<String, String> details = new HashMap<>();
-        for(int i=0; i<20;i++){
+        for (int i = 0; i < 20; i++) {
             details.clear();
-            details.put("username", "ana"+i);
-            details.put("id", ""+i);
-            redisCache.hmset("user:"+i,details);
+            details.put("username", "ana" + i);
+            details.put("id", "" + i);
+            redisCache.hmset("user:" + i, details);
         }
 
-        for(int i=1; i<20;i++){
-            redisCache.sadd("userfollowing:0",""+i);
+        for (int i = 1; i < 20; i++) {
+            redisCache.sadd("userfollowing:0", "" + i);
         }
 
-        for(int i=0; i<20;i++){
+        for (int i = 0; i < 20; i++) {
             details.clear();
-            details.put("text", "ana"+i);
-            details.put("id", ""+i);
-            redisCache.hmset("tweet:"+i,details);
-            redisCache.sadd("usertweets:"+i,i+"");
-        }
+            details.put("text", "ana" + i);
+            details.put("id", "" + i);
+            details.put("creator_id", "" + i);
 
+            redisCache.hmset("tweet:" + i, details);
+            redisCache.sadd("usertweets:" + i, i + "");
+        }
 
 
     }
@@ -169,9 +182,9 @@ public class Cache {
 
     public static void main(String[] args) {
 
+//        redisCache.flushDB();
 //        Cache.populateTimeline();
-//        redisCache.flushDB()
-        Cache.getTimeline("0").forEach(System.out::println);
+        Cache.getTimeline("0");//.stream().forEach(System.out::println);
     }
 
 }

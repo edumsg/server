@@ -73,8 +73,8 @@ public class GetTimelineCommand extends Command implements Runnable {
 
                 tweets.addPOJO(t);
             }
-set.close();
-proc.close();
+            set.close();
+            proc.close();
             root.put("tweets", tweets);
             try {
                 CommandsHelp.submit(map.get("app"),
@@ -104,7 +104,7 @@ proc.close();
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(set, proc, dbConn,null);
+            PostgresConnection.disconnect(set, proc, dbConn, null);
         }
     }
 }
