@@ -73,8 +73,8 @@ public class GetTimelineCommand extends Command implements Runnable {
 
                 tweets.addPOJO(t);
             }
-            set.close();
-            proc.close();
+//            set.close();
+//            proc.close();
             root.put("tweets", tweets);
             try {
                 CommandsHelp.submit(map.get("app"),

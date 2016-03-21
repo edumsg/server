@@ -6,6 +6,10 @@ import redis.clients.jedis.Pipeline;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Cache {
     public static Jedis redisCache = new Jedis("localhost", 6379);
@@ -123,26 +127,45 @@ public class Cache {
         }
     }
 
-    public static ArrayList<Map<Map<String,String>,Map<String,String>>> getTimeline(String user_id) {
-        ArrayList<Map<String, String>> tweets = new ArrayList<>();  // Array list of tweets only
-        redisCache.smembers("userfollowing:" + user_id).parallelStream()
-                  .forEachOrdered(user -> getTweets(user).parallelStream()
-                  .forEachOrdered(tweet_id -> tweets.add(returnTweet(tweet_id))));
-
-        ArrayList<Map<Map<String,String>, Map<String,String>>> users_and_tweets = new ArrayList<>();  // Array list of tweets only
-
-        Map<Map<String,String>, Map<String,String>> temp = new HashMap<>();
-
-
-        tweets.parallelStream().forEachOrdered(tweet_map -> );
-
-        users_and_tweets.parallelStream().forEachOrdered(tweet_map -> System.out.println(tweet_map));
-
-
-
-//        System.out.println(users_and_tweets.get(0).values().toString());
-        return users_and_tweets;
-    }
+//    public static CopyOnWriteArrayList<ConcurrentMap<ConcurrentMap<String,String>,ConcurrentMap<String,String>>> getTimeline(String user_id) {
+//        CopyOnWriteArrayList<ConcurrentMap<String, String>> tweets = new CopyOnWriteArrayList<>();  // Array list of tweets only
+//        redisCache.smembers("userfollowing:" + user_id).parallelStream()
+//                  .forEachOrdered(user -> getTweets(user).parallelStream()
+//                  .forEachOrdered(tweet_id -> tweets.add(returnTweet(tweet_id))));
+//
+//        CopyOnWriteArrayList<ConcurrentMap<ConcurrentMap<String,String>, ConcurrentMap<String,String>>> users_and_tweets = new CopyOnWriteArrayList<>();  //
+//        // Array list
+//        // of tweets only
+//
+//        ConcurrentMap x = new ConcurrentHashMap<>();
+//        x = returnTweet("2").getFie
+//
+//
+//        ConcurrentMap<ConcurrentMap<String,String>, ConcurrentMap<String,String>> temp = new ConcurrentHashMap<>();
+//        ConcurrentMap<ConcurrentMap<String,String>, ConcurrentMap<String,String>> temp2 = new ConcurrentHashMap<>();
+//
+//       // tweets.parallelStream().forEachOrdered(tweet_map -> );
+//
+//        tweets.parallelStream().forEachOrdered(tweet_map -> {
+//            //System.out.println(tweet_map);
+//            temp.put(Cache.returnUser(tweet_map.get("creator_id")),tweet_map);
+//            users_and_tweets.add(temp);
+//            //System.out.println(Arrays.deepToString(users_and_tweets.toArray()) +"\n");
+//           // temp.clear();
+//
+//        });
+//
+//        System.out.println(Arrays.deepToString(users_and_tweets.toArray()) +"\n");
+//
+//
+//
+//        CopyOnWriteArrayList<Integer> x = new CopyOnWriteArrayList<>();
+//        tweets.parallelStream().forEach(y -> x.add(1));
+//        System.out.println(Arrays.deepToString(x.toArray()) +"\n");
+//
+////        System.out.println(users_and_tweets.get(0).values().toString());
+//        return users_and_tweets;
+//    }
 
     public static Set<String> getTweets(String user_id) {
         return redisCache.smembers("usertweets:" + user_id);
@@ -177,14 +200,6 @@ public class Cache {
 
     private static boolean checkNulls(Map<String, String> map) {
         return map.containsValue(null);
-    }
-
-
-    public static void main(String[] args) {
-
-//        redisCache.flushDB();
-//        Cache.populateTimeline();
-        Cache.getTimeline("0");//.stream().forEach(System.out::println);
     }
 
 }
