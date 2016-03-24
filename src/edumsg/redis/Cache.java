@@ -135,36 +135,14 @@ public class Cache {
                 .forEachOrdered(user -> getTweets(user).parallelStream()
                         .forEachOrdered(tweet_id -> tweets.add(toConcurrentMap(returnTweet(tweet_id)))));
 
-        CopyOnWriteArrayList<ConcurrentMap<ConcurrentMap<String, String>, ConcurrentMap<String, String>>> users_and_tweets = new CopyOnWriteArrayList<>();  //
-        // Array list
-        // of tweets only
-
-        ConcurrentMap x = new ConcurrentHashMap<>();
-        x = returnTweet("2").getFie
-
+        CopyOnWriteArrayList<ConcurrentMap<ConcurrentMap<String, String>, ConcurrentMap<String, String>>> users_and_tweets = new CopyOnWriteArrayList<>();  // Array list of user and tweets map
 
         ConcurrentMap<ConcurrentMap<String, String>, ConcurrentMap<String, String>> temp = new ConcurrentHashMap<>();
-        ConcurrentMap<ConcurrentMap<String, String>, ConcurrentMap<String, String>> temp2 = new ConcurrentHashMap<>();
-
-        // tweets.parallelStream().forEachOrdered(tweet_map -> );
 
         tweets.parallelStream().forEachOrdered(tweet_map -> {
-            //System.out.println(tweet_map);
-            temp.put(Cache.returnUser(tweet_map.get("creator_id")), tweet_map);
-            users_and_tweets.add(temp);
-            //System.out.println(Arrays.deepToString(users_and_tweets.toArray()) +"\n");
-            // temp.clear();
-
+           users_and_tweets.add(new ConcurrentHashMap() {{put(tweet_map, toConcurrentMap(returnUser(tweet_map.get("creator_id"))));}});
+            temp.clear();
         });
-
-        System.out.println(Arrays.deepToString(users_and_tweets.toArray()) + "\n");
-
-
-        CopyOnWriteArrayList<Integer> x = new CopyOnWriteArrayList<>();
-        tweets.parallelStream().forEach(y -> x.add(1));
-        System.out.println(Arrays.deepToString(x.toArray()) + "\n");
-
-//        System.out.println(users_and_tweets.get(0).values().toString());
         return users_and_tweets;
     }
 
@@ -203,17 +181,16 @@ public class Cache {
         return map.containsValue(null);
     }
 
-    private static ConcurrentMap toConcurrentMap(Map<String, String> map) {
+    private static ConcurrentMap<String,String> toConcurrentMap(Map<String, String> map) {
         String[] mapStrings = map.toString().split(",");
         CopyOnWriteArrayList<String> mapStringsConcurrent = new CopyOnWriteArrayList<>(Arrays.asList(mapStrings));
-        ConcurrentMap result = mapStringsConcurrent.parallelStream().map(hash -> braceRemover(hash).split("=")).collect(Collectors.toConcurrentMap(key -> key[0], value -> value[1]));
+        ConcurrentMap<String,String> result = mapStringsConcurrent.parallelStream().map(hash -> braceRemover(hash).trim().split("=")).collect(Collectors.toConcurrentMap(key -> key[0], value -> value[1]));
 
         return result;
     }
 
 
-    private static String braceRemover(String x) { // adjusts the name key in a
-        // hashtable
+    private static String braceRemover(String x) {
         if (x.startsWith("{") && x.endsWith("}")) {
             return x.substring(1, x.length() - 1);
         } else {
@@ -229,4 +206,9 @@ public class Cache {
         }
     }
 
+    public static void main(String[] args) {
+        redisCache.flushDB();
+        populateTimeline();
+        getTimeline("0").forEach(System.out::println);
+    }
 }
