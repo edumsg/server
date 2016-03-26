@@ -30,6 +30,19 @@ public class Cache {
         }
     }
 
+
+    public static void addUserToCacheList(String user_id) {
+        if (user_id != null && !redisCache.sismember("user:",user_id)) {
+            redisCache.sadd("users:",user_id);
+        }
+    }
+
+    public static void removeUserFromCacheList(String user_id) {
+        if (user_id != null) {
+            redisCache.srem("users:", user_id);
+        }
+    }
+
     public static void cacheUser(String user_id, Map<String, String> userDetails) {
         if (!Cache.checkNulls(userDetails)) {
             redisCache.hmset("user:" + user_id, userDetails);

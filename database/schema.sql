@@ -66,10 +66,10 @@ DROP TABLE IF EXISTS followships CASCADE;
 CREATE TABLE followships(
   id serial PRIMARY KEY NOT NULL,
   user_id integer REFERENCES users(id) ON DELETE CASCADE,
-  follower_id integer REFERENCES users(id) ON DELETE CASCADE,
+  follower_of_user_id integer REFERENCES users(id) ON DELETE CASCADE,
   confirmed boolean DEFAULT '1', -- pending 0 and confirmed 1
   created_at timestamp NOT NULL,
-  UNIQUE (user_id, follower_id)
+  UNIQUE (user_id, follower_of_user_id)
 );
 
 DROP TABLE IF EXISTS lists CASCADE;

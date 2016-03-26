@@ -52,27 +52,28 @@ public class GetTimelineCommand extends Command implements Runnable {
             root.put("code", "200");
 
             while (set.next()) {
-                Integer id = set.getInt(1);
-                String tweet = set.getString(2);
-                String image_url = set.getString(3);
-                Timestamp created_at = set.getTimestamp(4);
-                String creator_name = set.getString(5);
-                String creator_username = set.getString(6);
-                String creator_avatar = set.getString(7);
+                    Integer id = set.getInt(1);
+                    String tweet = set.getString(2);
+                    String image_url = set.getString(3);
+                    Timestamp created_at = set.getTimestamp(4);
+                    String creator_name = set.getString(5);
+                    String creator_username = set.getString(6);
+                    String creator_avatar = set.getString(7);
 
-                Tweet t = new Tweet();
-                t.setId(id);
-                t.setTweetText(tweet);
-                t.setImageUrl(image_url);
-                t.setCreatedAt(created_at);
-                User creator = new User();
-                creator.setName(creator_name);
-                creator.setAvatarUrl(creator_avatar);
-                creator.setUsername(creator_username);
-                t.setCreator(creator);
+                    Tweet t = new Tweet();
+                    t.setId(id);
+                    t.setTweetText(tweet);
+                    t.setImageUrl(image_url);
+                    t.setCreatedAt(created_at);
+                    User creator = new User();
+                    creator.setName(creator_name);
+                    creator.setAvatarUrl(creator_avatar);
+                    creator.setUsername(creator_username);
+                    t.setCreator(creator);
 
-                tweets.addPOJO(t);
-            }
+                    tweets.addPOJO(t);
+                }
+
 //            set.close();
 //            proc.close();
             root.put("tweets", tweets);

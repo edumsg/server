@@ -35,4 +35,28 @@ public class EduMsgRedis {
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
         service.scheduleAtFixedRate(runnable, 0, 15, TimeUnit.MINUTES);
     }
+
+    public static void tweetCleaner(){
+        Runnable runnable = new Runnable() {
+            public void run() {
+                String res;
+                res = redisCache.bgsave();
+                System.out.println(res);
+            }
+        };
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        service.scheduleAtFixedRate(runnable, 0, 15, TimeUnit.MINUTES);
+    }
+
+    public static void dmCleaner(){
+        Runnable runnable = new Runnable() {
+            public void run() {
+                String res;
+                res = redisCache.bgsave();
+                System.out.println(res);
+            }
+        };
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        service.scheduleAtFixedRate(runnable, 0, 15, TimeUnit.MINUTES);
+    }
 }
