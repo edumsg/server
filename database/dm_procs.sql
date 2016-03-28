@@ -7,7 +7,7 @@ DECLARE conv integer;
 DECLARE conv_id integer;
   BEGIN
     SELECT count(*) INTO followers FROM followships F
-    WHERE F.user_id = $1 AND F.follower_id = $2 AND F.confirmed = TRUE;
+    WHERE F.user_id = $1 AND F.follower_of_user_id = $2 AND F.confirmed = TRUE;
 
     SELECT count(*) INTO conv FROM conversations C
     WHERE (C.user_id = $1 AND C.user2_id = $2) OR (C.user_id = $2 AND C.user2_id = $1);
