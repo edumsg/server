@@ -39,6 +39,7 @@ public class NewTweetCommand extends Command implements Runnable {
             Statement query = dbConn.createStatement();
             query.setPoolable(true);
             if (map.containsKey("image_url")) {
+
                 set = query.executeQuery(String.format("SELECT * FROM create_tweet('%s',%s,now()::timestamp,'%s')",
                         map.get("tweet_text"),
                         map.get("creator_id"),
@@ -47,9 +48,12 @@ public class NewTweetCommand extends Command implements Runnable {
                 set = query.executeQuery(String.format("SELECT * FROM create_tweet('%s',%s,now()::timestamp)",
                         map.get("tweet_text"),
                         map.get("creator_id")));
+
             }
+            String id = null;
             while(set.next()) {
-                details.put("id", set.getInt("id") + "");
+                id = set.getInt("id") + "";
+                details.put("id", id);
                 details.put("tweet_text", set.getString("tweet_text"));
                 details.put("creator_id", set.getInt("creator_id") + "");
                 details.put("image_url", set.getString("image_url"));
@@ -58,6 +62,7 @@ public class NewTweetCommand extends Command implements Runnable {
                 Cache.cacheUserTweet(map.get("creator_id"),set.getInt("id")+"");
                 root.put("id", set.getInt("id"));
             }
+
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));

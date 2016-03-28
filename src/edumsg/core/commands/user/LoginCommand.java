@@ -67,6 +67,7 @@ public class LoginCommand extends Command {
                 User user = new User();
                 Statement query = dbConn.createStatement();
 
+
                 if (details == null) {
                     query.setPoolable(true);
                     set = query.executeQuery(String.format("SELECT * FROM login('%s')", map.get("username")));
@@ -130,6 +131,7 @@ public class LoginCommand extends Command {
 
 
                     }
+
                     set.close();
                     dbConn.commit();
                     Cache.cacheUser(id.toString(), details);

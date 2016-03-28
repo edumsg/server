@@ -134,3 +134,41 @@ RETURNS void AS $$
     INSERT INTO reports(reported_id, creator_id, created_at) VALUES (reported_id, creator_id, created_at);
   END; $$
 LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION get_earliest_replies(tweet_id integer, user_id integer)
+RETURNS refcursor AS $$
+DECLARE cursor refcursor := 'cur';
+DECLARE favorite integer;
+DECLARE retweet integer;
+  BEGIN
+    SELECT COUNT(*) INTO favorite FROM favorites F
+    WHERE F.tweet_id = $1 AND F.user_id = $2;
+    SELECT COUNT(*) INTO retweet FROM retweets rt
+    WHERE rt.tweet_id = $1 AND rt.retweeter_id = $2;
+
+    OPEN cursor FOR
+    SELECT U.id, U.username, U.name, U.avatar_url, R.reply_id, T2.tweet_text, T2.image_url, favorite, retweet, T2.created_at
+    FROM replies R INNER JOIN tweets T ON R.original_tweet_id = T.id
+    INNER JOIN users U ON T.creator_id = U.id
+    INNER JOIN tweets T2 ON R.reply_id = T2.id
+    WHERE R.original_tweet_id = $1
+    ORDER BY T2.created_at ASC
+    LIMIT 4;
+    RETURN cursor;
+  END; $$
+LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION get_replies(tweet_id integer)
+RETURNS refcursor AS $$
+DECLARE cursor refcursor := 'cur';
+  BEGIN
+    OPEN cursor FOR
+    SELECT U.id, U.username, U.name, U.avatar_url, R.reply_id, T2.tweet_text, T2.image_url, T2.created_at
+    FROM replies R INNER JOIN tweets T ON R.original_tweet_id = T.id
+    INNER JOIN users U ON T.creator_id = U.id
+    INNER JOIN tweets T2 ON R.reply_id = T2.id
+    WHERE R.original_tweet_id = $1
+    ORDER BY T2.created_at ASC;
+    RETURN cursor;
+  END; $$
+LANGUAGE PLPGSQL;

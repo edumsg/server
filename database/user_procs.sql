@@ -129,13 +129,13 @@ RETURNS refcursor AS $$
 DECLARE cursor refcursor := 'cur';
   BEGIN
     OPEN cursor FOR
-    SELECT id, tweet_text, image_url, created_at, name, username, avatar_url
+    SELECT id, tweet_text, image_url, created_at, creator_id, name, username, avatar_url
     FROM (
-      (SELECT T.id, T.tweet_text, T.image_url, T.created_at, U.name, U.username, U.avatar_url, T.created_at AS "creation"
+      (SELECT T.id, T.tweet_text, T.image_url, T.created_at, U.id AS "creator_id", U.name, U.username, U.avatar_url, T.created_at AS "creation"
       FROM tweets T INNER JOIN users U ON T.creator_id = U.id
       WHERE T.creator_id = $1)
       UNION
-      (SELECT T.id, T.tweet_text, T.image_url, T.created_at, C.name, C.username, C.avatar_url, R.created_at AS "creation"
+      (SELECT T.id, T.tweet_text, T.image_url, T.created_at, C.id AS "creator_id", C.name, C.username, C.avatar_url, R.created_at AS "creation"
       FROM tweets T INNER JOIN retweets R ON T.id = R.tweet_id
         INNER JOIN users U ON R.retweeter_id = U.id INNER JOIN users C ON T.creator_id = C.id
       WHERE U.id = $1)) AS timeline
@@ -179,6 +179,19 @@ BEGIN
   ORDER BY R.created_at DESC;
   RETURN cursor;
 END; $$
+LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION get_retweets_ids(user_id integer)
+RETURNS refcursor AS $$
+DECLARE cursor refcursor := 'cur';
+  BEGIN
+    OPEN cursor FOR
+    SELECT R.tweet_id
+    FROM retweets R INNER JOIN users U ON R.retweeter_id = U.id
+    WHERE U.id = $1
+    ORDER BY R.created_at DESC;
+    RETURN cursor;
+  END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA DONE / JAVA DONE

@@ -78,6 +78,8 @@ public class CommandsMap {
         cmdMap.put("get_list_memberships", GetListMembershipsCommand.class);
         cmdMap.put("login", LoginCommand.class);
         cmdMap.put("logout", LogoutCommand.class);
+        cmdMap.put("get_earliest_replies", GetEarliestRepliesCommand.class);
+        cmdMap.put("get_replies", GetRepliesCommand.class);
 
         cmdMap.put("create_dm", CreateDmCommand.class);
         cmdMap.put("delete_dm", DeleteDmCommand.class);
