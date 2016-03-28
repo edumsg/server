@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 public class LoginCommand extends Command {
     private final Logger LOGGER = Logger.getLogger(LoginCommand.class.getName());
     private Integer id;
-    private String username, name, email, language, country, bio, website, link_color, background_color, session_id;
+    private String username, name, email, language, country, bio, website, link_color, background_color;
     private Timestamp created_at;
     private String avatar_url;
     private Boolean overlay, protected_tweets;
@@ -56,53 +56,44 @@ public class LoginCommand extends Command {
                 return;
             }
 
-            dbConn.commit();
             proc.close();
+            dbConn.commit();
 
             boolean authenticated = BCrypt.checkpw(map.get("password"), enc_password);
 
             if (authenticated) {
-                details = (HashMap<String, String>) Cache.returnUser(map.get("username"));
+                String user_id = Cache.returnUserID(map.get("username"));
+                details = Cache.returnUser(user_id);
                 User user = new User();
+                Statement query = dbConn.createStatement();
 
-//                if (details==null) {
-                    proc = dbConn.prepareCall("{call login(?,?)}");
-                    proc.setPoolable(true);
-                    proc.registerOutParameter(1, Types.OTHER); //new
-                    proc.setString(1, map.get("username"));
-                    proc.setString(2, sessionID);
-                    proc.execute();
 
-                    set = (ResultSet) proc.getObject(1); //new
+                if (details == null) {
+                    query.setPoolable(true);
+                    set = query.executeQuery(String.format("SELECT * FROM login('%s')", map.get("username")));
 
                     root.put("app", map.get("app"));
                     root.put("method", map.get("method"));
                     root.put("status", "ok");
                     root.put("code", "200");
-                    root.put("session_id", sessionID);
 
                     //new
-                    if (set.next()) {
-                        id = set.getInt(1);
-                        username = set.getString(2);
-                        email = set.getString(3);
-                        name = set.getString(5);
-                        language = set.getString(6);
-                        country = set.getString(7);
-                        bio = set.getString(8);
-                        website = set.getString(9);
-                        created_at = set.getTimestamp(10);
-                        avatar_url = set.getString(11);
-                        overlay = set.getBoolean(12);
-                        link_color = set.getString(13);
-                        background_color = set.getString(14);
-                        protected_tweets = set.getBoolean(15);
-                        session_id = set.getString(16);
+                    while (set.next()) {
+                        id = set.getInt("id");
+                        username = set.getString("username");
+                        email = set.getString("email");
+                        name = set.getString("name");
+                        language = set.getString("language");
+                        country = set.getString("country");
+                        bio = set.getString("bio");
+                        website = set.getString("website");
+                        created_at = set.getTimestamp("created_at");
+                        avatar_url = set.getString("avatar_url");
+                        overlay = set.getBoolean("overlay");
+                        link_color = set.getString("link_color");
+                        background_color = set.getString("background_color");
+                        protected_tweets = set.getBoolean("protected_tweets");
 
-//					String date_of_birth = set.getString(17);
-//					String gender = set.getString(18);
-
-                        user.setId(id);
                         user.setUsername(username);
                         user.setEmail(email);
                         user.setName(name);
@@ -116,54 +107,59 @@ public class LoginCommand extends Command {
                         user.setLinkColor(link_color);
                         user.setBackgroundColor(background_color);
                         user.setProtectedTweets(protected_tweets);
-                        user.setSessionID(session_id);
-//					user.setDate_of_birth(date_of_birth);
-//					user.setGender(gender);
-                    }
-//                    details.put("id", id.toString());
-//                    details.put("username", username);
-//                    details.put("email", email);
-//                    details.put("name", name);
-//                    details.put("language", language);
-//                    details.put("country", country);
-//                    details.put("bio", bio);
-//                    details.put("website", website);
-//                    details.put("created_at", created_at.toString());
-//                    details.put("avatar_url", avatar_url);
-//                    details.put("overlay", overlay.toString());
-//                    details.put("link_color", link_color);
-//                    details.put("background_color", background_color);
-//                    details.put("protected_tweets", protected_tweets.toString());
-//                    details.put("session_id", session_id);
-//                    Cache.cacheUser(id.toString(), details);
+                        user.setSessionID(sessionID);
 
-//                } else {
-//                    sessionID=URLEncoder.encode(new UID().toString(), "UTF-8");
-//                    root.put("app", map.get("app"));
-//                    root.put("method", map.get("method"));
-//                    root.put("status", "ok");
-//                    root.put("code", "200");
-//                    root.put("session_id", sessionID);
-//
-//                    user.setId(Integer.parseInt(details.get("id")));
-//                    user.setUsername(details.get("username"));
-//                    user.setEmail(details.get("email"));
-//                    user.setName(details.get("name"));
-//                    user.setLanguage(details.get("language"));
-//                    user.setCountry(details.get("country"));
-//                    user.setBio(details.get("bio"));
-//                    user.setWebsite(details.get("website"));
-//                    user.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
-//                    user.setAvatarUrl(details.get("avatar_url"));
-//                    user.setOverlay(Boolean.parseBoolean(details.get("overlay")));
-//                    user.setLinkColor(details.get("link_color"));
-//                    user.setBackgroundColor(details.get("background_color"));
-//                    user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
-//                    user.setSessionID(sessionID);
-//
-//                    Statement query = dbConn.createStatement();
-//                    set = query.executeQuery("UPDATE users set session_id = " + sessionID + " where username = " + username);
-//                }
+                        details = new HashMap<String, String>();
+
+                        details.put("id", id.toString());
+                        details.put("username", username);
+                        details.put("email", email);
+                        details.put("name", name);
+                        details.put("language", language);
+                        details.put("country", country);
+                        details.put("bio", bio);
+                        details.put("website", website);
+                        details.put("created_at", created_at.toString());
+                        details.put("avatar_url", avatar_url);
+                        details.put("overlay", overlay.toString());
+                        details.put("link_color", link_color);
+                        details.put("background_color", background_color);
+                        details.put("protected_tweets", protected_tweets.toString());
+                        details.put("session_id", sessionID);
+
+                        root.put("user_id", id);
+
+
+                    }
+
+                    set.close();
+                    dbConn.commit();
+                    Cache.cacheUser(id.toString(), details);
+
+                } else {
+                    root.put("app", map.get("app"));
+                    root.put("method", map.get("method"));
+                    root.put("status", "ok");
+                    root.put("code", "200");
+                    root.put("user_id", details.get("id"));
+
+                    user.setId(Integer.parseInt(details.get("id")));
+                    user.setUsername(details.get("username"));
+                    user.setEmail(details.get("email"));
+                    user.setName(details.get("name"));
+                    user.setLanguage(details.get("language"));
+                    user.setCountry(details.get("country"));
+                    user.setBio(details.get("bio"));
+                    user.setWebsite(details.get("website"));
+                    user.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
+                    user.setAvatarUrl(details.get("avatar_url"));
+                    user.setOverlay(Boolean.parseBoolean(details.get("overlay")));
+                    user.setLinkColor(details.get("link_color"));
+                    user.setBackgroundColor(details.get("background_color"));
+                    user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
+                    user.setSessionID(sessionID);
+                    Cache.cacheUserSession(details.get("id"), sessionID);
+                }
 
                 POJONode child = nf.POJONode(user);
                 root.put("user", child);
@@ -178,7 +174,6 @@ public class LoginCommand extends Command {
                     //Logger.log(Level.SEVERE, e.getMessage(), e);
                 }
 
-
             } else {
                 CommandsHelp.handleError(map.get("app"), map.get("method"), "Invalid Password", map.get("correlation_id"), LOGGER);
             }
@@ -192,7 +187,7 @@ public class LoginCommand extends Command {
         } catch (UnsupportedEncodingException e) {
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn);
+            PostgresConnection.disconnect(set, proc, dbConn,null);
         }
     }
 }

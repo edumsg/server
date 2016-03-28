@@ -64,6 +64,7 @@ public class GetListMembersCommand extends Command implements Runnable {
 
                 usersArray.addPOJO(user);
             }
+            set.close();
 
             root.put("members", usersArray);
             try {
@@ -84,7 +85,7 @@ public class GetListMembersCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(set, proc, dbConn);
+            PostgresConnection.disconnect(set, proc, dbConn,null);
         }
     }
 }

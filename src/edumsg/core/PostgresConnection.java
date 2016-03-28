@@ -62,6 +62,36 @@ public class PostgresConnection {
     }
 
     public static void disconnect(ResultSet rs, PreparedStatement statment,
+                                  Connection conn, Statement query) {
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+            }
+        }
+        if (statment != null) {
+            try {
+                statment.close();
+            } catch (SQLException e) {
+            }
+        }
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+            }
+        }
+
+        if(query != null){
+            try {
+                query.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void disconnect(ResultSet rs, PreparedStatement statment,
                                   Connection conn) {
         if (rs != null) {
             try {
@@ -81,6 +111,8 @@ public class PostgresConnection {
             } catch (SQLException e) {
             }
         }
+
+
     }
 
     public static void initSource() {

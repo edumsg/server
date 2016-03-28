@@ -71,7 +71,8 @@ public class GetFavoritesCommand extends Command implements Runnable {
 
                 tweets.addPOJO(t);
             }
-
+set.close();
+proc.close();
             root.put("favorites", tweets);
             try {
                 CommandsHelp.submit(map.get("app"),
@@ -93,7 +94,7 @@ public class GetFavoritesCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(set, proc, dbConn);
+            PostgresConnection.disconnect(set, proc, dbConn,null);
         }
     }
 }

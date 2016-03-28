@@ -39,14 +39,17 @@ public class ReportUserCommand extends Command implements Runnable {
             proc.setInt(2, Integer.parseInt(map.get("creator_id")));
             proc.execute();
 
+
+            proc.close();
+
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
             try {
                 CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
+                mapper.writeValueAsString(root),
+                map.get("correlation_id"), LOGGER);
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
@@ -66,7 +69,7 @@ public class ReportUserCommand extends Command implements Runnable {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn);
+            PostgresConnection.disconnect(null, proc, dbConn,null);
         }
     }
 }

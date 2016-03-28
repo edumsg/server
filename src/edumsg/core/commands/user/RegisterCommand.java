@@ -29,6 +29,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Logger;
 
+import static edumsg.redis.Cache.mapUsernameID;
+
 public class RegisterCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(RegisterCommand.class.getName());
 
@@ -39,19 +41,24 @@ public class RegisterCommand extends Command implements Runnable {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
             String password = BCrypt.hashpw(map.get("password"), BCrypt.gensalt());
-            Statement query = dbConn.createStatement();
+            query = dbConn.createStatement();
             query.setPoolable(true);
-            System.out.println(String.format("SELECT * FROM create_user('%s','%s','%s','%s',now()::timestamp)",
-                    map.get("username"), map.get("email"), password, map.get("name")));
 
             if (map.containsKey("avatar_url")) {
-                System.out.println("entered");
-                set = query.executeQuery(String.format("SELECT * FROM create_user('%s','%s','%s','%s',now()::timestamp,'%s')",
-                        map.get("username"), map.get("email"), password, map.get("name"), map.get("avatar_url")));
+                set = query.executeQuery(String.format(
+                        "SELECT * FROM create_user('%s','%s','%s','%s',now()::timestamp,'%s')"
+                        , map.get("username")
+                        , map.get("email")
+                        , password
+                        , map.get("name")
+                        , map.get("avatar_url")));
             } else {
-                set = query.executeQuery(String.format("SELECT * FROM create_user('%s','%s','%s', '%s',now()" +
-                        "::timestamp)",
-                        map.get("username"), map.get("email"), password, map.get("name")));
+                set = query.executeQuery(String.format(
+                        "SELECT * FROM create_user('%s','%s','%s', '%s',now()::timestamp)"
+                        , map.get("username")
+                        , map.get("email")
+                        , password
+                        , map.get("name")));
             }
 
             root.put("app", map.get("app"));
@@ -60,14 +67,18 @@ public class RegisterCommand extends Command implements Runnable {
             root.put("code", "200");
 
         while(set.next()) {
+            System.out.println("entered");
             details.put("username", map.get("username"));
             details.put("email", map.get("email"));
             details.put("name", map.get("name"));
             details.put("created_at", set.getTimestamp("created_at")+"");
-            Cache.registerUser("user:" + set.getInt("id"), details);
+            Cache.cacheUser(set.getInt("id")+"", details);
+            Cache.mapUsernameID(map.get("username"), set.getInt("id")+"");
         }
 
             set.close();
+            query.close();
+
 
             try {
                 CommandsHelp.submit(map.get("app"),
@@ -107,7 +118,7 @@ public class RegisterCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn);
+            PostgresConnection.disconnect(set, null, dbConn, query);
         }
     }
 }

@@ -43,11 +43,10 @@ public class NettyNotifier extends Thread {
                         System.out.println("thread" + getResponseBody());
                         setResponseBody(msgTxt);
                         serverHandler.setResponseBody(msgTxt);
-                        sleep(1000);
+                        sleep(1000);  //Why sleep?
                         synchronized (serverHandler) {
                             serverHandler.notify();
-                            System.out
-                                    .println("netty notified by notifier");
+                            System.out.println("netty notified by notifier");
                         }
                     } catch (JMSException | InterruptedException e) {
                         // TODO Auto-generated catch block

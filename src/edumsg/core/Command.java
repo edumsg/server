@@ -19,6 +19,7 @@ import org.codehaus.jackson.node.ObjectNode;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +27,7 @@ public abstract class Command implements Runnable {
     protected HashMap<String, String> map;
     protected Connection dbConn;
     protected CallableStatement proc;
+    protected Statement query;
     protected ResultSet set;
     protected MyObjectMapper mapper = new MyObjectMapper();
     protected JsonNodeFactory nf = JsonNodeFactory.instance;

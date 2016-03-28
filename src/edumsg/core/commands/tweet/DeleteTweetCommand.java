@@ -15,6 +15,7 @@ package edumsg.core.commands.tweet;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
+import edumsg.redis.Cache;
 import edumsg.redis.EduMsgRedis;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -38,6 +39,8 @@ public class DeleteTweetCommand extends Command implements Runnable {
             proc.setPoolable(true);
             proc.setInt(1, Integer.parseInt(map.get("tweet_id")));
             proc.execute();
+
+            Cache.deleteTweet(map.get("tweet_id"));
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));

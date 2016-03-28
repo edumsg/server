@@ -54,8 +54,9 @@ public class NewTweetCommand extends Command implements Runnable {
                 details.put("image_url", set.getString("image_url"));
                 details.put("created_at", set.getTimestamp("created_at")+"");
             }
-//            Cache.createTweet("tweet:"+id, details);
-//            Cache.cacheUserTweet(map.get("creator_id"),set.getInt("id")+"");
+
+            Cache.cacheTweet(set.getInt("id")+"", details);
+            Cache.cacheUserTweet(map.get("creator_id"),set.getInt("id")+"");
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));

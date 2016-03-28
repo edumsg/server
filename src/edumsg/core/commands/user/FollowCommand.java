@@ -48,10 +48,12 @@ public class FollowCommand extends Command implements Runnable {
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
+            proc.close();
+
             try {
                 CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
+                mapper.writeValueAsString(root),
+                map.get("correlation_id"), LOGGER);
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
@@ -63,20 +65,20 @@ public class FollowCommand extends Command implements Runnable {
         } catch (PSQLException e) {
             if (e.getMessage().contains("unique constraint")) {
                 CommandsHelp.handleError(map.get("app"), map.get("method"),
-                        "Followship already exists", map.get("correlation_id"),
-                        LOGGER);
+                "Followship already exists", map.get("correlation_id"),
+                LOGGER);
             } else {
                 CommandsHelp.handleError(map.get("app"), map.get("method"),
-                        e.getMessage(), map.get("correlation_id"), LOGGER);
+                e.getMessage(), map.get("correlation_id"), LOGGER);
             }
 
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (SQLException e) {
             CommandsHelp.handleError(map.get("app"), map.get("method"),
-                    e.getMessage(), map.get("correlation_id"), LOGGER);
+            e.getMessage(), map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn);
+            PostgresConnection.disconnect(null, proc, dbConn,null);
         }
     }
 }

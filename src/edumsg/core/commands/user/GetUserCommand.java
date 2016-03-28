@@ -88,29 +88,31 @@ public class GetUserCommand extends Command implements Runnable {
                     user.setProtectedTweets(protected_tweets);
                     user.setSessionID(session_id);
                 }
-//            }
-//            else {
-//                user.setId(Integer.parseInt(details.get("id")));
-//                user.setUsername(details.get("username"));
-//                user.setEmail(details.get("email"));
-//                user.setName(details.get("name"));
-//                user.setLanguage(details.get("language"));
-//                user.setCountry(details.get("country"));
-//                user.setBio(details.get("bio"));
-//                user.setWebsite(details.get("website"));
-//                user.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
-//                user.setAvatarUrl(details.get("avatar_url"));
-//                user.setOverlay(Boolean.parseBoolean(details.get("overlay")));
-//                user.setLinkColor(details.get("link_color"));
-//                user.setBackgroundColor(details.get("background_color"));
-//                user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
-//            }
+                set.close();
+                proc.close();
+
+            } else {
+                user.setId(Integer.parseInt(details.get("id")));
+                user.setUsername(details.get("username"));
+                user.setEmail(details.get("email"));
+                user.setName(details.get("name"));
+                user.setLanguage(details.get("language"));
+                user.setCountry(details.get("country"));
+                user.setBio(details.get("bio"));
+                user.setWebsite(details.get("website"));
+                user.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
+                user.setAvatarUrl(details.get("avatar_url"));
+                user.setOverlay(Boolean.parseBoolean(details.get("overlay")));
+                user.setLinkColor(details.get("link_color"));
+                user.setBackgroundColor(details.get("background_color"));
+                user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
+            }
             POJONode child = nf.POJONode(user);
             root.put("user", child);
             try {
                 CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
+                mapper.writeValueAsString(root),
+                map.get("correlation_id"), LOGGER);
             } catch (JsonGenerationException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
@@ -127,7 +129,7 @@ public class GetUserCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(set, proc, dbConn);
+            PostgresConnection.disconnect(set, proc, dbConn,null);
         }
     }
 }

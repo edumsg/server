@@ -16,8 +16,7 @@ CREATE TABLE users(
   overlay boolean DEFAULT '0', -- white 0 and black 1
   link_color varchar(10),
   background_color varchar(10),
-  protected_tweets boolean DEFAULT '0', -- public 0 and private 1
-  session_id text
+  protected_tweets boolean DEFAULT '0' -- public 0 and private 1
 );
 
 DROP TABLE IF EXISTS tweets CASCADE;
@@ -67,10 +66,10 @@ DROP TABLE IF EXISTS followships CASCADE;
 CREATE TABLE followships(
   id serial PRIMARY KEY NOT NULL,
   user_id integer REFERENCES users(id) ON DELETE CASCADE,
-  follower_id integer REFERENCES users(id) ON DELETE CASCADE,
+  follower_of_user_id integer REFERENCES users(id) ON DELETE CASCADE,
   confirmed boolean DEFAULT '1', -- pending 0 and confirmed 1
   created_at timestamp NOT NULL,
-  UNIQUE (user_id, follower_id)
+  UNIQUE (user_id, follower_of_user_id)
 );
 
 DROP TABLE IF EXISTS lists CASCADE;
@@ -124,6 +123,7 @@ CREATE TABLE direct_messages(
   conv_id integer REFERENCES conversations(id) ON DELETE CASCADE,
   created_at timestamp NOT NULL
 );
+
 
 DROP TABLE IF EXISTS replies CASCADE;
 

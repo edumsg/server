@@ -38,6 +38,7 @@ public class SubscribeCommand extends Command implements Runnable {
             proc.setInt(1, Integer.parseInt(map.get("user_id")));
             proc.setInt(2, Integer.parseInt(map.get("list_id")));
             proc.execute();
+            proc.close();
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
@@ -63,7 +64,7 @@ public class SubscribeCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn);
+            PostgresConnection.disconnect(null, proc, dbConn,null);
         }
     }
 }

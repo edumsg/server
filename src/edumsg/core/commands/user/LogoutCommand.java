@@ -15,6 +15,7 @@ package edumsg.core.commands.user;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
+import edumsg.redis.Cache;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.postgresql.util.PSQLException;
@@ -29,13 +30,8 @@ public class LogoutCommand extends Command implements Runnable {
     @Override
     public void execute() {
 
-        try {
-            dbConn = PostgresConnection.getDataSource().getConnection();
-            dbConn.setAutoCommit(true);
-            proc = dbConn.prepareCall("{call logout(?)}");
-            proc.setPoolable(true);
-            proc.setInt(1, Integer.parseInt(map.get("user_id")));
-            proc.execute();
+           Cache.logoutUser(map.get("user_id"));
+
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
@@ -54,15 +50,7 @@ public class LogoutCommand extends Command implements Runnable {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
             }
 
-        } catch (PSQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            //Logger.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            //Logger.log(Level.SEVERE, e.getMessage(), e);
-        } finally {
-            PostgresConnection.disconnect(null, proc, dbConn);
-        }
+
     }
 
 }

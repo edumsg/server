@@ -65,7 +65,8 @@ public class GetUsersCommand extends Command implements Runnable {
 
                 usersArray.addPOJO(user);
             }
-
+            set.close();
+            proc.close();
             root.put("users", usersArray);
             try {
                 CommandsHelp.submit(map.get("app"),mapper.writeValueAsString(root),map.get("correlation_id"), LOGGER);
@@ -93,7 +94,7 @@ public class GetUsersCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(set, proc, dbConn);
+            PostgresConnection.disconnect(set, proc, dbConn,null);
         }
     }
 }

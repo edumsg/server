@@ -19,6 +19,8 @@ import edumsg.core.commands.user.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 
 import edumsg.core.commands.dm.CreateDmCommand;
@@ -43,10 +45,10 @@ import edumsg.core.commands.user.*;
 
 
 public class CommandsMap {
-    private static Map<String, Class<?>> cmdMap;
+    private static ConcurrentMap<String, Class<?>> cmdMap;
 
     public static void instantiate() {
-        cmdMap = new HashMap<String, Class<?>>();
+        cmdMap = new ConcurrentHashMap<>();
         cmdMap.put("register", RegisterCommand.class);
         cmdMap.put("follow", FollowCommand.class);
         cmdMap.put("unfollow", UnFollowCommand.class);
@@ -69,9 +71,9 @@ public class CommandsMap {
         cmdMap.put("get_mentions", GetMentionsCommand.class);
         cmdMap.put("get_retweets", GetRetweetsCommand.class);
         cmdMap.put("get_tweet", GetTweetCommand.class);
-        cmdMap.put("timeline", GetTimelineCommand.class);
+        cmdMap.put("user_tweets", GetTimelineCommand.class);
         cmdMap.put("get_favorites", GetFavoritesCommand.class);
-        cmdMap.put("get_feeds", GetFeedsCommand.class);
+        cmdMap.put("timeline", GetFeedsCommand.class);
         cmdMap.put("get_subscribed_lists", GetSubscribedListsCommand.class);
         cmdMap.put("get_list_memberships", GetListMembershipsCommand.class);
         cmdMap.put("login", LoginCommand.class);

@@ -62,6 +62,7 @@ public class UpdateUserCommand extends Command implements Runnable {
             Array array = dbConn.createArrayOf("text", arraySet);
             proc.setArray(2, array);
             proc.execute();
+            proc.close();
 
             root.put("app", app);
             root.put("method", method);
@@ -93,7 +94,7 @@ public class UpdateUserCommand extends Command implements Runnable {
             CommandsHelp.handleError(app, method, e.getMessage(), correlationID, LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn);
+            PostgresConnection.disconnect(null, proc, dbConn,null);
         }
     }
 }

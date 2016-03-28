@@ -88,7 +88,7 @@ public class FavoriteCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //LOGGER.log(Level.OFF, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn);
+            PostgresConnection.disconnect(null, proc, dbConn,null);
         }
     }
 }

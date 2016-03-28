@@ -4,7 +4,7 @@ our %ids = (Sara => 1, Magda => 2, Sameer => 3, Sameh => 4, Samar => 5, Hadeel =
 
 sub user_insertions{
     for 0..19 -> $i {
-        say "INSERT INTO users VALUES(DEFAULT,'"  ~@names[$i].gist.lc~ "', 'a$i@a.com', '\$2a\$10\$LWTMQA4F1.jqctvsJtFapu7X.wTo8lXhLybg5.7haAF2Vt7k7DKIG','" ~@names[$i].gist~ "', 'english', 'egypt',  'fsdfdsjlfdlkjdfk', 'www.google.com', CURRENT_TIMESTAMP, 'http://bit.ly/20VGjpB', true, '#FF0000', '#00FF00', false, NULL );\n";
+        say "INSERT INTO users VALUES(DEFAULT,'"  ~@names[$i].gist.lc~ "', 'a$i@a.com', '\$2a\$10\$LWTMQA4F1.jqctvsJtFapu7X.wTo8lXhLybg5.7haAF2Vt7k7DKIG','" ~@names[$i].gist~ "', 'english', 'egypt',  'fsdfdsjlfdlkjdfk', 'www.google.com', CURRENT_TIMESTAMP, 'http://bit.ly/20VGjpB', true, '#FF0000', '#00FF00', false);\n";
     }
 }
 
@@ -57,3 +57,5 @@ sub retweets_insertions{
         say "INSERT INTO retweets VALUES(DEFAULT, (SELECT id FROM tweets LIMIT 1 OFFSET " ~$i~ "), (SELECT id FROM users LIMIT 1 OFFSET " ~$i~ "), (SELECT id FROM users LIMIT 1 OFFSET " ~$i+1~ "), CURRENT_TIMESTAMP);"
     }
 }
+
+user_insertions
