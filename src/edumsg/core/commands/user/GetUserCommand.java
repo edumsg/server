@@ -39,7 +39,7 @@ public class GetUserCommand extends Command implements Runnable {
             details = Cache.returnUser(map.get("username"));
             User user = new User();
 
-            if (details.equals(null)) {
+            if (details == null) {
 
                 dbConn = PostgresConnection.getDataSource().getConnection();
                 dbConn.setAutoCommit(false);
