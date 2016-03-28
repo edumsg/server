@@ -36,10 +36,10 @@ public class GetUserCommand extends Command implements Runnable {
     public void execute() {
 
         try {
-            details = Cache.returnUser(map.get("username"));
+//            details = Cache.returnUser(map.get("username"));
             User user = new User();
 
-            if (details.equals(null)) {
+//            if (details.equals(null)) {
 
                 dbConn = PostgresConnection.getDataSource().getConnection();
                 dbConn.setAutoCommit(false);
@@ -88,22 +88,23 @@ public class GetUserCommand extends Command implements Runnable {
                     user.setProtectedTweets(protected_tweets);
                     user.setSessionID(session_id);
                 }
-            } else {
-                user.setId(Integer.parseInt(details.get("id")));
-                user.setUsername(details.get("username"));
-                user.setEmail(details.get("email"));
-                user.setName(details.get("name"));
-                user.setLanguage(details.get("language"));
-                user.setCountry(details.get("country"));
-                user.setBio(details.get("bio"));
-                user.setWebsite(details.get("website"));
-                user.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
-                user.setAvatarUrl(details.get("avatar_url"));
-                user.setOverlay(Boolean.parseBoolean(details.get("overlay")));
-                user.setLinkColor(details.get("link_color"));
-                user.setBackgroundColor(details.get("background_color"));
-                user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
-            }
+//            }
+//            else {
+//                user.setId(Integer.parseInt(details.get("id")));
+//                user.setUsername(details.get("username"));
+//                user.setEmail(details.get("email"));
+//                user.setName(details.get("name"));
+//                user.setLanguage(details.get("language"));
+//                user.setCountry(details.get("country"));
+//                user.setBio(details.get("bio"));
+//                user.setWebsite(details.get("website"));
+//                user.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
+//                user.setAvatarUrl(details.get("avatar_url"));
+//                user.setOverlay(Boolean.parseBoolean(details.get("overlay")));
+//                user.setLinkColor(details.get("link_color"));
+//                user.setBackgroundColor(details.get("background_color"));
+//                user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
+//            }
             POJONode child = nf.POJONode(user);
             root.put("user", child);
             try {

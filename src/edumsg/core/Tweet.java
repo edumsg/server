@@ -25,6 +25,8 @@ public class Tweet {
 	private User favoriter;
 	private Integer retweets;
 	private Integer favorites;
+	private boolean is_retweeted;
+	private boolean is_favorited;
 
 	public void setId(Integer id) {
 		this.id = id;
@@ -60,5 +62,13 @@ public class Tweet {
 
 	public void setFavorites(Integer favorites) {
 		this.favorites = favorites;
+	}
+
+	public void setIsRetweeted(boolean isRetweeted) {
+		this.is_retweeted = isRetweeted;
+	}
+
+	public void setIsFavorited(boolean isFavorited) {
+		this.is_favorited = isFavorited;
 	}
 }

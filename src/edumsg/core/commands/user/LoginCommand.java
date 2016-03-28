@@ -65,7 +65,7 @@ public class LoginCommand extends Command {
                 details = (HashMap<String, String>) Cache.returnUser(map.get("username"));
                 User user = new User();
 
-                if (details==null) {
+//                if (details==null) {
                     proc = dbConn.prepareCall("{call login(?,?)}");
                     proc.setPoolable(true);
                     proc.registerOutParameter(1, Types.OTHER); //new
@@ -120,50 +120,50 @@ public class LoginCommand extends Command {
 //					user.setDate_of_birth(date_of_birth);
 //					user.setGender(gender);
                     }
-                    details.put("id", id.toString());
-                    details.put("username", username);
-                    details.put("email", email);
-                    details.put("name", name);
-                    details.put("language", language);
-                    details.put("country", country);
-                    details.put("bio", bio);
-                    details.put("website", website);
-                    details.put("created_at", created_at.toString());
-                    details.put("avatar_url", avatar_url);
-                    details.put("overlay", overlay.toString());
-                    details.put("link_color", link_color);
-                    details.put("background_color", background_color);
-                    details.put("protected_tweets", protected_tweets.toString());
-                    details.put("session_id", session_id);
-                    Cache.cacheUser(id.toString(), details);
+//                    details.put("id", id.toString());
+//                    details.put("username", username);
+//                    details.put("email", email);
+//                    details.put("name", name);
+//                    details.put("language", language);
+//                    details.put("country", country);
+//                    details.put("bio", bio);
+//                    details.put("website", website);
+//                    details.put("created_at", created_at.toString());
+//                    details.put("avatar_url", avatar_url);
+//                    details.put("overlay", overlay.toString());
+//                    details.put("link_color", link_color);
+//                    details.put("background_color", background_color);
+//                    details.put("protected_tweets", protected_tweets.toString());
+//                    details.put("session_id", session_id);
+//                    Cache.cacheUser(id.toString(), details);
 
-                } else {
-                    sessionID=URLEncoder.encode(new UID().toString(), "UTF-8");
-                    root.put("app", map.get("app"));
-                    root.put("method", map.get("method"));
-                    root.put("status", "ok");
-                    root.put("code", "200");
-                    root.put("session_id", sessionID);
-
-                    user.setId(Integer.parseInt(details.get("id")));
-                    user.setUsername(details.get("username"));
-                    user.setEmail(details.get("email"));
-                    user.setName(details.get("name"));
-                    user.setLanguage(details.get("language"));
-                    user.setCountry(details.get("country"));
-                    user.setBio(details.get("bio"));
-                    user.setWebsite(details.get("website"));
-                    user.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
-                    user.setAvatarUrl(details.get("avatar_url"));
-                    user.setOverlay(Boolean.parseBoolean(details.get("overlay")));
-                    user.setLinkColor(details.get("link_color"));
-                    user.setBackgroundColor(details.get("background_color"));
-                    user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
-                    user.setSessionID(sessionID);
-
-                    Statement query = dbConn.createStatement();
-                    set = query.executeQuery("UPDATE users set session_id = " + sessionID + " where username = " + username);
-                }
+//                } else {
+//                    sessionID=URLEncoder.encode(new UID().toString(), "UTF-8");
+//                    root.put("app", map.get("app"));
+//                    root.put("method", map.get("method"));
+//                    root.put("status", "ok");
+//                    root.put("code", "200");
+//                    root.put("session_id", sessionID);
+//
+//                    user.setId(Integer.parseInt(details.get("id")));
+//                    user.setUsername(details.get("username"));
+//                    user.setEmail(details.get("email"));
+//                    user.setName(details.get("name"));
+//                    user.setLanguage(details.get("language"));
+//                    user.setCountry(details.get("country"));
+//                    user.setBio(details.get("bio"));
+//                    user.setWebsite(details.get("website"));
+//                    user.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
+//                    user.setAvatarUrl(details.get("avatar_url"));
+//                    user.setOverlay(Boolean.parseBoolean(details.get("overlay")));
+//                    user.setLinkColor(details.get("link_color"));
+//                    user.setBackgroundColor(details.get("background_color"));
+//                    user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
+//                    user.setSessionID(sessionID);
+//
+//                    Statement query = dbConn.createStatement();
+//                    set = query.executeQuery("UPDATE users set session_id = " + sessionID + " where username = " + username);
+//                }
 
                 POJONode child = nf.POJONode(user);
                 root.put("user", child);
