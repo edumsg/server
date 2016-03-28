@@ -39,11 +39,14 @@ public class NewTweetCommand extends Command implements Runnable {
             Statement query = dbConn.createStatement();
             query.setPoolable(true);
             if (map.containsKey("image_url")) {
-                set = query.executeQuery(String.format("SELECT * FROM create_tweet('%s',%d,now()::timestamp,'%s')",map
-                        .get("tweet_text"), map.get("creator_id"),map.get("image_url")));
+                set = query.executeQuery(String.format("SELECT * FROM create_tweet('%s',%s,now()::timestamp,'%s')",
+                        map.get("tweet_text"),
+                        map.get("creator_id"),
+                        map.get("image_url")));
             } else {
-                set = query.executeQuery(String.format("SELEXT * FROM create_tweet('%s',%d,now()::timestamp)",map
-                        .get("tweet_text"), map.get("creator_id")));
+                set = query.executeQuery(String.format("SELECT * FROM create_tweet('%s',%s,now()::timestamp)",
+                        map.get("tweet_text"),
+                        map.get("creator_id")));
             }
             while(set.next()) {
                 details.put("id", set.getInt("id") + "");
@@ -51,15 +54,15 @@ public class NewTweetCommand extends Command implements Runnable {
                 details.put("creator_id", set.getInt("creator_id") + "");
                 details.put("image_url", set.getString("image_url"));
                 details.put("created_at", set.getTimestamp("created_at")+"");
+                Cache.cacheTweet(set.getInt("id")+"", details);
+                Cache.cacheUserTweet(map.get("creator_id"),set.getInt("id")+"");
+                root.put("id", set.getInt("id"));
             }
-            Cache.cacheTweet(set.getInt("id")+"", details);
-            Cache.cacheUserTweet(map.get("creator_id"),set.getInt("id")+"");
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
-            root.put("id", set.getInt("id"));
             set.close();
 
             try {

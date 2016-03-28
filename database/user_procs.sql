@@ -50,7 +50,7 @@ END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA DONE
-CREATE OR REPLACE FUNCTION follow(user_id integer, follower_id integer,
+CREATE OR REPLACE FUNCTION follow(user_id integer, follower_of_user_id integer,
                                   created_at timestamp)
   RETURNS void AS $$
 DECLARE private_user boolean;
@@ -59,20 +59,20 @@ BEGIN
   WHERE U.id = $1;
 
   IF private_user THEN
-    INSERT INTO followships(user_id, follower_id, confirmed, created_at)
-    VALUES (user_id, follower_id, '0', created_at);
+    INSERT INTO followships(user_id, follower_of_user_id, confirmed, created_at)
+    VALUES (user_id, follower_of_user_id, '0', created_at);
   ELSE
-    INSERT INTO followships(user_id, follower_id, created_at)
-    VALUES (user_id, follower_id, created_at);
+    INSERT INTO followships(user_id, follower_of_user_id, created_at)
+    VALUES (user_id, follower_of_user_id, created_at);
   END IF;
 END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA DONE
-CREATE OR REPLACE FUNCTION unfollow(user_id integer, follower_id integer)
+CREATE OR REPLACE FUNCTION unfollow(user_id integer, follower_of_user_id integer)
   RETURNS void AS $$
 BEGIN
-  DELETE FROM followships F WHERE F.user_id = $1 AND F.follower_id = $2;
+  DELETE FROM followships F WHERE F.user_id = $1 AND F.follower_of_user_id = $2;
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -81,7 +81,7 @@ CREATE OR REPLACE FUNCTION confirm_follow(userid integer, followerid integer)
   RETURNS void AS $$
 BEGIN
   UPDATE followships SET confirmed = TRUE
-  WHERE user_id = $1 AND follower_id = $2;
+  WHERE user_id = $1 AND follower_of_user_id = $2;
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -92,7 +92,7 @@ DECLARE cursor refcursor := 'cur';
 BEGIN
   OPEN cursor FOR
   SELECT U.username, U.name, U.avatar_url
-  FROM users U INNER JOIN followships F ON U.id = F.follower_id
+  FROM users U INNER JOIN followships F ON U.id = F.follower_of_user_id
   WHERE F.user_id = $1 AND F.confirmed = TRUE;
   RETURN cursor;
 END; $$
@@ -106,7 +106,7 @@ BEGIN
   OPEN cursor FOR
   SELECT U.username, U.name, U.avatar_url
   FROM users U INNER JOIN followships F ON U.id = F.user_id
-  WHERE F.follower_id = $1 AND F.confirmed = TRUE;
+  WHERE F.follower_of_user_id = $1 AND F.confirmed = TRUE;
   RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -118,7 +118,7 @@ DECLARE cursor refcursor := 'cur';
 BEGIN
   OPEN cursor FOR
   SELECT U.username, U.name, U.avatar_url
-  FROM users U INNER JOIN followships F ON U.id = F.follower_id
+  FROM users U INNER JOIN followships F ON U.id = F.follower_of_user_id
   WHERE F.user_id = $1 AND F.confirmed = FALSE;
   RETURN cursor;
 END; $$
@@ -155,12 +155,12 @@ BEGIN
          (SELECT T.id, T.tweet_text, T.image_url, T.created_at, C.id AS "creator_id", C.name, C.username, C.avatar_url, C.name AS "name2", U.id AS "retweeter_id", T.created_at AS "creation"
           FROM tweets T INNER JOIN users C ON T.creator_id = C.id INNER JOIN followships F ON C.id = F.user_id
             INNER JOIN users U ON C.id = U.id
-          WHERE F.confirmed = TRUE AND F.follower_id = $1)
+          WHERE F.confirmed = TRUE AND F.follower_of_user_id = $1)
          UNION ALL
          (SELECT T.id, T.tweet_text, T.image_url, T.created_at, C.id AS "creator_id", C.name, C.username, C.avatar_url, U.name AS "name2", U.id AS "retweeter_id", R.created_at AS "creation"
           FROM tweets T INNER JOIN retweets R ON T.id = R.tweet_id INNER JOIN users C ON T.creator_id = C.id
             INNER JOIN followships F ON R.retweeter_id = F.user_id INNER JOIN users U ON U.id = F.user_id
-          WHERE F.confirmed = TRUE AND F.follower_id = $1)) AS feeds
+          WHERE F.confirmed = TRUE AND F.follower_of_user_id = $1)) AS feeds
   ORDER BY creation DESC;
   RETURN cursor;
 END; $$

@@ -93,7 +93,6 @@ public class GetFeedsCommand extends Command implements Runnable {
                 JSONObject cacheEntry = new JSONObject();
                 cacheEntry.put("cacheStatus", "valid");
                 cacheEntry.put("response", new JSONObject(mapper.writeValueAsString(root)));
-                System.out.println("sent from db");
                 EduMsgRedis.redisCache.set("get_feeds", cacheEntry.toString());
             } catch (JsonGenerationException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
