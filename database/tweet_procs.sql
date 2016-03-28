@@ -122,7 +122,7 @@ CREATE OR REPLACE FUNCTION reply(tweet_id integer, tweet_text varchar(140), crea
 RETURNS void AS $$
 DECLARE reply_id integer;
   BEGIN
-    SELECT create_tweet(tweet_text, creator_id, created_at, image_url) INTO reply_id;
+    SELECT id FROM create_tweet(tweet_text, creator_id, created_at, image_url) INTO reply_id;
     INSERT INTO replies(original_tweet_id, reply_id, created_at) VALUES (tweet_id, reply_id, created_at);
   END; $$
 LANGUAGE PLPGSQL;
