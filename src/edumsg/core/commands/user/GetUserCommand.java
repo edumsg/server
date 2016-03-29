@@ -39,7 +39,7 @@ public class GetUserCommand extends Command implements Runnable {
             details = Cache.returnUser(map.get("username"));
             User user = new User();
 
-            if (details.equals(null)) {
+            if (details == null) {
 
                 dbConn = PostgresConnection.getDataSource().getConnection();
                 dbConn.setAutoCommit(false);
@@ -71,7 +71,7 @@ public class GetUserCommand extends Command implements Runnable {
                     String link_color = set.getString(13);
                     String background_color = set.getString(14);
                     Boolean protected_tweets = set.getBoolean(15);
-                    String session_id = set.getString(16);
+
                     user.setId(id);
                     user.setUsername(username);
                     user.setEmail(email);
@@ -86,7 +86,7 @@ public class GetUserCommand extends Command implements Runnable {
                     user.setLinkColor(link_color);
                     user.setBackgroundColor(background_color);
                     user.setProtectedTweets(protected_tweets);
-                    user.setSessionID(session_id);
+
                 }
                 set.close();
                 proc.close();
