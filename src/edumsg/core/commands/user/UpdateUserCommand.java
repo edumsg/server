@@ -49,6 +49,7 @@ public class UpdateUserCommand extends Command implements Runnable {
             map.remove("correlation_id");
             map.remove("queue");
             Set<Entry<String, String>> set = map.entrySet();
+            System.out.println(set);
             Iterator<Entry<String, String>> iterator = set.iterator();
             String[][] arraySet = new String[set.size()][2];
             int i = 0;
