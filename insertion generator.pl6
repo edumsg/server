@@ -58,4 +58,13 @@ sub retweets_insertions{
     }
 }
 
-user_insertions
+sub mentions_insertions{
+    for 1..20 -> $i {
+        for 1..20 -> $j {
+            next if ($i == $j);
+            say "INSERT INTO tweets VALUES(DEFAULT, 'HELLO \@" ~@names[$j-1].gist.lc~ "', $i, now()::timestamp, NULL);\n";
+        }
+    }
+}
+
+mentions_insertions

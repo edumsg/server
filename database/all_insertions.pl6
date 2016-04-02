@@ -18,7 +18,7 @@ for @postgres_conf -> $line {
     }
 }
 
-my @sql_files = ["schema.sql", "user_procs.sql", "tweet_procs.sql", "dm_procs.sql", "lists_procs.sql", "user_insertions.sql", "dm_insertions.sql", "tweets_insertions.sql", "replies_insertions.sql", "retweets_insertions.sql"];
+my @sql_files = ["schema.sql", "user_procs.sql", "tweet_procs.sql", "dm_procs.sql", "lists_procs.sql", "user_insertions.sql", "dm_insertions.sql", "tweets_insertions.sql", "replies_insertions.sql", "retweets_insertions.sql", "mentions_insertions.sql"];
 
 for @sql_files -> $file {
     shell "psql $database $username -f {$path}/database/$file";
