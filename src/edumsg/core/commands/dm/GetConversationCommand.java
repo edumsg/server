@@ -58,14 +58,18 @@ public class GetConversationCommand extends Command implements Runnable {
                 String dm_text = set.getString(5);
                 String image_url = set.getString(6);
                 Timestamp created_at = set.getTimestamp(7);
+                String sender_avatar = set.getString(8);
+                String receiver_avatar = set.getString(9);
 
                 User sender = new User();
                 sender.setId(sender_id);
                 sender.setName(sender_name);
+                sender.setAvatarUrl(sender_avatar);
 
                 User reciever = new User();
                 reciever.setId(reciever_id);
                 reciever.setName(reciever_name);
+                reciever.setAvatarUrl(receiver_avatar);
 
                 DirectMessage dm = new DirectMessage();
                 dm.setDmText(dm_text);

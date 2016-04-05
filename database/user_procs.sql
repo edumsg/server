@@ -91,7 +91,7 @@ CREATE OR REPLACE FUNCTION get_followers(user_id integer)
 DECLARE cursor refcursor := 'cur';
 BEGIN
   OPEN cursor FOR
-  SELECT U.username, U.name, U.avatar_url
+  SELECT U.id, U.username, U.name, U.avatar_url
   FROM users U INNER JOIN followships F ON U.id = F.follower_of_user_id
   WHERE F.user_id = $1 AND F.confirmed = TRUE;
   RETURN cursor;

@@ -47,7 +47,7 @@ RETURNS refcursor AS $$
 DECLARE cursor refcursor := 'cur'; --Points to query rows
   BEGIN
     OPEN cursor FOR
-    SELECT U.id, U.name, X.id, X.name, D.dm_text, D.image_url, D.created_at
+    SELECT U.id, U.name, X.id, X.name, D.dm_text, D.image_url, D.created_at, U.avatar_url, X.avatar_url
     FROM conversations C INNER JOIN direct_messages D ON C.id = D.conv_id
       INNER JOIN users U ON D.sender_id = U.id INNER JOIN users X ON D.reciever_id = X.id
     WHERE C.id = $1;
@@ -62,7 +62,7 @@ RETURNS refcursor AS $$
 DECLARE cursor refcursor := 'cur';
   BEGIN
     OPEN cursor FOR
-    SELECT temp.id, temp.sender_id, U.name, temp.reciever_id, X.name, temp.dm_text, temp.created_at
+    SELECT temp.id, temp.sender_id, U.name, temp.reciever_id, X.name, temp.dm_text, temp.created_at, U.username, X.username, U.avatar_url, X.avatar_url
     FROM (SELECT DISTINCT ON (C.id) C.id, D.dm_text, D.sender_id, D.reciever_id,
       (SELECT max(created_at) FROM direct_messages WHERE conv_id = C.id) AS created_at
       FROM conversations C INNER JOIN direct_messages D ON c.id = D.conv_id

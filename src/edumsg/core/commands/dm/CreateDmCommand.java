@@ -37,16 +37,20 @@ public class CreateDmCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
-            Statement query = dbConn.createStatement();
-            query.setPoolable(true);
-
 
             if (map.containsKey("image_url")) {
-                set = query.executeQuery(String.format("SELECT * FROM create_dm(%s,%s,'%s',now()::timestamp," +
-                        "'%s')",map.get("sender_id"),map.get("reciever_id"),map.get("dm_text"),map.get("image_url")));
+                proc = dbConn.prepareCall("{? = call create_dm(?,?,?,now()::timestamp,?)}");
             } else {
-                set = query.executeQuery(String.format("SELECT * FROM create_dm(%s,%s,'%s',now()::timestamp)",map.get("sender_id"),map.get("reciever_id"),map.get("dm_text")));
+                proc = dbConn.prepareCall("{? = call create_dm(?,?,?,now()::timestamp)}");
             }
+            proc.setPoolable(true);
+            proc.registerOutParameter(1, Types.BOOLEAN);
+            proc.setInt(2, Integer.parseInt(map.get("sender_id")));
+            proc.setInt(3, Integer.parseInt(map.get("receiver_id")));
+            proc.setString(4, map.get("dm_text"));
+            if (map.containsKey("image_url"))
+                proc.setString(5, map.get("image_url"));
+            proc.execute();
 
             boolean sent = proc.getBoolean(1);
             if (sent) {

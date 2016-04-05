@@ -104,13 +104,14 @@ RETURNS refcursor AS $$
 DECLARE cursor refcursor := 'cur';
   BEGIN
     OPEN cursor FOR
-    SELECT id, tweet_text, image_url, created_at, name, username, avatar_url, name2
+    SELECT id, tweet_text, image_url, created_at, name, username, avatar_url, name2, creator_id, retweeter_id
     FROM (
-      (SELECT T.id, T.tweet_text, T.image_url, T.created_at, C.name, C.username, C.avatar_url, C.name AS "name2", T.created_at AS "creation"
+      (SELECT T.id, T.tweet_text, T.image_url, T.created_at, C.id AS "creator_id", C.name, C.username, C.avatar_url, C.name AS "name2", U.id AS "retweeter_id", T.created_at AS "creation"
       FROM tweets T INNER JOIN users C ON T.creator_id = C.id INNER JOIN memberships M ON M.member_id = C.id
+      INNER JOIN users U ON C.id = U.id
       WHERE M.list_id = $1)
       UNION
-      (SELECT T.id, T.tweet_text, T.image_url, T.created_at, C.name, C.username, C.avatar_url, U.name AS "name2", R.created_at AS "creation"
+      (SELECT T.id, T.tweet_text, T.image_url, T.created_at, C.id AS "creator_id", C.name, C.username, C.avatar_url, U.name AS "name2", U.id AS "retweeter_id", R.created_at AS "creation"
       FROM tweets T INNER JOIN retweets R ON T.id = R.tweet_id INNER JOIN users C ON T.creator_id = C.id
         INNER JOIN memberships M ON R.retweeter_id = M.member_id INNER JOIN users U ON U.id = M.member_id
       WHERE M.list_id = $1)) AS feeds

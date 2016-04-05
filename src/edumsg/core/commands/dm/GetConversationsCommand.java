@@ -60,14 +60,22 @@ public class GetConversationsCommand extends Command implements Runnable {
                 String reciever_name = set.getString(5);
                 String dm_text = set.getString(6);
                 Timestamp created_at = set.getTimestamp(7);
+                String sender_username = set.getString(8);
+                String receiver_username = set.getString(9);
+                String sender_avatar = set.getString(10);
+                String receiver_avatar = set.getString(11);
 
                 User sender = new User();
                 sender.setId(sender_id);
                 sender.setName(sender_name);
+                sender.setUsername(sender_username);
+                sender.setAvatarUrl(sender_avatar);
 
                 User reciever = new User();
                 reciever.setId(reciever_id);
                 reciever.setName(reciever_name);
+                reciever.setUsername(receiver_username);
+                reciever.setAvatarUrl(receiver_avatar);
 
                 Conversation conv = new Conversation();
                 conv.setId(conv_id);

@@ -59,6 +59,8 @@ public class GetListFeedsCommand extends Command implements Runnable {
                 String creator_username = set.getString(6);
                 String creator_avatar = set.getString(7);
                 String retweeter = set.getString(8);
+                Integer creator_id = set.getInt(9);
+                Integer retweeter_id = set.getInt(10);
 
                 Tweet t = new Tweet();
                 t.setId(id);
@@ -66,12 +68,14 @@ public class GetListFeedsCommand extends Command implements Runnable {
                 t.setImageUrl(image_url);
                 t.setCreatedAt(created_at);
                 User creator = new User();
+                creator.setId(creator_id);
                 creator.setName(creator_name);
                 creator.setAvatarUrl(creator_avatar);
                 creator.setUsername(creator_username);
                 t.setCreator(creator);
                 if (!creator_name.equals(retweeter)) {
                     User r = new User();
+                    r.setId(retweeter_id);
                     r.setName(retweeter);
                     t.setRetweeter(r);
                 }
