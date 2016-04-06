@@ -65,7 +65,7 @@ DECLARE cursor refcursor := 'cur';
     SELECT temp.id, temp.sender_id, U.name, temp.reciever_id, X.name, temp.dm_text, temp.created_at, U.username, X.username, U.avatar_url, X.avatar_url
     FROM (SELECT DISTINCT ON (C.id) C.id, D.dm_text, D.sender_id, D.reciever_id,
       (SELECT max(created_at) FROM direct_messages WHERE conv_id = C.id) AS created_at
-      FROM conversations C INNER JOIN direct_messages D ON c.id = D.conv_id
+      FROM conversations C INNER JOIN direct_messages D ON C.id = D.conv_id
       ORDER BY C.id, D.created_at DESC) temp INNER JOIN users U on U.id = temp.sender_id
       INNER JOIN users X on X.id = temp.reciever_id
     WHERE sender_id = $1 OR reciever_id = $1;
