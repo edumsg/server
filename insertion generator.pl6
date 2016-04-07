@@ -67,16 +67,4 @@ sub mentions_insertions{
     }
 }
 
-sub lists_insertions{
-    my $counter = 0;
-    for 1..20 -> $i {
-        say "INSERT INTO lists VALUES($counter, 'HELLO$1', 'list', $i, false,  now()::timestamp, NULL);\n";
-        for 1..20 -> $j {
-            next if ($i == $j);
-            say "INSERT INTO memberships VALUES(DEFAULT, $j, $counter, now()::timestamp, NULL);\n";
-        }
-        $counter++;
-    }
-}
-
-lists_insertions
+mentions_insertions
