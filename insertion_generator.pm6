@@ -30,8 +30,8 @@ sub followships_insertions is export {
     for 1..20 -> $i {
         for 1..20 -> $j {
             next if ($i == $j);
-            @temp.push("INSERT INTO followships VALUES(DEFAULT, $i, $j, true, CURRENT_TIMESTAMP);");
-            @temp.push("INSERT INTO followships VALUES(DEFAULT, $j, $i, true, CURRENT_TIMESTAMP);");
+            @temp.push("INSERT INTO followships VALUES(DEFAULT, $i, $j, true, now()::timestamp);");
+            @temp.push("INSERT INTO followships VALUES(DEFAULT, $j, $i, true, now()::timestamp);");
         }
     }
     @temp.unique;
