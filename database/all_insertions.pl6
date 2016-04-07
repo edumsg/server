@@ -1,7 +1,17 @@
-my $current_path = qx/pwd/;
-$current_path ~~ (m:g/[\/\w+]+\/server/);
-my $path = $/;
-my @postgres_conf = ($path~"/Postgres.conf").IO.lines;
+my $current_path;
+my $path;
+my @postgres_conf;
+if ( ($*KERNEL.name) === "win32") {
+    $current_path = qx/cd/;
+    $current_path ~~ (m:g/\w+\:[\\\w+]+\\server/);
+    $path = $/;
+    @postgres_conf = ($path~"\\Postgres.conf").IO.lines;
+} else {
+    $current_path = qx/pwd/;
+    $current_path ~~ (m:g/[\/\w+]+\/server/);
+    $path = $/;
+    @postgres_conf = ($path~"/Postgres.conf").IO.lines;
+}
 
 my $username;
 my $database;
