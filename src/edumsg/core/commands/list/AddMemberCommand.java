@@ -41,7 +41,7 @@ public class AddMemberCommand extends Command implements Runnable {
             proc.setInt(2, Integer.parseInt(map.get("list_id")));
             proc.execute();
 
-            Cache.addMemberList(map.get("list_id"), map.get("user_id"));
+            //Cache.addMemberList(map.get("list_id"), map.get("user_id"));
 
 
             root.put("app", map.get("app"));

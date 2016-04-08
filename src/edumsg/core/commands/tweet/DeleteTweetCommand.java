@@ -40,7 +40,7 @@ public class DeleteTweetCommand extends Command implements Runnable {
             proc.setInt(1, Integer.parseInt(map.get("tweet_id")));
             proc.execute();
 
-            Cache.deleteTweet(map.get("tweet_id"));
+            //Cache.deleteTweet(map.get("tweet_id"));
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));

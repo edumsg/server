@@ -36,7 +36,7 @@ public class GetUserCommand extends Command implements Runnable {
     public void execute() {
 
         try {
-            details = Cache.returnUser(map.get("username"));
+            details = null; //Cache.returnUser(map.get("username"));
             User user = new User();
 
             if (details == null) {

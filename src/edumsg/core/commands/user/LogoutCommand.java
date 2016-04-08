@@ -30,7 +30,7 @@ public class LogoutCommand extends Command implements Runnable {
     @Override
     public void execute() {
 
-           Cache.logoutUser(map.get("user_id"));
+           //Cache.logoutUser(map.get("user_id"));
 
 
             root.put("app", map.get("app"));

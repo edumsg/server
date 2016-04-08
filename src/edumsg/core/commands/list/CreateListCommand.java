@@ -48,7 +48,7 @@ public class CreateListCommand extends Command implements Runnable {
                 details.put("private", set.getBoolean("private") + "");
                 details.put("creator_id", set.getString("creator_id"));
                 details.put("created_at", set.getTimestamp("created_at")+"");
-                Cache.createList(set.getInt("id") + "", details);
+                //Cache.createList(set.getInt("id") + "", details);
             }
 
             set.close();

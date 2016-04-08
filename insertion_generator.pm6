@@ -6,7 +6,7 @@ our %ids = (Sara => 1, Magda => 2, Sameer => 3, Sameh => 4, Samar => 5, Hadeel =
 sub user_insertions is export {
     my @temp;
     for 0..19 -> $i {
-        @temp.push("INSERT INTO users VALUES(DEFAULT,'"  ~@names[$i].gist.lc~ "', 'a$i@a.com', '\$2a\$10\$LWTMQA4F1.jqctvsJtFapu7X.wTo8lXhLybg5.7haAF2Vt7k7DKIG','" ~@names[$i].gist~ "', 'english', 'egypt',  'fsdfdsjlfdlkjdfk', 'www.google.com', CURRENT_TIMESTAMP, 'http://bit.ly/20VGjpB', true, '#FF0000', '#00FF00', false);");
+        @temp.push("INSERT INTO users VALUES(DEFAULT,'"  ~@names[$i].gist.lc~ "', 'a$i@a.com', '\$2a\$10\$LWTMQA4F1.jqctvsJtFapu7X.wTo8lXhLybg5.7haAF2Vt7k7DKIG','" ~@names[$i].gist~ "', 'english', 'egypt',  'fsdfds`jlfdlkjdfk', 'www.google.com', CURRENT_TIMESTAMP, 'http://bit.ly/20VGjpB', true, '#FF0000', '#00FF00', false);");
     }
 
     @temp.sort;
@@ -34,9 +34,7 @@ sub followships_insertions is export {
             @temp.push("INSERT INTO followships VALUES(DEFAULT, $j, $i, true, now()::timestamp);");
         }
     }
-    @temp.unique;
     return @temp;
-
 }
 
 sub dm_insertions is export {
@@ -88,13 +86,15 @@ sub lists_insertions is export {
     my @temp;
     my $counter = 0;
     for 1..20 -> $i {
+        @temp.push("INSERT INTO lists VALUES($counter, 'list$i', 'list', $i, false, now()::timestamp);");
+        @temp.push("INSERT INTO subscriptions VALUES(DEFAULT, $i, $counter, now()::timestamp);");
         for 1..20 -> $j {
             next if ($i == $j);
-            @temp.push("INSERT INTO lists VALUES($counter, 'list', $i, false, now()::timestamp);");
-            @temp.push("INSERT INTO subscriptions VALUES(DEFAULT, $i, $counter, now()::timestamp);");
             @temp.push("INSERT INTO memberships VALUES(DEFAULT, $j, $counter, now()::timestamp);");
         }
         $counter++;
     }
     return @temp;
 }
+
+# say followships_insertions;

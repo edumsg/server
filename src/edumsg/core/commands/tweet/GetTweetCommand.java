@@ -36,7 +36,7 @@ public class GetTweetCommand extends Command implements Runnable {
         try {
             Tweet t = new Tweet();
             User creator = new User();
-            details = Cache.returnTweet(map.get("tweet_id"));
+            details = null; //Cache.returnTweet(map.get("tweet_id"));
 
             if(details == null) {
 
@@ -78,11 +78,11 @@ public class GetTweetCommand extends Command implements Runnable {
                     creator.setUsername(creator_username);
                     t.setCreator(creator);
 
-                    details.put("tweet_text",tweet);
-                    details.put("creator_id",Cache.returnUserID(creator_username));
-                    details.put("creator_at",created_at.toString());
-                    details.put("image_url",image_url);
-                    Cache.cacheTweet(id+"",details);
+//                    details.put("tweet_text",tweet);
+//                    details.put("creator_id",Cache.returnUserID(creator_username));
+//                    details.put("creator_at",created_at.toString());
+//                    details.put("image_url",image_url);
+                    //Cache.cacheTweet(id+"",details);
 
 
                 }

@@ -63,7 +63,7 @@ public class LoginCommand extends Command {
 
             if (authenticated) {
                 String user_id = Cache.returnUserID(map.get("username"));
-                details = Cache.returnUser(user_id);
+                details = null; //Cache.returnUser(user_id);
                 User user = new User();
                 Statement query = dbConn.createStatement();
 
@@ -134,7 +134,7 @@ public class LoginCommand extends Command {
 
                     set.close();
                     dbConn.commit();
-                    Cache.cacheUser(id.toString(), details);
+                    //Cache.cacheUser(id.toString(), details);
 
                 } else {
                     root.put("app", map.get("app"));
@@ -158,7 +158,7 @@ public class LoginCommand extends Command {
                     user.setBackgroundColor(details.get("background_color"));
                     user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
                     user.setSessionID(sessionID);
-                    Cache.cacheUserSession(details.get("id"), sessionID);
+                    //Cache.cacheUserSession(details.get("id"), sessionID);
                 }
 
                 POJONode child = nf.POJONode(user);

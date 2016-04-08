@@ -41,8 +41,8 @@ public class FollowCommand extends Command implements Runnable {
             proc.setInt(2, Integer.parseInt(map.get("follower_id")));
             proc.execute();
 
-            Cache.cacheFollowing(map.get("follower_id"),map.get("user_id"));
-            Cache.cacheFollowers(map.get("user_id"),map.get("follower_id"));
+            //Cache.cacheFollowing(map.get("follower_id"),map.get("user_id"));
+            //Cache.cacheFollowers(map.get("user_id"),map.get("follower_id"));
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
