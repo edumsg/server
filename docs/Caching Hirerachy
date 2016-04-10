@@ -15,3 +15,5 @@ Each user has a seperate redis set in the form "userfollowing:$id" where $id is 
 
 User Followers Caching
 Each user has a seperate redis set in the form "userfollowers:$id" where $id is a var for user id and the set contains ONLY user ids which are followers of user, which can be fetched from users hashes.
+
+Session caching is NOT implemented yet

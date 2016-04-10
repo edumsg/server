@@ -133,3 +133,15 @@ CREATE TABLE replies(
   reply_id integer REFERENCES tweets(id) ON DELETE CASCADE,
   created_at timestamp NOT NULL
 );
+
+select username from users where id = (select user_id from sessions where id = '1')
+
+CREATE TABLE sessions (
+    id VARCHAR(30) PRIMARY KEY NOT NULL,
+    user_id integer NOT NULL,
+    session_start TIMESTAMP NOT NULL,
+    session_end TIMESTAMP,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES Users(id)
+);
