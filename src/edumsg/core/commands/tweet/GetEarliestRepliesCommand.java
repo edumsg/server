@@ -37,7 +37,7 @@ public class GetEarliestRepliesCommand extends Command implements Runnable
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.OTHER);
             proc.setInt(2, Integer.parseInt(map.get("tweet_id")));
-            proc.setInt(3, Integer.parseInt(map.get("user_id")));
+            proc.setInt(3, Integer.parseInt(map.get("session_id")));
             proc.execute();
 
             set = (ResultSet) proc.getObject(1);

@@ -15,13 +15,13 @@ package edumsg.core.commands.user;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.logging.Logger;
 
 public class LogoutCommand extends Command implements Runnable {
@@ -30,7 +30,16 @@ public class LogoutCommand extends Command implements Runnable {
     @Override
     public void execute() {
 
-           //Cache.logoutUser(map.get("user_id"));
+        //Cache.logoutUser(map.get("user_id"));
+        try {
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(false);
+            proc = dbConn.prepareCall("{? = call logout(?)}");
+            proc.setPoolable(true);
+            proc.setInt(1, Integer.parseInt(map.get("session_id")));
+            proc.execute();
+
+            set = (ResultSet) proc.getObject(1);
 
 
             root.put("app", map.get("app"));
@@ -51,6 +60,9 @@ public class LogoutCommand extends Command implements Runnable {
             }
 
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 }

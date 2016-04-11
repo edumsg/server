@@ -42,12 +42,12 @@ public class NewTweetCommand extends Command implements Runnable {
 
                 set = query.executeQuery(String.format("SELECT * FROM create_tweet('%s',%s,now()::timestamp,'%s')",
                         map.get("tweet_text"),
-                        map.get("creator_id"),
+                        map.get("session_id"),
                         map.get("image_url")));
             } else {
                 set = query.executeQuery(String.format("SELECT * FROM create_tweet('%s',%s,now()::timestamp)",
                         map.get("tweet_text"),
-                        map.get("creator_id")));
+                        map.get("session_id")));
 
             }
             String id = null;

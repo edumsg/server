@@ -37,7 +37,10 @@ if (($*KERNEL.name) === "win32") {
         shell "psql -f {$path}/database/$file $database $username ";
     }
 } else {
+    shell "psql -c \"drop schema public cascade\" $database $username ";
+    shell "psql -c \"create schema public\" $database $username ";
     for @sql_files -> $file {
+        say "Inserting $file";
         shell "psql $database $username -f {$path}/database/$file";
     }
 

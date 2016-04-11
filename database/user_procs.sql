@@ -3,12 +3,11 @@ CREATE OR REPLACE FUNCTION create_user(username   VARCHAR(30),
                                        email      VARCHAR(100),
                                        password   VARCHAR(150),
                                        name       VARCHAR(100),
-                                       created_at TIMESTAMP,
                                        avatar_url VARCHAR(70) DEFAULT NULL)
     RETURNS SETOF users AS $$
 BEGIN
-    INSERT INTO users (username, email, encrypted_password, name, created_at, avatar_url)
-    VALUES (username, email, password, name, created_at, avatar_url);
+    INSERT INTO users (username, email, encrypted_password, name, avatar_url)
+    VALUES (username, email, password, name, now()::timestamp, avatar_url);
     RETURN QUERY
     SELECT *
     FROM users
@@ -64,8 +63,7 @@ END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA DONE
-CREATE OR REPLACE FUNCTION follow(session    VARCHAR, follower_id INTEGER,
-                                  created_at TIMESTAMP)
+CREATE OR REPLACE FUNCTION follow(session VARCHAR, follower_id INTEGER)
     RETURNS VOID AS $$
 DECLARE private_user BOOLEAN;
         userID       INTEGER;
@@ -83,10 +81,10 @@ BEGIN
     IF private_user
     THEN
         INSERT INTO followships (user_id, follower_of_user_id, confirmed, created_at)
-        VALUES (user_id, follower_id, '0', created_at);
+        VALUES (user_id, follower_id, '0', now()::timestamp);
     ELSE
         INSERT INTO followships (user_id, follower_of_user_id, created_at)
-        VALUES (user_id, follower_id, created_at);
+        VALUES (user_id, follower_id, now()::timestamp);
     END IF;
 END; $$
 LANGUAGE PLPGSQL;
@@ -437,6 +435,7 @@ LANGUAGE PLPGSQL;
 CREATE OR REPLACE FUNCTION get_mentions(session VARCHAR)
     RETURNS REFCURSOR AS $$
 DECLARE cursor REFCURSOR := 'cur';
+        user_username VARCHAR;
 BEGIN
     SELECT username
     INTO user_username
@@ -469,7 +468,7 @@ BEGIN
     SELECT user_id
     INTO userID
     FROM sessions
-    WHERE id = $1;
+    WHERE id = $2;
     INSERT INTO reports (reported_id, userID, created_at, type)
     VALUES (reported_id, creator_id, created_at, 'users');
 END; $$
@@ -489,32 +488,29 @@ END; $$
 LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION login(user_name VARCHAR, session VARCHAR)
-    RETURNS REFCURSOR AS $$
-DECLARE cursor REFCURSOR := 'cur';
-        userID INTEGER;
+    RETURNS VOID AS $$
+DECLARE userID INTEGER;
+
 BEGIN
     SELECT id
     INTO userID
     FROM users
     WHERE username = $1;
 
-    INSERT INTO sessions (id, user_id, session_start, created_at)
-    VALUES ($2, userID, now() :: TIMESTAMP, now() :: TIMESTAMP)
+    INSERT INTO sessions AS S (id, user_id, session_start, created_at)
+    VALUES ($2, userID, now()::timestamp, now()::timestamp)
     ON CONFLICT (user_id)
-        DO UPDATE sessions SET session_start = now():: TIMESTAMP, id = $2
-    WHERE user_id = userID;
-    OPEN cursor FOR
-    SELECT *
-    FROM users U INNER JOIN sessions S ON U.id = S.user_id
-    WHERE username = $1;
+    DO UPDATE SET session_start = now()::timestamp, id = $2
+    WHERE S.user_id = userID;
 END; $$
 LANGUAGE PLPGSQL;
+
 
 CREATE OR REPLACE FUNCTION logout(session VARCHAR)
     RETURNS VOID AS $$
 BEGIN
     UPDATE sessions
-    SET session_end = now() :: TIMESTAMP
+    SET session_end = now()::timestamp
     WHERE id = $1;
 END; $$
 LANGUAGE PLPGSQL;

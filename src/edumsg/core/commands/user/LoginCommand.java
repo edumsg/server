@@ -69,8 +69,13 @@ public class LoginCommand extends Command {
 
 
                 if (details == null) {
-                    query.setPoolable(true);
-                    set = query.executeQuery(String.format("SELECT * FROM login('%s')", map.get("username")));
+                    proc = dbConn.prepareCall("{call login(?,?)}");
+                    proc.setPoolable(true);
+                    proc.setString(1, map.get("username"));
+                    proc.setString(2, sessionID);
+                    proc.execute();
+                    proc.close();
+                    dbConn.commit();
 
                     root.put("app", map.get("app"));
                     root.put("method", map.get("method"));
@@ -78,62 +83,60 @@ public class LoginCommand extends Command {
                     root.put("code", "200");
 
                     //new
-                    while (set.next()) {
-                        id = set.getInt("id");
-                        username = set.getString("username");
-                        email = set.getString("email");
-                        name = set.getString("name");
-                        language = set.getString("language");
-                        country = set.getString("country");
-                        bio = set.getString("bio");
-                        website = set.getString("website");
-                        created_at = set.getTimestamp("created_at");
-                        avatar_url = set.getString("avatar_url");
-                        overlay = set.getBoolean("overlay");
-                        link_color = set.getString("link_color");
-                        background_color = set.getString("background_color");
-                        protected_tweets = set.getBoolean("protected_tweets");
-
-                        user.setUsername(username);
-                        user.setEmail(email);
-                        user.setName(name);
-                        user.setLanguage(language);
-                        user.setCountry(country);
-                        user.setBio(bio);
-                        user.setWebsite(website);
-                        user.setCreatedAt(created_at);
-                        user.setAvatarUrl(avatar_url);
-                        user.setOverlay(overlay);
-                        user.setLinkColor(link_color);
-                        user.setBackgroundColor(background_color);
-                        user.setProtectedTweets(protected_tweets);
-                        user.setSessionID(sessionID);
-
-                        details = new HashMap<String, String>();
-
-                        details.put("id", id.toString());
-                        details.put("username", username);
-                        details.put("email", email);
-                        details.put("name", name);
-                        details.put("language", language);
-                        details.put("country", country);
-                        details.put("bio", bio);
-                        details.put("website", website);
-                        details.put("created_at", created_at.toString());
-                        details.put("avatar_url", avatar_url);
-                        details.put("overlay", overlay.toString());
-                        details.put("link_color", link_color);
-                        details.put("background_color", background_color);
-                        details.put("protected_tweets", protected_tweets.toString());
-                        details.put("session_id", sessionID);
-
-                        root.put("user_id", id);
-
-
-                    }
-
-                    set.close();
-                    dbConn.commit();
+//                    while (set.next()) {
+//                        id = set.getInt("user_id");
+//                        username = set.getString("username");
+//                        email = set.getString("email");
+//                        name = set.getString("name");
+//                        language = set.getString("language");
+//                        country = set.getString("country");
+//                        bio = set.getString("bio");
+//                        website = set.getString("website");
+//                        created_at = set.getTimestamp("created_at");
+//                        avatar_url = set.getString("avatar_url");
+//                        overlay = set.getBoolean("overlay");
+//                        link_color = set.getString("link_color");
+//                        background_color = set.getString("background_color");
+//                        protected_tweets = set.getBoolean("protected_tweets");
+//
+//                        user.setUsername(username);
+//                        user.setEmail(email);
+//                        user.setName(name);
+//                        user.setLanguage(language);
+//                        user.setCountry(country);
+//                        user.setBio(bio);
+//                        user.setWebsite(website);
+//                        user.setCreatedAt(created_at);
+//                        user.setAvatarUrl(avatar_url);
+//                        user.setOverlay(overlay);
+//                        user.setLinkColor(link_color);
+//                        user.setBackgroundColor(background_color);
+//                        user.setProtectedTweets(protected_tweets);
+//                        user.setSessionID(sessionID);
+//
+//                        details = new HashMap<String, String>();
+//
+//                        details.put("id", id.toString());
+//                        details.put("username", username);
+//                        details.put("email", email);
+//                        details.put("name", name);
+//                        details.put("language", language);
+//                        details.put("country", country);
+//                        details.put("bio", bio);
+//                        details.put("website", website);
+//                        details.put("created_at", created_at.toString());
+//                        details.put("avatar_url", avatar_url);
+//                        details.put("overlay", overlay.toString());
+//                        details.put("link_color", link_color);
+//                        details.put("background_color", background_color);
+//                        details.put("protected_tweets", protected_tweets.toString());
+//                        details.put("session_id", sessionID);
+//
+//
+//
+//                    }
+user.setSessionID(sessionID);
+//                    root.put("session_id", sessionID);
                     //Cache.cacheUser(id.toString(), details);
 
                 } else {
@@ -141,7 +144,7 @@ public class LoginCommand extends Command {
                     root.put("method", map.get("method"));
                     root.put("status", "ok");
                     root.put("code", "200");
-                    root.put("user_id", details.get("id"));
+                    root.put("session_id", details.get("id"));
 
                     user.setId(Integer.parseInt(details.get("id")));
                     user.setUsername(details.get("username"));

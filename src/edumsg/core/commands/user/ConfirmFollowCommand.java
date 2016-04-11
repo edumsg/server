@@ -34,7 +34,7 @@ public class ConfirmFollowCommand extends Command implements Runnable {
             dbConn.setAutoCommit(true);
             proc = dbConn.prepareCall("{call confirm_follow(?,?)}");
             proc.setPoolable(true);
-            proc.setInt(1, Integer.parseInt(map.get("user_id")));
+            proc.setInt(1, Integer.parseInt(map.get("session_id")));
             proc.setInt(2, Integer.parseInt(map.get("follower_id")));
             proc.execute();
 

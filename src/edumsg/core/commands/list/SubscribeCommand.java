@@ -35,7 +35,7 @@ public class SubscribeCommand extends Command implements Runnable {
             dbConn.setAutoCommit(true);
             proc = dbConn.prepareCall("{call subscribe(?,?,now()::timestamp)}");
             proc.setPoolable(true);
-            proc.setInt(1, Integer.parseInt(map.get("user_id")));
+            proc.setInt(1, Integer.parseInt(map.get("session_id")));
             proc.setInt(2, Integer.parseInt(map.get("list_id")));
             proc.execute();
             proc.close();

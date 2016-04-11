@@ -46,7 +46,7 @@ public class RegisterCommand extends Command implements Runnable {
 
             if (map.containsKey("avatar_url")) {
                 set = query.executeQuery(String.format(
-                        "SELECT * FROM create_user('%s','%s','%s','%s',now()::timestamp,'%s')"
+                        "SELECT * FROM create_user('%s','%s','%s','%s','%s')"
                         , map.get("username")
                         , map.get("email")
                         , password
@@ -54,7 +54,7 @@ public class RegisterCommand extends Command implements Runnable {
                         , map.get("avatar_url")));
             } else {
                 set = query.executeQuery(String.format(
-                        "SELECT * FROM create_user('%s','%s','%s', '%s',now()::timestamp)"
+                        "SELECT * FROM create_user('%s','%s','%s','%s')"
                         , map.get("username")
                         , map.get("email")
                         , password
