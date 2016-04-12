@@ -35,7 +35,7 @@ public class ReplyCommand extends Command implements Runnable
             proc.setPoolable(true);
             proc.setInt(1, Integer.parseInt(map.get("tweet_id")));
             proc.setString(2, map.get("tweet_text"));
-            proc.setInt(3, Integer.parseInt(map.get("session_id")));
+            proc.setString(1, map.get("session_id"));
 
             if (map.containsKey("image_url")) {
                 proc.setString(4, map.get("image_url"));

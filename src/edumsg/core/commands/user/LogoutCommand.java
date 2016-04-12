@@ -36,7 +36,7 @@ public class LogoutCommand extends Command implements Runnable {
             dbConn.setAutoCommit(false);
             proc = dbConn.prepareCall("{? = call logout(?)}");
             proc.setPoolable(true);
-            proc.setInt(1, Integer.parseInt(map.get("session_id")));
+            proc.setString(1, map.get("session_id"));
             proc.execute();
 
             set = (ResultSet) proc.getObject(1);

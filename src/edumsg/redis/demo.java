@@ -16,6 +16,8 @@ public class demo {
             String url = URLEncoder.encode(new UID().toString(), "UTF-8");
             System.out.println(url);
             System.out.println(url.length());
+
+            System.out.println( url.replace("%", "\\%"));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

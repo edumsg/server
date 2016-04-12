@@ -6,7 +6,7 @@ CREATE OR REPLACE FUNCTION create_user(username   VARCHAR(30),
                                        avatar_url VARCHAR(70) DEFAULT NULL)
     RETURNS SETOF users AS $$
 BEGIN
-    INSERT INTO users (username, email, encrypted_password, name, avatar_url)
+    INSERT INTO users (username, email, encrypted_password, name, created_at, avatar_url)
     VALUES (username, email, password, name, now()::timestamp, avatar_url);
     RETURN QUERY
     SELECT *
@@ -41,6 +41,25 @@ BEGIN
     SELECT *
     FROM users U
     WHERE U.id = user_id
+    LIMIT 1;
+    RETURN cursor;
+END; $$
+LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION my_profile(session VARCHAR)
+    RETURNS REFCURSOR AS $$
+DECLARE cursor REFCURSOR := 'cur';
+        userID INTEGER;
+BEGIN
+    SELECT user_id
+    INTO userID
+    FROM sessions
+    WHERE id = $1;
+
+    OPEN cursor FOR
+    SELECT *
+    FROM users U
+    WHERE U.id = userID
     LIMIT 1;
     RETURN cursor;
 END; $$

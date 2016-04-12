@@ -1,5 +1,5 @@
 -- JAVA / JSON DONE
-CREATE OR REPLACE FUNCTION create_dm(session VARCHAR, reciever_id INTEGER,
+CREATE OR REPLACE FUNCTION create_dm(session VARCHAR, conversation INTEGER,
                                      dm_text VARCHAR(140), image_url VARCHAR(100) DEFAULT NULL)
   RETURNS BOOLEAN AS $$  --Delimiter for functions and strings
 DECLARE followers INTEGER;

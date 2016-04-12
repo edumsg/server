@@ -40,6 +40,7 @@ public class LoginCommand extends Command {
 
         try {
             String sessionID = URLEncoder.encode(new UID().toString(), "UTF-8");
+            String cleaned_session = sessionID.replace("%", "\\%");
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
             proc = dbConn.prepareCall("{? = call get_password_info(?)}");
@@ -72,7 +73,7 @@ public class LoginCommand extends Command {
                     proc = dbConn.prepareCall("{call login(?,?)}");
                     proc.setPoolable(true);
                     proc.setString(1, map.get("username"));
-                    proc.setString(2, sessionID);
+                    proc.setString(2, cleaned_session);
                     proc.execute();
                     proc.close();
                     dbConn.commit();
@@ -135,7 +136,7 @@ public class LoginCommand extends Command {
 //
 //
 //                    }
-user.setSessionID(sessionID);
+user.setSessionID(cleaned_session);
 //                    root.put("session_id", sessionID);
                     //Cache.cacheUser(id.toString(), details);
 

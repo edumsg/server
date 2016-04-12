@@ -68,6 +68,7 @@ public class CommandsMap {
         cmdMap.put("unconfirmed_followers", UnconfirmedFollowersCommand.class);
         cmdMap.put("update_user", UpdateUserCommand.class);
         cmdMap.put("get_user", GetUserCommand.class);
+        cmdMap.put("my_profile", MyProfileCommand.class);
         cmdMap.put("get_mentions", GetMentionsCommand.class);
         cmdMap.put("get_retweets", GetRetweetsCommand.class);
         cmdMap.put("get_tweet", GetTweetCommand.class);

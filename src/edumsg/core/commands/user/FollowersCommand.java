@@ -41,7 +41,7 @@ public class FollowersCommand extends Command implements Runnable {
             proc = dbConn.prepareCall("{? = call get_followers(?)}");
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.OTHER);
-            proc.setInt(2, Integer.parseInt(map.get("session_id")));
+            proc.setString(1, map.get("session_id"));
             proc.execute();
 
             set = (ResultSet) proc.getObject(1);

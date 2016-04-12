@@ -37,7 +37,7 @@ public class GetSubscribedListsCommand extends Command implements Runnable {
             proc = dbConn.prepareCall("{? = call get_subscribed_lists(?)}");
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.OTHER);
-            proc.setInt(2, Integer.parseInt(map.get("session_id")));
+            proc.setString(2, map.get("session_id"));
             proc.execute();
 
             set = (ResultSet) proc.getObject(1);

@@ -35,7 +35,7 @@ public class ReportTweetCommand extends Command implements Runnable {
             proc = dbConn.prepareCall("{call report_tweet(?,?,now()::timestamp)}");
             proc.setPoolable(true);
             proc.setInt(1, Integer.parseInt(map.get("reported_id")));
-            proc.setInt(2, Integer.parseInt(map.get("session_id")));
+            proc.setString(1, map.get("session_id"));
             proc.execute();
 
             root.put("app", map.get("app"));

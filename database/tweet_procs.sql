@@ -8,7 +8,7 @@ BEGIN
   FROM sessions
   WHERE id = $2;
   INSERT INTO tweets (tweet_text, creator_id, created_at, image_url)
-  VALUES (tweet_text, userID, now() :: timstamp, image_url);
+  VALUES (tweet_text, userID, now()::timestamp, image_url);
   RETURN QUERY
   SELECT *
   FROM tweets

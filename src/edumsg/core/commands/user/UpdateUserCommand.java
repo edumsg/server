@@ -41,7 +41,7 @@ public class UpdateUserCommand extends Command implements Runnable {
             dbConn.setAutoCommit(true);
             proc = dbConn.prepareCall("{call edit_user(?,?)}");
             proc.setPoolable(true);
-            proc.setInt(1, Integer.parseInt(map.get("session_id")));
+            proc.setString(1, map.get("session_id"));
 
             map.remove("session_id");
             map.remove("app");
