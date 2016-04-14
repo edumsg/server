@@ -17,6 +17,7 @@ import edumsg.activemq.Consumer;
 import edumsg.concurrent.WorkerPool;
 import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
+import edumsg.redis.Cache;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 
@@ -37,6 +38,7 @@ public class UserMain extends RunnableClasses{
             JsonMappingException, IOException {
         PostgresConnection.initSource();
         CommandsMap.instantiate();
+//        Cache.userBgSave();
         try {
             Consumer c = new Consumer(new ActiveMQConfig("USER.INQUEUE"));
             MessageConsumer consumer = c.connect();

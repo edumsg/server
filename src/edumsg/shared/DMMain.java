@@ -17,6 +17,7 @@ import edumsg.activemq.Consumer;
 import edumsg.concurrent.WorkerPool;
 import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
+import edumsg.redis.Cache;
 
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -33,6 +34,7 @@ public class DMMain extends RunnableClasses {
     public static void main(String[] args) {
         PostgresConnection.initSource();
         CommandsMap.instantiate();
+//        Cache.dmBgSave();
         try {
             Consumer c = new Consumer(new ActiveMQConfig("DM.INQUEUE"));
             MessageConsumer consumer = c.connect();

@@ -14,8 +14,19 @@ package edumsg.netty;
 
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Consumer;
+import edumsg.redis.Cache;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+import org.json.JSONException;
+import org.json.JSONObject;
+import redis.clients.jedis.Jedis;
 
 import javax.jms.*;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NettyNotifier extends Thread {
 
@@ -40,18 +51,42 @@ public class NettyNotifier extends Thread {
                 public void onMessage(Message message) {
                     try {
                         String msgTxt = ((TextMessage) message).getText();
+//                        JSONObject responseMap = new JSONObject(msgTxt);
+//                        Jedis cache = null;
+//                        switch (responseMap.getString("app"))
+//                        {
+//                            case "user": cache = Cache.userCache;
+//                                break;
+//                            case "tweet": cache = Cache.tweetCache;
+//                                break;
+//                            case "list": cache = Cache.listCache;
+//                                break;
+//                            case "dm": cache = Cache.dmCache;
+//                                break;
+//                        }
+//                        String method = responseMap.getString("method");
+//                        if (!cache.exists(method)
+//                                && (method.startsWith("get") || method.equals("user_tweets")
+//                                || method.equals("timeline"))) {
+//                            responseMap.put("cacheStatus", "valid");
+//                            cache.set(responseMap.getString("method"), responseMap.toString());
+//                        }
+//                        msgTxt = responseMap.toString();
                         System.out.println("thread" + getResponseBody());
-                        setResponseBody(msgTxt);
-                        serverHandler.setResponseBody(msgTxt);
-                        sleep(1000);  //Why sleep?
+//                        sleep(1000);  //Why sleep?
                         synchronized (serverHandler) {
+                            setResponseBody(msgTxt);
+                            serverHandler.setResponseBody(msgTxt);
                             serverHandler.notify();
                             System.out.println("netty notified by notifier");
                         }
-                    } catch (JMSException | InterruptedException e) {
+                    } catch (JMSException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
+//                    catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
                 }
             });
         } catch (JMSException e) {

@@ -2,20 +2,66 @@ package edumsg.redis;
 
 import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Pipeline;
 
 import java.lang.reflect.Array;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Cache {
-    public static Jedis redisCache = new Jedis("localhost", 6379);
-    private static Pipeline pipe = redisCache.pipelined();
+    public static JedisPool redisPool = new JedisPool(new JedisPoolConfig(), "localhost", 6379);
+    public static Jedis userCache = redisPool.getResource();
+    public static Jedis tweetCache = redisPool.getResource();
+    public static Jedis dmCache = redisPool.getResource();
+    public static Jedis listCache = redisPool.getResource();
+    private static Pipeline userPipeline = userCache.pipelined();
+    private static Pipeline tweetPipeline = userCache.pipelined();
+    private static Pipeline dmPipeline = userCache.pipelined();
+    private static Pipeline listPipeline = userCache.pipelined();
+
+    public static void userBgSave(){
+        Runnable runnable = () -> {
+            String res;
+            res = userCache.bgsave();
+            System.out.println(res);
+        };
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        service.scheduleAtFixedRate(runnable, 0, 15, TimeUnit.MINUTES);
+    }
+
+    public static void tweetBgSave(){
+        Runnable runnable = () -> {
+            String res;
+            res = tweetCache.bgsave();
+            System.out.println(res);
+        };
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        service.scheduleAtFixedRate(runnable, 0, 15, TimeUnit.MINUTES);
+    }
+
+    public static void dmBgSave(){
+        Runnable runnable = () -> {
+            String res;
+            res = dmCache.bgsave();
+            System.out.println(res);
+        };
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        service.scheduleAtFixedRate(runnable, 0, 15, TimeUnit.MINUTES);
+    }
+
+    public static void listBgSave(){
+        Runnable runnable = () -> {
+            String res;
+            res = listCache.bgsave();
+            System.out.println(res);
+        };
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        service.scheduleAtFixedRate(runnable, 0, 15, TimeUnit.MINUTES);
+    }
 
     /////////////////////////////////////
     ////////////USER OPERATIONS//////////
@@ -23,8 +69,8 @@ public class Cache {
 
     @Nullable
     public static Map<String, String> returnUser(String user_id) {
-        if (redisCache.exists("user:" + user_id)) {
-            return redisCache.hgetAll("user:" + user_id);
+        if (userCache.exists("user:" + user_id)) {
+            return userCache.hgetAll("user:" + user_id);
         } else {
             return null;
         }
@@ -32,61 +78,63 @@ public class Cache {
 
 
     public static void addUserToCacheList(String user_id) {
-        if (user_id != null && !redisCache.sismember("user:",user_id)) {
-            redisCache.sadd("users:",user_id);
+        if (user_id != null && !userCache.sismember("user:",user_id)) {
+            userCache.sadd("users:",user_id);
         }
     }
 
     public static void removeUserFromCacheList(String user_id) {
         if (user_id != null) {
-            redisCache.srem("users:", user_id);
+            userCache.srem("users:", user_id);
         }
     }
 
-    public static void cacheUser(String user_id, Map<String, String> userDetails) {
+    public static String cacheUser(String user_id, Map<String, String> userDetails) {
         if (!Cache.checkNulls(userDetails)) {
-            redisCache.hmset("user:" + user_id, userDetails);
+            return userCache.hmset("user:" + user_id, userDetails);
         }
+        else
+            return "";
     }
 
     public static void cacheUserTweet(String user_id, String tweet_id) {
         if ((user_id != null) && (tweet_id != null)) {
-            redisCache.sadd("usertweets:" + user_id, tweet_id);
+            userCache.sadd("usertweets:" + user_id, tweet_id);
         }
     }
 
     public static void cacheFollowing(String user_id, String user_to_follow_id) {
         if ((user_id != null) && (user_to_follow_id != null)) {
-            redisCache.sadd("userfollowing:" + user_id, user_to_follow_id);
+            userCache.sadd("userfollowing:" + user_id, user_to_follow_id);
         }
     }
 
     public static void unFollow(String user_id, String user_being_followed_id) {
-        pipe.srem("userfollowing:" + user_id, user_being_followed_id);
-        pipe.srem("userfollowers:" + user_being_followed_id, user_id);
-        pipe.sync();
+        userPipeline.srem("userfollowing:" + user_id, user_being_followed_id);
+        userPipeline.srem("userfollowers:" + user_being_followed_id, user_id);
+        userPipeline.sync();
     }
 
     public static void cacheFollowers(String user_id, String follower_id) {
         if ((user_id != null) && (follower_id != null)) {
-            redisCache.sadd("userfollowers:" + user_id, follower_id);
+            userCache.sadd("userfollowers:" + user_id, follower_id);
         }
     }
 
     public static void logoutUser(String user_id) {
-        redisCache.hdel("user:" + user_id, "session_id");
+        userCache.hdel("user:" + user_id, "session_id");
     }
 
     public static void cacheUserSession(String user_id, String session_id) {
-        redisCache.hset("user:" + user_id, "session_id", session_id);
+        userCache.hset("user:" + user_id, "session_id", session_id);
     }
 
     public static void mapUsernameID(String username, String id) {
-        redisCache.hset("usernameid", username, id); //maps username to id
+        userCache.hset("usernameid", username, id); //maps username to id
     }
 
     public static String returnUserID(String username) {
-        return redisCache.hget("usernameid", username); //returns id based on username
+        return userCache.hget("usernameid", username); //returns id based on username
     }
 
     /////////////////////////////////////
@@ -94,18 +142,18 @@ public class Cache {
     /////////////////////////////////////
 
     public static boolean listExists(String id) {
-        return redisCache.exists("lists:" + id);
+        return listCache.exists("lists:" + id);
     }
 
     public static void createList(String id, Map<String, String> members) {
         if (!Cache.checkNulls(members)) {
-            redisCache.hmset("list:" + id, members);
+            listCache.hmset("list:" + id, members);
         }
     }
 
     public static void addMemberList(String list_id, String member_id) {
         if ((list_id != null) && (member_id != null)) {
-            redisCache.sadd("listmember:" + list_id, member_id);
+            listCache.sadd("listmember:" + list_id, member_id);
         }
     }
 
@@ -119,14 +167,14 @@ public class Cache {
 
     public static void cacheTweet(String id, Map<String, String> tweetDetails) {
         if (!Cache.checkNulls(tweetDetails)) {
-            redisCache.hmset("tweet:" + id, tweetDetails);
+            tweetCache.hmset("tweet:" + id, tweetDetails);
         }
     }
 
     @Nullable
     public static Map<String, String> returnTweet(String id) {
-        if (redisCache.exists("tweet:" + id)) {
-            return redisCache.hgetAll("tweet:" + id);
+        if (tweetCache.exists("tweet:" + id)) {
+            return tweetCache.hgetAll("tweet:" + id);
         } else {
             return null;
         }
@@ -135,16 +183,16 @@ public class Cache {
 
     public static void deleteTweet(String tweet_id) {
         if (tweet_id != null) {
-            String user = redisCache.hget("tweet:" + tweet_id, "creator_id");
-            pipe.del("tweet:" + tweet_id);
-            pipe.srem("usertweets:" + user, tweet_id);
-            pipe.sync();
+            String user = tweetCache.hget("tweet:" + tweet_id, "creator_id");
+            tweetPipeline.del("tweet:" + tweet_id);
+            tweetPipeline.srem("usertweets:" + user, tweet_id);
+            tweetPipeline.sync();
         }
     }
 
     public static CopyOnWriteArrayList<ConcurrentMap<ConcurrentMap<String, String>, ConcurrentMap<String, String>>> getTimeline(String user_id) {
         CopyOnWriteArrayList<ConcurrentMap<String, String>> tweets = new CopyOnWriteArrayList<>();  // Array list of tweets only
-        redisCache.smembers("userfollowing:" + user_id).parallelStream()
+        tweetCache.smembers("userfollowing:" + user_id).parallelStream()
                 .forEachOrdered(user -> getTweets(user).parallelStream()
                         .forEachOrdered(tweet_id -> tweets.add(toConcurrentMap(returnTweet(tweet_id)))));
 
@@ -160,7 +208,7 @@ public class Cache {
     }
 
     public static Set<String> getTweets(String user_id) {
-        return redisCache.smembers("usertweets:" + user_id);
+        return tweetCache.smembers("usertweets:" + user_id);
     }
 
     public static void populateTimeline() {
@@ -169,11 +217,11 @@ public class Cache {
             details.clear();
             details.put("username", "ana" + i);
             details.put("id", "" + i);
-            redisCache.hmset("user:" + i, details);
+            userCache.hmset("user:" + i, details);
         }
 
         for (int i = 1; i < 20; i++) {
-            redisCache.sadd("userfollowing:0", "" + i);
+            userCache.sadd("userfollowing:0", "" + i);
         }
 
         for (int i = 0; i < 20; i++) {
@@ -182,8 +230,8 @@ public class Cache {
             details.put("id", "" + i);
             details.put("creator_id", "" + i);
 
-            redisCache.hmset("tweet:" + i, details);
-            redisCache.sadd("usertweets:" + i, i + "");
+            userCache.hmset("tweet:" + i, details);
+            userCache.sadd("usertweets:" + i, i + "");
         }
 
 
@@ -220,8 +268,9 @@ public class Cache {
     }
 
     public static void main(String[] args) {
-        redisCache.flushDB();
-        populateTimeline();
-        getTimeline("0").forEach(System.out::println);
+//        userCache.flushAll();
+//        populateTimeline();
+//        getTimeline("0").forEach(System.out::println);
+        System.out.println(returnUser("1").toString());
     }
 }

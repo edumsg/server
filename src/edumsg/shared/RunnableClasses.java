@@ -5,11 +5,13 @@ import edumsg.activemq.Producer;
 import edumsg.concurrent.WorkerPool;
 import edumsg.core.Command;
 import edumsg.core.CommandsMap;
+import edumsg.redis.Cache;
 import edumsg.redis.EduMsgRedis;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.json.JSONException;
 import org.json.JSONObject;
+import redis.clients.jedis.Jedis;
 
 import javax.jms.JMSException;
 import java.io.IOException;
@@ -34,30 +36,59 @@ public abstract class RunnableClasses {
             LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
         }
 
-        if (map != null) {
-            String cachedEntry = EduMsgRedis.redisCache.get(map.get("method"));
-            if (cachedEntry != null) {
-                System.out.println(cachedEntry);
-                JSONObject cachedEntryJson;
-                try {
-                    cachedEntryJson = new JSONObject(cachedEntry);
-                    String dataStatus = cachedEntryJson.getString("cacheStatus");
-                    if (dataStatus.equals("valid")) {
-                        Producer p = new Producer(new ActiveMQConfig(
-                                subclass.toUpperCase() + ".OUTQUEUE"));
-                        p.send(cachedEntryJson.get("response").toString(),
-                                correlationID);
-                        return;
-                    }
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (JMSException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        }
+//        if (map != null) {
+//            if (map.get("method").equals("login"))
+//            {
+//                if (!Cache.userCache.exists("username"))
+//                    Cache.userCache.set("username", map.get("username"));
+//                else
+//                {
+//                    if (!Cache.userCache.get("username").equals(map.get("username")))
+//                    {
+//                        Cache.userCache.flushAll();
+//                        Cache.tweetCache.flushAll();
+//                        Cache.listCache.flushAll();
+//                        Cache.dmCache.flushAll();
+//                    }
+//                }
+//            }
+//            Jedis cache = null;
+//            switch (subclass.toLowerCase())
+//            {
+//                case "user": cache = Cache.userCache;
+//                    break;
+//                case "tweet": cache = Cache.tweetCache;
+//                    break;
+//                case "list": cache = Cache.listCache;
+//                    break;
+//                case "dm": cache = Cache.dmCache;
+//                    break;
+//            }
+//            String cachedEntry = cache.get(map.get("method"));
+//            if (cachedEntry != null) {
+//                System.out.println(cachedEntry);
+//                JSONObject cachedEntryJson;
+//                try {
+//                    cachedEntryJson = new JSONObject(cachedEntry);
+//                    String dataStatus = cachedEntryJson.getString("cacheStatus");
+//                    if (dataStatus.equals("valid")) {
+//                        cachedEntryJson.remove("cacheStatus");
+//                        Producer p = new Producer(new ActiveMQConfig(
+//                                subclass.toUpperCase() + ".OUTQUEUE"));
+//                        p.send(cachedEntryJson.toString(),
+//                                correlationID);
+//                        System.out.println("Sent from cache");
+//                        return;
+//                    }
+//                } catch (JSONException e) {
+//                    // TODO Auto-generated catch block
+//                    e.printStackTrace();
+//                } catch (JMSException e) {
+//                    // TODO Auto-generated catch block
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
 
         if (map != null) {
             map.put("app", subclass.toLowerCase());
@@ -72,7 +103,7 @@ public abstract class RunnableClasses {
                     try {
                         Command c = (Command) cmdClass.newInstance();
                         c.setMap(map);
-                        pool.execute((Runnable) c);
+                        pool.execute(c);
                     } catch (InstantiationException | IllegalAccessException e) {
                         LOGGER.log(Level.SEVERE, e.getMessage(), e);
                     }

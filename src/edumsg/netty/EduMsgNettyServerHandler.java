@@ -39,7 +39,7 @@ public class EduMsgNettyServerHandler extends
 
     private HttpRequest request;
     private String requestBody;
-    private String responseBody;
+    private volatile String responseBody;
     Logger log = Logger.getLogger(EduMsgNettyServer.class);
     public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
@@ -71,7 +71,6 @@ public class EduMsgNettyServerHandler extends
                                final ChannelHandlerContext ctx) throws JMSException,
             NumberFormatException, JsonParseException, JsonMappingException,
             IOException, InterruptedException, JSONException {
-
         JSONObject requestJson = new JSONObject(requestBody);
         NettyNotifier notifier = new NettyNotifier(this, requestJson.getString("queue"));
         notifier.start();
