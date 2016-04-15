@@ -38,7 +38,7 @@ public class GetMentionsCommand extends Command implements Runnable {
             proc = dbConn.prepareCall("{? = call get_mentions(?)}");
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.OTHER);
-            proc.setString(2, map.get("username"));
+            proc.setString(2, map.get("session_id"));
             proc.execute();
 
             set = (ResultSet) proc.getObject(1);
