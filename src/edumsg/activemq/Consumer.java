@@ -13,28 +13,81 @@ IN THE SOFTWARE.
 package edumsg.activemq;
 
 import javax.jms.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Consumer {
 	Logger lgr = Logger.getLogger(Consumer.class.getName());
 	ActiveMQConfig config;
 	Connection conn;
+    MessageConsumer consumer;
+    Session session;
 
-	public Consumer(ActiveMQConfig config) throws JMSException {
+	public Consumer(ActiveMQConfig config) {
 		this.config = config;
+        try {
+            conn = config.connect();
+            session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+            Destination destination = session.createQueue(config.getQueueName());
+            consumer = session.createConsumer(destination);
+        } catch (JMSException e) {
+            lgr.log(Level.SEVERE, e.getMessage(), e);
+        }
 	}
 
-	public MessageConsumer connect() throws JMSException {
-		Connection conn = config.connect();
-		this.conn = conn;
-		Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+//	public MessageConsumer connect() {
+//        MessageConsumer consumer = null;
+//        try {
+//            conn = config.connect();
+//            Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+//
+//            Destination destination = session.createQueue(config.getQueueName());
+//            consumer = session.createConsumer(destination);
+//        } catch (JMSException e) {
+//            lgr.log(Level.SEVERE, e.getMessage(), e);
+//        }
+//        return consumer;
+//	}
+//
+//	public void disconnect() throws JMSException {
+//		config.disconnect(conn);
+//	}
 
-		Destination destination = session.createQueue(config.getQueueName());
-		MessageConsumer consumer = session.createConsumer(destination);
-		return consumer;
-	}
+    public Message receive()
+    {
+        if (consumer != null)
+        {
+            try {
+                return consumer.receive();
+            } catch (JMSException e) {
+                lgr.log(Level.SEVERE, e.getMessage(), e);
+            }
+        }
+        else {
+            try {
+                conn = config.connect();
+                session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-	public void disconnect() throws JMSException {
-		config.disconnect(conn);
-	}
+                Destination destination = session.createQueue(config.getQueueName());
+                consumer = session.createConsumer(destination);
+                return consumer.receive();
+            } catch (JMSException e) {
+                lgr.log(Level.SEVERE, e.getMessage(), e);
+            }
+        }
+        return null;
+    }
+
+    public Connection getConn() {
+        return conn;
+    }
+
+    public MessageConsumer getConsumer() {
+        return consumer;
+    }
+
+    public Session getSession() {
+        return session;
+    }
 }

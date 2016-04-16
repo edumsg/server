@@ -45,8 +45,7 @@ public class NettyNotifier extends Thread {
         try {
             Consumer c = new Consumer(new ActiveMQConfig(getQueueName()
                     .toUpperCase() + ".OUTQUEUE"));
-            MessageConsumer consumer = c.connect();
-            consumer.setMessageListener(new MessageListener() {
+            c.getConsumer().setMessageListener(new MessageListener() {
                 @Override
                 public void onMessage(Message message) {
                     try {

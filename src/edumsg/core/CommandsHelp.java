@@ -51,10 +51,6 @@ public class CommandsHelp {
                               Logger logger) {
         Producer p = new Producer(new ActiveMQConfig(app.toUpperCase()
                 + ".OUTQUEUE"));
-        try {
-            p.send(json, correlationID);
-        } catch (JMSException e) {
-            //logger.log(Level.SEVERE, e.getMessage(), e);
-        }
+        p.send(json, correlationID, logger);
     }
 }

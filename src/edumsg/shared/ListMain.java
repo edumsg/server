@@ -19,9 +19,8 @@ import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
 import edumsg.redis.Cache;
 
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.TextMessage;
+import javax.jms.*;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,25 +30,57 @@ public class ListMain extends RunnableClasses {
     private static WorkerPool pool = new WorkerPool(10);
     private static boolean run = true;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         PostgresConnection.initSource();
         CommandsMap.instantiate();
 //        Cache.listBgSave();
+        Consumer c = null;
         try {
-            Consumer c = new Consumer(new ActiveMQConfig("LIST.INQUEUE"));
-            MessageConsumer consumer = c.connect();
+            c = new Consumer(new ActiveMQConfig("LIST.INQUEUE"));
 
             while (run) {
-                Message msg = consumer.receive();
+                Message msg = c.receive();
+                if (msg == null)
+                {
+                    throw new JMSException("Error receiving message from ActiveMQ");
+                }
                 if (msg instanceof TextMessage) {
                     String msgTxt = ((TextMessage) msg).getText();
                     handleMsg(msgTxt, msg.getJMSCorrelationID(),"list",LOGGER,pool);
                 }
             }
-
-            c.disconnect();
-        } catch (Exception e) {
+        }
+        catch (JMSException e)
+        {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        finally {
+            if (c != null) {
+                MessageConsumer mc;
+                if ((mc = c.getConsumer()) != null) {
+                    try {
+                        mc.close();
+                    } catch (JMSException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                }
+                Session s;
+                if ((s = c.getSession()) != null) {
+                    try {
+                        s.close();
+                    } catch (JMSException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                }
+                Connection conn;
+                if ((conn = c.getConn()) != null) {
+                    try {
+                        conn.close();
+                    } catch (JMSException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }
+                }
+            }
         }
     }
 

@@ -20,7 +20,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
-import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.json.JSONException;
@@ -29,6 +28,7 @@ import org.json.JSONObject;
 import javax.jms.JMSException;
 import java.io.IOException;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import static io.netty.handler.codec.http.HttpHeaders.Names.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
@@ -40,7 +40,7 @@ public class EduMsgNettyServerHandler extends
     private HttpRequest request;
     private String requestBody;
     private volatile String responseBody;
-    Logger log = Logger.getLogger(EduMsgNettyServer.class);
+    Logger log = Logger.getLogger(EduMsgNettyServer.class.getName());
     public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
     }
@@ -124,12 +124,7 @@ public class EduMsgNettyServerHandler extends
 
     private void sendMessageToActiveMQ(String jsonBody, String queue) {
         Producer p = new Producer(new ActiveMQConfig(queue.toUpperCase() + ".INQUEUE"));
-        try {
-            p.send(jsonBody, "1");
-        } catch (JMSException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        p.send(jsonBody, "1", log);
     }
 
     private static void send100Continue(ChannelHandlerContext ctx) {

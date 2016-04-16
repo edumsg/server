@@ -13,6 +13,8 @@ IN THE SOFTWARE.
 package edumsg.activemq;
 
 import javax.jms.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Producer {
 	ActiveMQConfig config;
@@ -21,14 +23,49 @@ public class Producer {
 		this.config = config;
 	}
 
-	public void send(String msg, String correlationID) throws JMSException {
-		Connection conn = config.connect();
-		Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-		Destination destination = session.createQueue(config.getQueueName());
-		MessageProducer producer = session.createProducer(destination);
-		Message message = session.createTextMessage(msg);
-		message.setJMSCorrelationID(correlationID);
-		producer.send(message);
-		config.disconnect(conn);
+	public void send(String msg, String correlationID, Logger logger) {
+        MessageProducer producer = null;
+        Session session = null;
+        Connection conn = null;
+		try {
+			conn = config.connect();
+			session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			Destination destination = session.createQueue(config.getQueueName());
+			producer = session.createProducer(destination);
+			Message message = session.createTextMessage(msg);
+			message.setJMSCorrelationID(correlationID);
+			producer.send(message);
+		}
+        catch (JMSException e)
+        {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+        finally
+        {
+            if (producer != null)
+            {
+                try {
+                    producer.close();
+                } catch (JMSException e) {
+                    logger.log(Level.SEVERE, e.getMessage(), e);
+                }
+            }
+            if (session != null)
+            {
+                try {
+                    session.close();
+                } catch (JMSException e) {
+                    logger.log(Level.SEVERE, e.getMessage(), e);
+                }
+            }
+            if (conn != null)
+            {
+                try {
+                    config.disconnect(conn);
+                } catch (JMSException e) {
+                    logger.log(Level.SEVERE, e.getMessage(), e);
+                }
+            }
+        }
 	}
 }
