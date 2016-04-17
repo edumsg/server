@@ -82,7 +82,7 @@ END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA DONE
-CREATE OR REPLACE FUNCTION follow(session VARCHAR, follower_id INTEGER)
+CREATE OR REPLACE FUNCTION follow(session VARCHAR, followee_id INTEGER, created_at TIMESTAMP)
     RETURNS VOID AS $$
 DECLARE private_user BOOLEAN;
         userID       INTEGER;
@@ -100,10 +100,10 @@ BEGIN
     IF private_user
     THEN
         INSERT INTO followships (user_id, follower_of_user_id, confirmed, created_at)
-        VALUES (user_id, follower_id, '0', now()::timestamp);
+        VALUES (followee_id, user_id, '0', now()::timestamp);
     ELSE
         INSERT INTO followships (user_id, follower_of_user_id, created_at)
-        VALUES (user_id, follower_id, now()::timestamp);
+        VALUES (followee_id, user_id, now()::timestamp);
     END IF;
 END; $$
 LANGUAGE PLPGSQL;
@@ -119,7 +119,7 @@ BEGIN
     WHERE id = $1;
 
     DELETE FROM followships F
-    WHERE F.user_id = $1 AND F.follower_of_user_id = $2;
+    WHERE F.user_id = $2 AND F.follower_of_user_id = user_id;
 END; $$
 LANGUAGE PLPGSQL;
 

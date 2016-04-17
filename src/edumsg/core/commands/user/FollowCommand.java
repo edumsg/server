@@ -40,7 +40,7 @@ public class FollowCommand extends Command implements Runnable {
             proc = dbConn.prepareCall("{call follow(?,?,now()::timestamp)}");
             proc.setPoolable(true);
             proc.setString(1, map.get("session_id"));
-            proc.setInt(2, Integer.parseInt(map.get("follower_id")));
+            proc.setInt(2, Integer.parseInt(map.get("followee_id")));
             proc.execute();
 
             //Cache.cacheFollowing(map.get("follower_id"),map.get("user_id"));

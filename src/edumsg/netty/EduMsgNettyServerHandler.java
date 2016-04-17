@@ -70,56 +70,64 @@ public class EduMsgNettyServerHandler extends
     private void writeresponse(HttpObject currentObj,
                                final ChannelHandlerContext ctx) throws JMSException,
             NumberFormatException, JsonParseException, JsonMappingException,
-            IOException, InterruptedException, JSONException {
-        JSONObject requestJson = new JSONObject(requestBody);
-        NettyNotifier notifier = new NettyNotifier(this, requestJson.getString("queue"));
-        notifier.start();
-        sendMessageToActiveMQ(requestBody, requestJson.getString("queue"));
+            IOException, InterruptedException {
+        try {
+            JSONObject requestJson = new JSONObject(requestBody);
+            NettyNotifier notifier = new NettyNotifier(this, requestJson.getString("queue"));
+            notifier.start();
+            sendMessageToActiveMQ(requestBody, requestJson.getString("queue"));
 
-        synchronized (this) {
-            System.out.println("waited");
-            this.wait();
-        }
-        System.out.println("notified");
-        System.out.println("netty" + getResponseBody());
-        System.out.println("-----------");
-        JSONObject json = new JSONObject(getResponseBody());
-        HttpResponseStatus status = null;
-        if (!json.has("message"))
-            status = new HttpResponseStatus(Integer.parseInt((String) json
-                    .get("code")),
-                    Integer.parseInt((String) json.get("code")) == 200 ? "Ok"
-                            : "Bad Request");
-        else
-            status = new HttpResponseStatus(Integer.parseInt((String) json
-                    .get("code")), (String) json.get("message"));
+            synchronized (this) {
+                System.out.println("waited");
+                this.wait();
+            }
+            System.out.println("notified");
+            System.out.println("netty" + getResponseBody());
+            System.out.println("-----------");
+            JSONObject json = new JSONObject(getResponseBody());
+            HttpResponseStatus status = null;
+            if (!json.has("message"))
+                status = new HttpResponseStatus(Integer.parseInt((String) json
+                        .get("code")),
+                        Integer.parseInt((String) json.get("code")) == 200 ? "Ok"
+                                : "Bad Request");
+            else
+                status = new HttpResponseStatus(Integer.parseInt((String) json
+                        .get("code")), (String) json.get("message"));
 
-        boolean keepAlive = HttpHeaders.isKeepAlive(request);
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
-                status, Unpooled.copiedBuffer(responseBody, CharsetUtil.UTF_8));
+            boolean keepAlive = HttpHeaders.isKeepAlive(request);
+            FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
+                    status, Unpooled.copiedBuffer(responseBody, CharsetUtil.UTF_8));
 
-        response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
-        if (keepAlive) {
-            response.headers().set(CONTENT_LENGTH,
-                    response.content().readableBytes());
-            response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-        }
+            response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
+            if (keepAlive) {
+                response.headers().set(CONTENT_LENGTH,
+                        response.content().readableBytes());
+                response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+            }
 
-        String cookieString = request.headers().get(COOKIE);
-        if (cookieString != null) {
-            Set<Cookie> cookies = CookieDecoder.decode(cookieString);
-            if (!cookies.isEmpty()) {
-                for (Cookie cookie : cookies) {
-                    response.headers().add(SET_COOKIE,
-                            ServerCookieEncoder.encode(cookie));
+            String cookieString = request.headers().get(COOKIE);
+            if (cookieString != null) {
+                Set<Cookie> cookies = CookieDecoder.decode(cookieString);
+                if (!cookies.isEmpty()) {
+                    for (Cookie cookie : cookies) {
+                        response.headers().add(SET_COOKIE,
+                                ServerCookieEncoder.encode(cookie));
+                    }
                 }
             }
+            // ChannelFuture f = ctx.channel().write(response);
+            // if (response.getStatus().code() != 200)
+            // f.addListener(ChannelFutureListener.CLOSE);
+            ctx.write(response);
+            channelReadComplete(ctx);
         }
-        // ChannelFuture f = ctx.channel().write(response);
-        // if (response.getStatus().code() != 200)
-        // f.addListener(ChannelFutureListener.CLOSE);
-        ctx.write(response);
-        channelReadComplete(ctx);
+        catch (JSONException e)
+        {
+            if (requestBody != null)
+                System.out.println(requestBody);
+            e.printStackTrace();
+        }
     }
 
     private void sendMessageToActiveMQ(String jsonBody, String queue) {

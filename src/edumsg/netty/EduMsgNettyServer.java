@@ -13,6 +13,10 @@ IN THE SOFTWARE.
 package edumsg.netty;
 
 import edumsg.redis.EduMsgRedis;
+import edumsg.shared.DMMain;
+import edumsg.shared.ListMain;
+import edumsg.shared.TweetMain;
+import edumsg.shared.UserMain;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;

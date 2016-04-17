@@ -34,13 +34,10 @@ public class LogoutCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
-            proc = dbConn.prepareCall("{? = call logout(?)}");
+            proc = dbConn.prepareCall("{call logout(?)}");
             proc.setPoolable(true);
             proc.setString(1, map.get("session_id"));
             proc.execute();
-
-            set = (ResultSet) proc.getObject(1);
-
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
