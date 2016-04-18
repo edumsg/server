@@ -49,7 +49,7 @@ public class CreateDmCommand extends Command implements Runnable {
             }
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.BOOLEAN);
-            proc.setString(1, map.get("session_id"));
+            proc.setString(2, map.get("session_id"));
             proc.setInt(3, Integer.parseInt(map.get("receiver_id")));
             proc.setString(4, map.get("dm_text"));
             if (map.containsKey("image_url"))
