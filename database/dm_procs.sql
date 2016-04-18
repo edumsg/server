@@ -1,30 +1,36 @@
 -- JAVA / JSON DONE
-CREATE OR REPLACE FUNCTION create_dm(sender_id integer, reciever_id integer,
+CREATE OR REPLACE FUNCTION create_dm(session VARCHAR, reciever_id integer,
   dm_text varchar(140), created_at timestamp, image_url varchar(100) DEFAULT null)
 RETURNS boolean AS $$  --Delimiter for functions and strings
 DECLARE followers integer;
 DECLARE conv integer;
 DECLARE conv_id integer;
+DECLARE userID integer;
   BEGIN
+    SELECT user_id
+    INTO userID
+    FROM sessions
+    WHERE id = $1;
+
     SELECT count(*) INTO followers FROM followships F
-    WHERE F.user_id = $1 AND F.follower_of_user_id = $2 AND F.confirmed = TRUE;
+    WHERE F.user_id = userID AND F.follower_of_user_id = $2 AND F.confirmed = TRUE;
 
     SELECT count(*) INTO conv FROM conversations C
-    WHERE (C.user_id = $1 AND C.user2_id = $2) OR (C.user_id = $2 AND C.user2_id = $1);
+    WHERE (C.user_id = userID AND C.user2_id = $2) OR (C.user_id = $2 AND C.user2_id = userID);
 
     IF followers > 0 THEN
       IF conv = 0 THEN
-        INSERT INTO conversations(user_id, user2_id) VALUES ($1, $2);
+        INSERT INTO conversations(user_id, user2_id) VALUES (userID, $2);
 
         SELECT C.id INTO conv_id FROM conversations C
-        WHERE C.user_id = $1 AND C.user2_id = $2 LIMIT 1;
+        WHERE C.user_id = userID AND C.user2_id = $2 LIMIT 1;
       ELSE
         SELECT C.id INTO conv_id FROM conversations C
-        WHERE (C.user_id = $1 AND C.user2_id = $2) OR (C.user_id = $2 AND C.user2_id = $1) LIMIT 1;
+        WHERE (C.user_id = userID AND C.user2_id = $2) OR (C.user_id = $2 AND C.user2_id = userID) LIMIT 1;
       END IF;
 
       INSERT INTO direct_messages(sender_id, reciever_id, dm_text, image_url, conv_id, created_at)
-      VALUES (sender_id, reciever_id, dm_text, image_url, conv_id, created_at);
+      VALUES (userID, reciever_id, dm_text, image_url, conv_id, created_at);
 
       RETURN TRUE;
     ELSE
