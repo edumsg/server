@@ -27,8 +27,8 @@ public class JsonMapper {
         this.json = json;
     }
 
-    public HashMap<String, String> deserialize() throws JsonParseException,
-            JsonMappingException, IOException {
+    public HashMap<String, String> deserialize() throws
+            IOException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(json,
                 new TypeReference<HashMap<String, String>>() {

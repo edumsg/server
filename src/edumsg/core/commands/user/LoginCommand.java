@@ -136,7 +136,7 @@ public class LoginCommand extends Command {
 //
 //
 //                    }
-user.setSessionID(cleaned_session);
+                    user.setSessionID(cleaned_session);
 //                    root.put("session_id", sessionID);
                     //Cache.cacheUser(id.toString(), details);
 
@@ -190,8 +190,11 @@ user.setSessionID(cleaned_session);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } catch (UnsupportedEncodingException e) {
             //Logger.log(Level.SEVERE, e.getMessage(), e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(set, proc, dbConn,null);
+            PostgresConnection.disconnect(set, proc, dbConn, null);
         }
     }
 }

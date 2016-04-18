@@ -25,8 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class TweetMain extends RunnableClasses{
-    private static final Logger LOGGER = Logger.getLogger(TweetMain.class
-            .getName());
+    private static final Logger LOGGER = Logger.getLogger(TweetMain.class.getName());
     private static WorkerPool pool = new WorkerPool(10);
     private static boolean run = true;
 

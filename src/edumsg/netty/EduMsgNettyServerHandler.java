@@ -41,6 +41,7 @@ public class EduMsgNettyServerHandler extends
     private String requestBody;
     private volatile String responseBody;
     Logger log = Logger.getLogger(EduMsgNettyServer.class.getName());
+
     public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
     }
@@ -58,7 +59,7 @@ public class EduMsgNettyServerHandler extends
         }
         if (msg instanceof HttpContent) {
             HttpContent httpContent = (HttpContent) msg;
-             ByteBuf content = httpContent.content();
+            ByteBuf content = httpContent.content();
             setRequestBody(content.toString(CharsetUtil.UTF_8));
         }
         if (msg instanceof LastHttpContent) {
@@ -67,19 +68,17 @@ public class EduMsgNettyServerHandler extends
         }
     }
 
-    private void writeresponse(HttpObject currentObj,
-                               final ChannelHandlerContext ctx) throws JMSException,
-            NumberFormatException, JsonParseException, JsonMappingException,
-            IOException, InterruptedException, JSONException {
+    private synchronized void writeresponse(HttpObject currentObj, final ChannelHandlerContext ctx) throws JMSException,
+            NumberFormatException, IOException, InterruptedException, JSONException {
         JSONObject requestJson = new JSONObject(requestBody);
         NettyNotifier notifier = new NettyNotifier(this, requestJson.getString("queue"));
         notifier.start();
         sendMessageToActiveMQ(requestBody, requestJson.getString("queue"));
 
-        synchronized (this) {
-            System.out.println("waited");
-            this.wait();
-        }
+
+        System.out.println("waited");
+        this.wait();
+
         System.out.println("notified");
         System.out.println("netty" + getResponseBody());
         System.out.println("-----------");
@@ -105,21 +104,9 @@ public class EduMsgNettyServerHandler extends
             response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
         }
 
-        String cookieString = request.headers().get(COOKIE);
-        if (cookieString != null) {
-            Set<Cookie> cookies = CookieDecoder.decode(cookieString);
-            if (!cookies.isEmpty()) {
-                for (Cookie cookie : cookies) {
-                    response.headers().add(SET_COOKIE,
-                            ServerCookieEncoder.encode(cookie));
-                }
-            }
-        }
-        // ChannelFuture f = ctx.channel().write(response);
-        // if (response.getStatus().code() != 200)
-        // f.addListener(ChannelFutureListener.CLOSE);
         ctx.write(response);
         channelReadComplete(ctx);
+        notifyAll();
     }
 
     private void sendMessageToActiveMQ(String jsonBody, String queue) {
