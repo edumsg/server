@@ -14,19 +14,11 @@ package edumsg.netty;
 
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Consumer;
-import edumsg.redis.Cache;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-import org.json.JSONException;
-import org.json.JSONObject;
-import redis.clients.jedis.Jedis;
 
-import javax.jms.*;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.TextMessage;
 
 public class NettyNotifier extends Thread {
 
@@ -71,14 +63,14 @@ public class NettyNotifier extends Thread {
 //                            cache.set(responseMap.getString("method"), responseMap.toString());
 //                        }
 //                        msgTxt = responseMap.toString();
-                        System.out.println("thread" + getResponseBody());
 //                        sleep(1000);  //Why sleep?
                         synchronized (serverHandler) {
                             setResponseBody(msgTxt);
                             serverHandler.setResponseBody(msgTxt);
-                            serverHandler.notify();
+                            serverHandler.notifyAll();
                             System.out.println("netty notified by notifier");
                         }
+//                        System.out.println("thread response " + getResponseBody());
                     } catch (JMSException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -90,6 +82,7 @@ public class NettyNotifier extends Thread {
             });
         } catch (JMSException e) {
             // TODO Auto-generated catch block
+
             e.printStackTrace();
         }
     }
