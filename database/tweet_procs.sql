@@ -122,7 +122,7 @@ BEGIN
   FROM tweets T
   WHERE T.id = $1
   LIMIT 1;
-  IF temp != user_id
+  IF temp != userID
   THEN
     INSERT INTO retweets (tweet_id, creator_id, retweeter_id, created_at)
     VALUES (tweet_id, temp, userID, now()::timestamp);
@@ -136,8 +136,12 @@ CREATE OR REPLACE FUNCTION unretweet(tweet_id INTEGER, session VARCHAR)
   RETURNS INTEGER AS $$
 DECLARE userID INTEGER;
 BEGIN
+  SELECT user_id
+  INTO userID
+  FROM sessions
+  WHERE id = $2;
   DELETE FROM retweets R
-  WHERE R.tweet_id = $1 AND R.retweeter_id = $2;
+  WHERE R.tweet_id = $1 AND R.retweeter_id = userID;
   RETURN get_retweets_count(tweet_id);
 END; $$
 LANGUAGE PLPGSQL;
