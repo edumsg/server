@@ -10,6 +10,13 @@ sub write_lists {
     $file.close;
 }
 
+sub write_dms {
+    $file = open "database/@files[0]", :w;
+    followships_insertions.unique.map({$file.say($_)});
+    dm_insertions.map({$file.say($_)});
+    $file.close;
+}
+
 sub write_all {
     $file = open "database/@files[0]", :w;
     followships_insertions.unique.map({$file.say($_)});
@@ -42,4 +49,4 @@ sub write_all {
 }
 
 
-write_lists;
+write_dms;

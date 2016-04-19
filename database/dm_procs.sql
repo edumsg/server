@@ -1,44 +1,93 @@
 -- JAVA / JSON DONE
-CREATE OR REPLACE FUNCTION create_dm(session VARCHAR, reciever_id integer,
-  dm_text varchar(140), created_at timestamp, image_url varchar(100) DEFAULT null)
-RETURNS boolean AS $$  --Delimiter for functions and strings
-DECLARE followers integer;
-DECLARE conv integer;
-DECLARE conv_id integer;
-DECLARE userID integer;
-  BEGIN
+CREATE OR REPLACE FUNCTION create_dm(session VARCHAR, reciever_id INTEGER, dm_text VARCHAR(140),
+    created_at TIMESTAMP, image_url VARCHAR(100) DEFAULT NULL)
+RETURNS BOOLEAN AS $$  --Delimiter for functions and strings
+DECLARE followers INTEGER;
+        conv      INTEGER;
+        conv_id   INTEGER;
+        userID    INTEGER;
+BEGIN
     SELECT user_id
     INTO userID
     FROM sessions
     WHERE id = $1;
 
-    SELECT count(*) INTO followers FROM followships F
+    SELECT count(*)
+    INTO followers
+    FROM followships F
     WHERE F.user_id = userID AND F.follower_of_user_id = $2 AND F.confirmed = TRUE;
 
-    SELECT count(*) INTO conv FROM conversations C
+    SELECT count(*)
+    INTO conv
+    FROM conversations C
     WHERE (C.user_id = userID AND C.user2_id = $2) OR (C.user_id = $2 AND C.user2_id = userID);
 
-    IF followers > 0 THEN
-      IF conv = 0 THEN
-        INSERT INTO conversations(user_id, user2_id) VALUES (userID, $2);
+    IF followers > 0
+    THEN
+        IF conv = 0
+        THEN
+            INSERT INTO conversations (user_id, user2_id) VALUES (userID, $2);
 
-        SELECT C.id INTO conv_id FROM conversations C
-        WHERE C.user_id = userID AND C.user2_id = $2 LIMIT 1;
-      ELSE
-        SELECT C.id INTO conv_id FROM conversations C
-        WHERE (C.user_id = userID AND C.user2_id = $2) OR (C.user_id = $2 AND C.user2_id = userID) LIMIT 1;
-      END IF;
+            SELECT C.id
+            INTO conv_id
+            FROM conversations C
+            WHERE C.user_id = userID AND C.user2_id = $2
+            LIMIT 1;
+        ELSE
+            SELECT C.id
+            INTO conv_id
+            FROM conversations C
+            WHERE (C.user_id = userID AND C.user2_id = $2) OR (C.user_id = $2 AND C.user2_id = userID)
+            LIMIT 1;
+        END IF;
 
-      INSERT INTO direct_messages(sender_id, reciever_id, dm_text, image_url, conv_id, created_at)
-      VALUES (userID, reciever_id, dm_text, image_url, conv_id, created_at);
+        INSERT INTO direct_messages (sender_id, reciever_id, dm_text, image_url, conv_id, created_at)
+        VALUES (userID, reciever_id, dm_text, image_url, conv_id, created_at);
 
-      RETURN TRUE;
+        RETURN TRUE;
     ELSE
-      RETURN FALSE;
+        RETURN FALSE;
     END IF;
-  END; $$
+END; $$
 LANGUAGE PLPGSQL;
 
+-- JAVA / JSON DONE
+CREATE OR REPLACE FUNCTION create_dm2(session VARCHAR, conv_id INTEGER, dm_text VARCHAR(140),
+ image_url VARCHAR(100) DEFAULT NULL)
+RETURNS BOOLEAN AS $$  --Delimiter for functions and strings
+DECLARE followers  INTEGER;
+        userID     INTEGER;
+        recieverID INTEGER;
+
+BEGIN
+    SELECT user_id
+    INTO userID
+    FROM sessions
+    WHERE id = $1;
+
+    SELECT INTO recieverID
+        CASE WHEN user_id = userID
+        THEN user2_id
+        ELSE user_id END
+    FROM conversations
+    WHERE id = $2;
+
+    SELECT count(*)
+    INTO followers
+    FROM followships F
+    WHERE F.user_id = userID AND F.follower_of_user_id = recieverID AND F.confirmed = TRUE;
+
+    IF followers > 0
+    THEN
+        INSERT INTO direct_messages (sender_id, reciever_id, dm_text, image_url, conv_id, created_at)
+        VALUES (userID, recieverID, dm_text, image_url, conv_id, now()::timestamp);
+
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE;
+    END IF;
+END; $$
+LANGUAGE PLPGSQL;
 
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION delete_dm(dm_id INTEGER)
@@ -68,7 +117,8 @@ BEGIN
     FROM conversations C INNER JOIN direct_messages D ON C.id = D.conv_id
         INNER JOIN users U ON D.sender_id = U.id
         INNER JOIN users X ON D.reciever_id = X.id
-    WHERE C.id = $1;
+    WHERE C.id = $1
+    ORDER BY D.created_at ASC;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;

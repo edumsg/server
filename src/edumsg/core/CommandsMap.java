@@ -83,6 +83,7 @@ public class CommandsMap {
         cmdMap.put("get_replies", GetRepliesCommand.class);
 
         cmdMap.put("create_dm", CreateDmCommand.class);
+        cmdMap.put("create_dm2", CreateDm2Command.class);
         cmdMap.put("delete_dm", DeleteDmCommand.class);
         cmdMap.put("get_conv", GetConversationCommand.class);
         cmdMap.put("get_convs", GetConversationsCommand.class);
