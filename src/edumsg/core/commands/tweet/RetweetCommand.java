@@ -37,11 +37,11 @@ public class RetweetCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
-            proc = dbConn.prepareCall("{? = call retweet(?,?,now()::timestamp)}");
+            proc = dbConn.prepareCall("{? = call retweet(?,?)}");
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.INTEGER);
             proc.setInt(2, Integer.parseInt(map.get("tweet_id")));
-            proc.setString(1, map.get("session_id"));
+            proc.setString(3, map.get("session_id"));
             proc.execute();
 
             int retweets = proc.getInt(1);

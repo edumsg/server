@@ -43,7 +43,7 @@ public class UnRetweetCommand extends Command implements Runnable {
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.INTEGER);
             proc.setInt(2, Integer.parseInt(map.get("tweet_id")));
-            proc.setString(1, map.get("session_id"));
+            proc.setString(3, map.get("session_id"));
             proc.execute();
 
             int retweets = proc.getInt(1);
