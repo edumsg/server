@@ -29,9 +29,10 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import org.apache.log4j.Logger;
 
+import java.util.concurrent.Executors;
+
 public class EduMsgNettyServer {
     static final boolean SSL = System.getProperty("ssl") != null;
-
 
     static final int PORT = Integer.parseInt(System.getProperty("port",
             SSL ? "8443" : "8080"));

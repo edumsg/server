@@ -35,7 +35,7 @@ public class AddMemberCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
-            proc = dbConn.prepareCall("{call add_member(?,?,now()::timestamp)}");
+            proc = dbConn.prepareCall("{call add_member(?,?)}");
             proc.setPoolable(true);
             proc.setInt(1, Integer.parseInt(map.get("user_id")));
             proc.setInt(2, Integer.parseInt(map.get("list_id")));

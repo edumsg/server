@@ -102,7 +102,7 @@ BEGIN
   FROM sessions
   WHERE id = $2;
   DELETE FROM favorites F
-  WHERE F.tweet_id = $1 AND F.user_id = $2;
+  WHERE F.tweet_id = $1 AND F.user_id = userID;
   RETURN get_favorites_count(tweet_id);
 END; $$
 LANGUAGE PLPGSQL;
@@ -179,12 +179,8 @@ CREATE OR REPLACE FUNCTION reply(tweet_id  INTEGER, tweet_text VARCHAR(140), ses
 DECLARE reply_id INTEGER;
         userID   INTEGER;
 BEGIN
-  SELECT user_id
-  INTO userID
-  FROM sessions
-  WHERE id = $3;
   SELECT id
-  FROM create_tweet(tweet_text, userID, image_url)
+  FROM create_tweet(tweet_text, session, image_url)
   INTO reply_id;
   INSERT INTO replies (original_tweet_id, reply_id, created_at) VALUES (tweet_id, reply_id, now()::timestamp);
 END; $$

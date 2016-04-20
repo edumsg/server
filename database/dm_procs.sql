@@ -58,8 +58,10 @@ BEGIN
     SELECT
         U.id,
         U.name,
+        U.username,
         X.id,
         X.name,
+        X.username,
         D.dm_text,
         D.image_url,
         D.created_at,

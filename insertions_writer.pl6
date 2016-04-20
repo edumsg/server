@@ -42,4 +42,4 @@ sub write_all {
 }
 
 
-write_lists;
+write_all;

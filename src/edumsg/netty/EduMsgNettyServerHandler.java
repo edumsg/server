@@ -50,6 +50,8 @@ public class EduMsgNettyServerHandler extends
     protected void channelRead0(ChannelHandlerContext ctx, Object msg)
             throws Exception {
 
+//        System.out.println("CH:" + ctx.channel().toString());
+
         if (msg instanceof HttpRequest) {
             HttpRequest request = this.request = (HttpRequest) msg;
             if (HttpHeaders.is100ContinueExpected(request)) {
@@ -77,7 +79,10 @@ public class EduMsgNettyServerHandler extends
 
 
         System.out.println("waited");
-        this.wait();
+//        System.out.println("handler: " + this.toString() + "\nnotifier: " + notifier.toString());
+        synchronized (this) {
+            wait();
+        }
 
         System.out.println("notified");
         System.out.println("netty" + getResponseBody());

@@ -22,6 +22,8 @@ import io.netty.handler.codec.http.cors.CorsConfig;
 import io.netty.handler.codec.http.cors.CorsHandler;
 import io.netty.handler.ssl.SslContext;
 
+import java.util.Iterator;
+
 public class EduMsgNettyServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private final SslContext sslCtx;
@@ -39,8 +41,8 @@ public class EduMsgNettyServerInitializer extends ChannelInitializer<SocketChann
         if (sslCtx != null) {
             p.addLast(sslCtx.newHandler(arg0.alloc()));
         }
-        p.addLast("decoder",new HttpRequestDecoder());
-        p.addLast("encoder",new HttpResponseEncoder());
+        p.addLast("decoder", new HttpRequestDecoder());
+        p.addLast("encoder", new HttpResponseEncoder());
         p.addLast(new CorsHandler(corsConfig));
         p.addLast(new EduMsgNettyServerHandler());
     }
