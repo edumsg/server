@@ -42,6 +42,7 @@ sub dm_insertions is export {
     for 1..11 -> $i {
         for 1..11 -> $j {
             next if ($i == $j);
+            next if (@temp.contains("INSERT INTO conversations VALUES(DEFAULT, $j, $i);"));
             @temp.push("INSERT INTO conversations VALUES(DEFAULT, $i, $j);");
 
             @temp.push("INSERT INTO direct_messages VALUES(DEFAULT, $i, $j, 'Hello', NULL, true, CURRVAL(pg_get_serial_sequence('conversations','id')), CURRENT_TIMESTAMP);");
@@ -97,4 +98,4 @@ sub lists_insertions is export {
     return @temp;
 }
 
-# say followships_insertions;
+dm_insertions>>.say;
