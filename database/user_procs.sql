@@ -7,7 +7,7 @@ CREATE OR REPLACE FUNCTION create_user(username   VARCHAR(30),
     RETURNS SETOF users AS $$
 BEGIN
     INSERT INTO users (username, email, encrypted_password, name, created_at, avatar_url)
-    VALUES (username, email, password, name, now()::timestamp, avatar_url);
+    VALUES (username, email, password, name, now() :: TIMESTAMP, avatar_url);
     RETURN QUERY
     SELECT *
     FROM users
@@ -45,6 +45,20 @@ BEGIN
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION get_user2(username VARCHAR)
+    RETURNS REFCURSOR AS $$
+DECLARE cursor REFCURSOR := 'cur';
+BEGIN
+    OPEN cursor FOR
+    SELECT *
+    FROM users U
+    WHERE U.username = username
+    LIMIT 1;
+    RETURN cursor;
+END; $$
+LANGUAGE PLPGSQL;
+
 
 CREATE OR REPLACE FUNCTION my_profile(session VARCHAR)
     RETURNS REFCURSOR AS $$
@@ -100,10 +114,10 @@ BEGIN
     IF private_user
     THEN
         INSERT INTO followships (user_id, follower_of_user_id, confirmed, created_at)
-        VALUES (followee_id, user_id, '0', now()::timestamp);
+        VALUES (followee_id, user_id, '0', now() :: TIMESTAMP);
     ELSE
         INSERT INTO followships (user_id, follower_of_user_id, created_at)
-        VALUES (followee_id, user_id, now()::timestamp);
+        VALUES (followee_id, user_id, now() :: TIMESTAMP);
     END IF;
 END; $$
 LANGUAGE PLPGSQL;
@@ -453,7 +467,7 @@ LANGUAGE PLPGSQL;
 -- JAVA DONE / JSON DONE
 CREATE OR REPLACE FUNCTION get_mentions(session VARCHAR)
     RETURNS REFCURSOR AS $$
-DECLARE cursor REFCURSOR := 'cur';
+DECLARE cursor        REFCURSOR := 'cur';
         user_username VARCHAR;
 BEGIN
     SELECT username
@@ -517,10 +531,10 @@ BEGIN
     WHERE username = $1;
 
     INSERT INTO sessions AS S (id, user_id, session_start, created_at)
-    VALUES ($2, userID, now()::timestamp, now()::timestamp)
+    VALUES ($2, userID, now() :: TIMESTAMP, now() :: TIMESTAMP)
     ON CONFLICT (user_id)
-    DO UPDATE SET session_start = now()::timestamp, id = $2
-    WHERE S.user_id = userID;
+        DO UPDATE SET session_start = now() :: TIMESTAMP, id = $2
+            WHERE S.user_id = userID;
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -529,7 +543,7 @@ CREATE OR REPLACE FUNCTION logout(session VARCHAR)
     RETURNS VOID AS $$
 BEGIN
     UPDATE sessions
-    SET session_end = now()::timestamp
+    SET session_end = now() :: TIMESTAMP
     WHERE id = $1;
 END; $$
 LANGUAGE PLPGSQL;
@@ -560,5 +574,36 @@ BEGIN
     FROM sessions
     WHERE user_id = userID;
     RETURN SESSION;
+END; $$
+LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION is_following(session VARCHAR, user_name VARCHAR)
+    RETURNS BOOLEAN AS $$
+DECLARE is_following BOOLEAN;
+        userID       INTEGER;
+        userID2      INTEGER;
+BEGIN
+    SELECT user_id
+    INTO userID
+    FROM sessions
+    WHERE id = $1;
+
+    SELECT id
+    INTO userID2
+    FROM users
+    WHERE username = $2;
+
+    SELECT confirmed
+    INTO is_following
+    FROM followships
+    WHERE user_id = userID AND follower_of_user_id = userID2;
+
+    IF FOUND
+    THEN
+        RETURN is_following;
+    ELSE
+        RETURN FALSE;
+    END IF;
+
 END; $$
 LANGUAGE PLPGSQL;

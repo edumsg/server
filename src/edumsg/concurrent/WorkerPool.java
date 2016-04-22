@@ -12,6 +12,7 @@ IN THE SOFTWARE.
 
 package edumsg.concurrent;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -19,9 +20,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class WorkerPool {
     ThreadPoolExecutor executor;
 
-    public WorkerPool(int poolSize) {
+    public WorkerPool() {
+
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
-        executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize, threadFactory);
+        executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         RejectedExecutionHandlerImpl rejectionHandler = new RejectedExecutionHandlerImpl();
         executor.setRejectedExecutionHandler(rejectionHandler);
     }

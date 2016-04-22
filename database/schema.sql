@@ -107,8 +107,9 @@ DROP TABLE IF EXISTS conversations CASCADE;
 
 CREATE TABLE conversations(
   id serial PRIMARY KEY NOT NULL,
-  user_id integer REFERENCES users(id),
-  user2_id integer REFERENCES users(id)
+  user_id integer REFERENCES users(id) NOT NULL,
+  user2_id integer REFERENCES users(id) NOT NULL,
+  UNIQUE(user_id, user2_id)
 );
 
 DROP TABLE IF EXISTS direct_messages CASCADE;

@@ -1,5 +1,5 @@
 -- JAVA / JSON DONE
-CREATE OR REPLACE FUNCTION create_list(name       VARCHAR(50), description VARCHAR(140),
+CREATE OR REPLACE FUNCTION create_list(name VARCHAR(50), description VARCHAR(140),
                                        session varchar, private BOOLEAN, created_at TIMESTAMP)
   RETURNS SETOF lists AS $$
 DECLARE list_id INTEGER;

@@ -51,6 +51,7 @@ public class CommandsMap {
         cmdMap = new ConcurrentHashMap<>();
         cmdMap.put("register", RegisterCommand.class);
         cmdMap.put("follow", FollowCommand.class);
+        cmdMap.put("is_following", IsFollowingCommand.class);
         cmdMap.put("unfollow", UnFollowCommand.class);
         cmdMap.put("confirm_follow", ConfirmFollowCommand.class);
         cmdMap.put("report_user", ReportUserCommand.class);
@@ -85,6 +86,7 @@ public class CommandsMap {
         cmdMap.put("create_dm", CreateDmCommand.class);
         cmdMap.put("create_dm2", CreateDm2Command.class);
         cmdMap.put("delete_dm", DeleteDmCommand.class);
+        cmdMap.put("create_conversation", CreateConversationCommand.class);
         cmdMap.put("get_conv", GetConversationCommand.class);
         cmdMap.put("get_convs", GetConversationsCommand.class);
         cmdMap.put("delete_conv", DeleteConversationCommand.class);

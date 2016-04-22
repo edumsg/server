@@ -163,10 +163,11 @@ BEGIN
 END; $$
 LANGUAGE PLPGSQL;
 
-CREATE OR REPLACE FUNCTION create_conversation(session VARCHAR, username2 VARCHAR)
+CREATE OR REPLACE FUNCTION create_conversation(session VARCHAR, username2 VARCHAR, dm_text VARCHAR(140))
     RETURNS BOOLEAN AS $$
 DECLARE userID  INTEGER;
         userID2 INTEGER;
+        conv_id INTEGER;
 BEGIN
     SELECT user_id
     INTO userID
@@ -176,14 +177,15 @@ BEGIN
     SELECT id
     INTO userID2
     FROM users
-    WHERE username = username2;
+    WHERE username = $2;
 
     IF NOT FOUND
     THEN
         RETURN FALSE;
     ELSE
 
-        SELECT *
+        SELECT id
+        INTO conv_id
         FROM conversations
         WHERE user_id = userID AND user2_id = userID2;
 
@@ -195,6 +197,8 @@ BEGIN
             INSERT INTO conversations VALUES (DEFAULT, userID, userID2)
             ON CONFLICT (user_id, user2_id)
                 DO NOTHING;
+
+        PERFORM create_dm($1, userID2, $3);
         END IF;
         RETURN TRUE;
     END IF;
