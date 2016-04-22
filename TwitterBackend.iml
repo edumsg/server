@@ -128,7 +128,6 @@
     <orderEntry type="library" exported="" name="activemq-all-5.13.1" level="project" />
     <orderEntry type="library" exported="" name="postgresql-9.4.1208" level="project" />
     <orderEntry type="library" exported="" name="jedis-2.8.0" level="project" />
-    <orderEntry type="library" name="netty-all-4.0.36.Final-sources" level="project" />
-    <orderEntry type="library" exported="" name="netty-all-4.0.36.Final" level="project" />
+    <orderEntry type="library" exported="" name="netty-all-4.0.36.Final with sources" level="project" />
   </component>
 </module>
