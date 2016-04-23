@@ -21,6 +21,36 @@ SELECT user_id
 END; $$
 LANGUAGE PLPGSQL;
 
+CREATE OR REPLACE FUNCTION create_list_with_members(name VARCHAR(50), description VARCHAR(140),
+                                       session varchar, private BOOLEAN, created_at TIMESTAMP, members VARCHAR[])
+RETURNS REFCURSOR AS $$
+DECLARE list_id INTEGER;
+        cursor REFCURSOR := 'cur';
+        userID INTEGER;
+BEGIN
+SELECT user_id
+    INTO userID
+    FROM sessions
+    WHERE id = $3;
+  INSERT INTO lists (name, description, creator_id, private, created_at)
+  VALUES (name, description, userID, private, created_at) RETURNING id INTO list_id;
+
+  PERFORM subscribe(userID, list_id, created_at);
+
+  FOR i IN array_lower(members)..array_upper(members) LOOP
+      EXECUTE 'PERFORM add_member_with_username('|| quote_ident(members [i]) ||',list_id)';
+  END LOOP;
+
+
+  OPEN cursor FOR
+  SELECT *
+  FROM lists
+  WHERE id = CURRVAL(pg_get_serial_sequence('lists', 'id'));
+  RETURN cursor;
+
+END; $$
+LANGUAGE PLPGSQL;
+
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION delete_list(list_id INTEGER)
   RETURNS VOID AS $$
@@ -76,6 +106,17 @@ CREATE OR REPLACE FUNCTION add_member(user_id INTEGER, list_id INTEGER)
 BEGIN
   INSERT INTO memberships (member_id, list_id, created_at)
   VALUES (user_id, list_id, now()::timestamp);
+END; $$
+LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION add_member_with_username(username VARCHAR, list_id INTEGER)
+  RETURNS VOID AS $$
+  DECLARE userID INTERGER;
+BEGIN
+    SELECT id INTO userID FROM users where username=$1;
+
+  INSERT INTO memberships (member_id, list_id, created_at)
+  VALUES (userID, list_id, now()::timestamp);
 END; $$
 LANGUAGE PLPGSQL;
 

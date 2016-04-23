@@ -18,6 +18,7 @@ import edumsg.concurrent.WorkerPool;
 import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
 import edumsg.redis.Cache;
+import org.apache.activemq.ActiveMQConnection;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 
@@ -27,12 +28,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UserMain extends RunnableClasses{
-    private static final Logger LOGGER = Logger.getLogger(UserMain.class
-            .getName());
+    private static final Logger LOGGER = Logger.getLogger(UserMain.class.getName());
     private static WorkerPool pool = new WorkerPool();
     private static boolean run = true;
 
     public static void main(String[] args) throws IOException {
+
         PostgresConnection.initSource();
         CommandsMap.instantiate();
 //        Cache.userBgSave();
