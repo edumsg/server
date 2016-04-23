@@ -112,7 +112,6 @@ public class EduMsgNettyServerHandler extends
         ctx.write(response);
         channelReadComplete(ctx);
         notifyAll();
-
     }
 
     private void sendMessageToActiveMQ(String jsonBody, String queue) {
