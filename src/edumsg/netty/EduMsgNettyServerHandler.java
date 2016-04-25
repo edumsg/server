@@ -28,6 +28,10 @@ import org.json.JSONObject;
 import javax.jms.JMSException;
 import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 import static io.netty.handler.codec.http.HttpHeaders.Names.*;
@@ -39,7 +43,7 @@ public class EduMsgNettyServerHandler extends
 
     private HttpRequest request;
     private String requestBody;
-    private volatile String responseBody;
+    volatile String responseBody;
     Logger log = Logger.getLogger(EduMsgNettyServer.class.getName());
 
     public void channelReadComplete(ChannelHandlerContext ctx) {
@@ -71,19 +75,26 @@ public class EduMsgNettyServerHandler extends
     }
 
     private synchronized void writeresponse(HttpObject currentObj, final ChannelHandlerContext ctx) throws JMSException,
-            NumberFormatException, IOException, InterruptedException, JSONException {
+            NumberFormatException, IOException, InterruptedException, JSONException, ExecutionException {
+        ExecutorService exec = Executors.newSingleThreadExecutor();
+
         JSONObject requestJson = new JSONObject(requestBody);
         NettyNotifier notifier = new NettyNotifier(this, requestJson.getString("queue"));
-        notifier.start();
+//        notifier.start();
         sendMessageToActiveMQ(requestBody, requestJson.getString("queue"));
 
 
         System.out.println("waited");
+        String oldResponseBody = responseBody;
+        Future future = exec.submit(notifier);
+        this.responseBody = (String) future.get();
 //        System.out.println("handler: " + this.toString() + "\nnotifier: " + notifier.toString());
-        synchronized (this) {
-            wait();
-        }
-
+//        synchronized (this) {
+//            wait();
+//        }
+//        notifier.join();
+//        if (responseBody == null)
+//            throw new JMSException("Error getting response body");
         System.out.println("notified");
         System.out.println("netty" + getResponseBody());
         System.out.println("-----------");
@@ -135,7 +146,7 @@ public class EduMsgNettyServerHandler extends
         return responseBody;
     }
 
-    public void setResponseBody(String responseBody) {
+    public synchronized void setResponseBody(String responseBody) {
         this.responseBody = responseBody;
     }
 
