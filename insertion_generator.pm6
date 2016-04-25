@@ -97,5 +97,3 @@ sub lists_insertions is export {
     }
     return @temp;
 }
-
-dm_insertions>>.say;

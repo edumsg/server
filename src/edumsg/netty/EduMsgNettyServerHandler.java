@@ -80,9 +80,8 @@ public class EduMsgNettyServerHandler extends
 
         System.out.println("waited");
 //        System.out.println("handler: " + this.toString() + "\nnotifier: " + notifier.toString());
-        synchronized (this) {
-            wait();
-        }
+           this.wait();
+
 
         System.out.println("notified");
         System.out.println("netty" + getResponseBody());

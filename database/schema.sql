@@ -76,11 +76,12 @@ DROP TABLE IF EXISTS lists CASCADE;
 
 CREATE TABLE lists(
   id serial PRIMARY KEY NOT NULL,
-  name varchar(50) UNIQUE NOT NULL,
+  name varchar(50) NOT NULL,
   description varchar(160),
   creator_id integer REFERENCES users(id) ON DELETE CASCADE,
   private boolean DEFAULT '0', -- public 0 and private 1
-  created_at timestamp NOT NULL
+  created_at timestamp NOT NULL,
+  UNIQUE (name,creator_id)
 );
 
 DROP TABLE IF EXISTS subscriptions CASCADE;

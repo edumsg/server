@@ -35,15 +35,17 @@ public class CreateListMembersCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
-            proc = dbConn.prepareCall("{? = call create_list_with_members(?,?,?,?,now()::TIMESTAMP ,?)}");
-            proc.setPoolable(true);
-            proc.registerOutParameter(1, Types.OTHER);
-            proc.setString(2, map.get("name"));
-            proc.setString(3, map.get("description"));
-            proc.setString(4, map.get("session_id"));
-            proc.setBoolean(5, Boolean.parseBoolean(map.get("private")));
+            proc = dbConn.prepareCall("{call create_list_with_members(?,?,?,?,now()::TIMESTAMP ,?)}");
+            proc.setPoolable(true);proc.registerOutParameter(1, Types.OTHER);
+            proc.setString(1, map.get("name"));
+            proc.setString(2, map.get("description"));
+            proc.setString(3, map.get("session_id"));
+            proc.setBoolean(4, Boolean.parseBoolean(map.get("private")));
             Array array = dbConn.createArrayOf("varchar", map.get("members").split(""));
-            proc.setArray(6, array);
+            proc.setArray(5, array);
+
+            proc.execute();
+
 
 
             root.put("app", map.get("app"));

@@ -95,6 +95,7 @@ public class CommandsMap {
 
         cmdMap.put("add_member", AddMemberCommand.class);
         cmdMap.put("create_list", CreateListCommand.class);
+        cmdMap.put("create_list_with_members", CreateListMembersCommand.class);
         cmdMap.put("delete_list", DeleteListCommand.class);
         cmdMap.put("delete_member", DeleteMemberCommand.class);
         cmdMap.put("list_members", GetListMembersCommand.class);
