@@ -45,6 +45,7 @@ public class EduMsgNettyServerHandler extends
     private String requestBody;
     volatile String responseBody;
     Logger log = Logger.getLogger(EduMsgNettyServer.class.getName());
+    ExecutorService executorService = Executors.newCachedThreadPool();
 
     public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
@@ -66,17 +67,19 @@ public class EduMsgNettyServerHandler extends
         if (msg instanceof HttpContent) {
             HttpContent httpContent = (HttpContent) msg;
             ByteBuf content = httpContent.content();
+//            System.out.println("req " + content.toString(CharsetUtil.UTF_8));
             setRequestBody(content.toString(CharsetUtil.UTF_8));
         }
         if (msg instanceof LastHttpContent) {
             LastHttpContent trailer = (LastHttpContent) msg;
+//            ByteBuf content = trailer.content();
+//            System.out.println("ss " + content.toString(CharsetUtil.UTF_8));
             writeresponse(trailer, ctx);
         }
     }
 
     private synchronized void writeresponse(HttpObject currentObj, final ChannelHandlerContext ctx) throws JMSException,
             NumberFormatException, IOException, InterruptedException, JSONException, ExecutionException {
-        ExecutorService exec = Executors.newSingleThreadExecutor();
 
         JSONObject requestJson = new JSONObject(requestBody);
         NettyNotifier notifier = new NettyNotifier(this, requestJson.getString("queue"));
@@ -86,7 +89,7 @@ public class EduMsgNettyServerHandler extends
 
         System.out.println("waited");
         String oldResponseBody = responseBody;
-        Future future = exec.submit(notifier);
+        Future future = executorService.submit(notifier);
         this.responseBody = (String) future.get();
 //        System.out.println("handler: " + this.toString() + "\nnotifier: " + notifier.toString());
 //        synchronized (this) {
@@ -120,9 +123,9 @@ public class EduMsgNettyServerHandler extends
             response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
         }
 
-        ctx.write(response);
-        channelReadComplete(ctx);
-        notifyAll();
+        ctx.writeAndFlush(response);
+//        channelReadComplete(ctx);
+//        notifyAll();
     }
 
     private void sendMessageToActiveMQ(String jsonBody, String queue) {
