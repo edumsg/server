@@ -433,7 +433,8 @@ BEGIN
         C.avatar_url
     FROM lists L INNER JOIN subscriptions S ON L.id = S.list_id
         INNER JOIN users C ON L.creator_id = C.id
-    WHERE S.subscriber_id = userID;
+    WHERE S.subscriber_id = userID
+    ORDER BY L.name ASC;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
