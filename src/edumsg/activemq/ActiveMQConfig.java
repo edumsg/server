@@ -15,13 +15,13 @@ package edumsg.activemq;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
+import javax.jms.*;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 public class ActiveMQConfig {
     private String url = ActiveMQConnection.DEFAULT_BROKER_URL;
-
+    private Connection connection;
     private String queueName;
 
     public ActiveMQConfig(String queueName) {
@@ -29,9 +29,11 @@ public class ActiveMQConfig {
     }
 
     public Connection connect() throws JMSException {
-        ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
-        Connection connection = connectionFactory.createConnection();
-        connection.start();
+        if (connection == null) {
+            ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
+            connection = connectionFactory.createConnection();
+            connection.start();
+        }
         return connection;
     }
 
