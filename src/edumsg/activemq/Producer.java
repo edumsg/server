@@ -17,49 +17,42 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Producer {
-	ActiveMQConfig config;
+    ActiveMQConfig config;
 
-	public Producer(ActiveMQConfig config) {
-		this.config = config;
-	}
+    public Producer(ActiveMQConfig config) {
+        this.config = config;
+    }
 
-	public void send(String msg, String correlationID, Logger logger) {
+    public void send(String msg, String correlationID, Logger logger) {
         MessageProducer producer = null;
         Session session = null;
         Connection conn = null;
-		try {
-			conn = config.connect();
-			session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			Destination destination = session.createQueue(config.getQueueName());
-			producer = session.createProducer(destination);
-			Message message = session.createTextMessage(msg);
-			message.setJMSCorrelationID(correlationID);
-			producer.send(message);
-		}
-        catch (JMSException e)
-        {
+        try {
+            conn = config.connect();
+            session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Destination destination = session.createQueue(config.getQueueName());
+            producer = session.createProducer(destination);
+            Message message = session.createTextMessage(msg);
+            message.setJMSCorrelationID(correlationID);
+            producer.send(message);
+        } catch (JMSException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
-        }
-        finally
-        {
-            if (producer != null)
-            {
+        } finally {
+            if (producer != null) {
                 try {
                     producer.close();
                 } catch (JMSException e) {
                     logger.log(Level.SEVERE, e.getMessage(), e);
                 }
             }
-            if (session != null)
-            {
+            if (session != null) {
                 try {
                     session.close();
                 } catch (JMSException e) {
                     logger.log(Level.SEVERE, e.getMessage(), e);
                 }
             }
-            if (conn != null)
-            {
+            if (conn != null) {
                 try {
                     config.disconnect(conn);
                 } catch (JMSException e) {
@@ -67,5 +60,5 @@ public class Producer {
                 }
             }
         }
-	}
+    }
 }
