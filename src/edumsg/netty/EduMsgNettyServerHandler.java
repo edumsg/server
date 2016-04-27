@@ -136,7 +136,7 @@ public class EduMsgNettyServerHandler extends
     private static void send100Continue(ChannelHandlerContext ctx) {
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
                 CONTINUE);
-        ctx.write(response);
+        ctx.writeAndFlush(response);
     }
 
     @Override

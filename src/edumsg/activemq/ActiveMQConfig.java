@@ -30,7 +30,7 @@ public class ActiveMQConfig {
 
     public Connection connect() throws JMSException {
         if (connection == null) {
-            ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
+            ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
             connection = connectionFactory.createConnection();
             connection.start();
         }

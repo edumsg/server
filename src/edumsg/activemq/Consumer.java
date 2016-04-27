@@ -28,7 +28,6 @@ public class Consumer {
         try {
             conn = config.connect();
             session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
             Destination destination = session.createQueue(config.getQueueName());
             consumer = session.createConsumer(destination);
         } catch (JMSException e) {
