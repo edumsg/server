@@ -38,12 +38,13 @@ public class NettyNotifier implements Callable<String> {
     @Override
     public String call() {
         try {
-            if (activeMQConfig == null || !activeMQConfig.getQueueName().contains(getQueueName()))
-            {
+//            if (activeMQConfig == null || !activeMQConfig.getQueueName().contains(getQueueName()))
+//            {
                 activeMQConfig = new ActiveMQConfig(getQueueName()
                         .toUpperCase() + ".OUTQUEUE");
                 consumer = new Consumer(activeMQConfig);
-            }
+//            }
+//            consumer.getConn().start();
             Message message = consumer.getConsumer().receive();
             String msgTxt = ((TextMessage) message).getText();
             System.out.println("message " + msgTxt);
@@ -53,6 +54,9 @@ public class NettyNotifier implements Callable<String> {
                 setResponseBody(msgTxt);
 //                serverHandler.setResponseBody(msgTxt);
 //            }
+            consumer.getConsumer().close();
+            consumer.getSession().close();
+            consumer.getConn().close();
             return msgTxt;
 //            c.getConsumer().setMessageListener(new MessageListener() {
 //                @Override
