@@ -104,6 +104,7 @@ public class CommandsMap {
         cmdMap.put("unsubscribe", UnSubscribeCommand.class);
         cmdMap.put("update_list", UpdateListCommand.class);
         cmdMap.put("get_list_feeds", GetListFeedsCommand.class);
+        cmdMap.put("get_list", GetListCommand.class);
     }
 
     public static Class<?> queryClass(String cmd) {

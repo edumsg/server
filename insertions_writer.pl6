@@ -49,4 +49,4 @@ sub write_all {
 }
 
 
-write_all;
+write_lists;
