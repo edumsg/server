@@ -17,6 +17,7 @@ import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
@@ -123,11 +124,18 @@ public class PostgresConnection {
                 LOGGER.log(Level.SEVERE,
                         "Error loading Postgres driver: " + ex.getMessage(), ex);
             }
-            try{
-                readConfFile();
-            }   catch (Exception e){
-                e.printStackTrace();
-            }
+//            try{
+//                readConfFile();
+//            }   catch (Exception e){
+//                e.printStackTrace();
+//            }
+            URI dbUri = new URI(System.getenv("DATABASE_URL"));
+
+            DB_USERNAME = dbUri.getUserInfo().split(":")[0];
+            DB_PASSWORD = dbUri.getUserInfo().split(":")[1];
+            DB_NAME = dbUri.getPath().replace("/", "");
+            DB_URL = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
+
             Properties props = new Properties();
           //  System.out.println(DB_USERNAME);
             props.setProperty("user", DB_USERNAME);
