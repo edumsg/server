@@ -12,14 +12,14 @@ IN THE SOFTWARE.
 
 package edumsg.core.commands.list;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.List;
 import edumsg.core.PostgresConnection;
 import edumsg.redis.Cache;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.node.ArrayNode;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class GetListCommand extends Command implements Runnable {
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
-            root.put("list", list);
+            root.set("list", list);
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
             } catch (JsonGenerationException e) {
