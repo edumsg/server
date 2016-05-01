@@ -1,0 +1,1 @@
+web: java $JAVA_OPTS -cp target/classes:target/dependency/* edumsg.shared.UserMain edumsg.shared.TweetMain edumsg.shared.DMMain edumsg.shared.ListMain edumsg.netty.EduMsgNettyServer
