@@ -1,1 +1,5 @@
-web: java $JAVA_OPTS -cp target/classes:target/dependency/* edumsg.shared.UserMain edumsg.shared.TweetMain edumsg.shared.DMMain edumsg.shared.ListMain edumsg.netty.EduMsgNettyServer
+web: java $JAVA_OPTS -cp target/classes:target/dependency/* edumsg.netty.EduMsgNettyServer
+userWorker: java $JAVA_OPTS -cp target/classes:target/dependency/* edumsg.shared.UserMain
+tweetWorker: java $JAVA_OPTS -cp target/classes:target/dependency/* edumsg.shared.TweetMain
+listWorker: java $JAVA_OPTS -cp target/classes:target/dependency/* edumsg.shared.ListMain
+dmWorker: java $JAVA_OPTS -cp target/classes:target/dependency/* edumsg.shared.DMMain
