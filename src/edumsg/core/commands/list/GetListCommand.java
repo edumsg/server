@@ -20,6 +20,7 @@ import edumsg.redis.Cache;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.node.ArrayNode;
+import org.codehaus.jackson.node.POJONode;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -39,15 +40,15 @@ public class GetListCommand extends Command implements Runnable {
             dbConn.setAutoCommit(true);
             Statement query = dbConn.createStatement();
             query.setPoolable(true);
-            ArrayNode list = nf.arrayNode();
             set = query.executeQuery(String.format("SELECT * FROM get_list(%s)",map.get("list_id")));
             List l = new List();
             while(set.next()){
                 l.setName(set.getString("name"));
                 l.setDescription(set.getString("description"));
-                list.addPOJO(l);
+
             }
 
+            POJONode list = nf.POJONode(l);
             set.close();
 
             root.put("app", map.get("app"));

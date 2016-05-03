@@ -47,6 +47,7 @@ public class UpdateListCommand extends Command implements Runnable {
             map.remove("app");
             map.remove("method");
             map.remove("correlation_id");
+            map.remove("queue");
             Set<Entry<String, String>> set = map.entrySet();
             Iterator<Entry<String, String>> iterator = set.iterator();
             String[][] arraySet = new String[set.size()][2];

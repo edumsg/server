@@ -69,6 +69,7 @@ public class CommandsMap {
         cmdMap.put("unconfirmed_followers", UnconfirmedFollowersCommand.class);
         cmdMap.put("update_user", UpdateUserCommand.class);
         cmdMap.put("get_user", GetUserCommand.class);
+        cmdMap.put("get_user2", GetUser2Command.class);
         cmdMap.put("my_profile", MyProfileCommand.class);
         cmdMap.put("get_mentions", GetMentionsCommand.class);
         cmdMap.put("get_retweets", GetRetweetsCommand.class);
@@ -82,6 +83,9 @@ public class CommandsMap {
         cmdMap.put("logout", LogoutCommand.class);
         cmdMap.put("get_earliest_replies", GetEarliestRepliesCommand.class);
         cmdMap.put("get_replies", GetRepliesCommand.class);
+        cmdMap.put("user_with_tweets", GetUserWithTweetsCommand.class);
+
+
 
         cmdMap.put("create_dm", CreateDmCommand.class);
         cmdMap.put("create_dm2", CreateDm2Command.class);
