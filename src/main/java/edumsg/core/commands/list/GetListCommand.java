@@ -14,16 +14,12 @@ package edumsg.core.commands.list;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.List;
 import edumsg.core.PostgresConnection;
 import edumsg.redis.Cache;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.node.POJONode;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -51,7 +47,7 @@ public class GetListCommand extends Command implements Runnable {
 
             }
 
-            POJONode list = nf.POJONode(l);
+            ValueNode list = nf.pojoNode(l);
             set.close();
 
             root.put("app", map.get("app"));
