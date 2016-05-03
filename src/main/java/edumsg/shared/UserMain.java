@@ -17,6 +17,7 @@ import edumsg.activemq.Consumer;
 import edumsg.concurrent.WorkerPool;
 import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
+import edumsg.redis.Cache;
 
 import javax.jms.*;
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class UserMain extends RunnableClasses{
 
         PostgresConnection.initSource();
         CommandsMap.instantiate();
-//        Cache.userBgSave();
+        Cache.userBgSave();
         Consumer c = null;
         try {
             c = new Consumer(new ActiveMQConfig("USER.INQUEUE"));

@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
+import edumsg.redis.Cache;
+import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -55,20 +57,20 @@ public class CreateConversationCommand extends Command implements Runnable {
                 root.put("code", "200");
                 try {
                     CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
-//                    String cacheEntry = Cache.userCache.get("get_conv");
-//                    if (cacheEntry != null) {
-//                        JSONObject cacheEntryJson = new JSONObject(cacheEntry);
-//                        cacheEntryJson.put("cacheStatus", "invalid");
-////                    System.out.println("invalidated");
-//                        Cache.userCache.set("get_conv", cacheEntryJson.toString());
-//                    }
-//                    String cacheEntry1 = Cache.userCache.get("get_convs");
-//                    if (cacheEntry1 != null) {
-//                        JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
-//                        cacheEntryJson.put("cacheStatus", "invalid");
-////                    System.out.println("invalidated");
-//                        Cache.userCache.set("get_convs", cacheEntryJson.toString());
-//                    }
+                    String cacheEntry = Cache.userCache.get("get_conv");
+                    if (cacheEntry != null) {
+                        JSONObject cacheEntryJson = new JSONObject(cacheEntry);
+                        cacheEntryJson.put("cacheStatus", "invalid");
+//                    System.out.println("invalidated");
+                        Cache.userCache.set("get_conv", cacheEntryJson.toString());
+                    }
+                    String cacheEntry1 = Cache.userCache.get("get_convs");
+                    if (cacheEntry1 != null) {
+                        JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
+                        cacheEntryJson.put("cacheStatus", "invalid");
+//                    System.out.println("invalidated");
+                        Cache.userCache.set("get_convs", cacheEntryJson.toString());
+                    }
                 } catch (JsonGenerationException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 } catch (JsonMappingException e) {

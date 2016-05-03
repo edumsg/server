@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
+import edumsg.redis.Cache;
+import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -72,34 +74,34 @@ public class UpdateUserCommand extends Command implements Runnable {
             try {
                 CommandsHelp.submit(app, mapper.writeValueAsString(root),
                         correlationID, LOGGER);
-//                String cacheEntry = Cache.userCache.get("user_tweets");
-//                if (cacheEntry != null) {
-//                    JSONObject cacheEntryJson = new JSONObject(cacheEntry);
-//                    cacheEntryJson.put("cacheStatus", "invalid");
-////                    System.out.println("invalidated");
-//                    Cache.userCache.set("user_tweets", cacheEntryJson.toString());
-//                }
-//                String cacheEntry1 = Cache.userCache.get("timeline");
-//                if (cacheEntry1 != null) {
-//                    JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
-//                    cacheEntryJson.put("cacheStatus", "invalid");
-////                    System.out.println("invalidated");
-//                    Cache.userCache.set("timeline", cacheEntryJson.toString());
-//                }
-//                String cacheEntry2 = Cache.userCache.get("get_user");
-//                if (cacheEntry2 != null) {
-//                    JSONObject cacheEntryJson = new JSONObject(cacheEntry2);
-//                    cacheEntryJson.put("cacheStatus", "invalid");
-////                    System.out.println("invalidated");
-//                    Cache.userCache.set("get_user", cacheEntryJson.toString());
-//                }
-//                String cacheEntry4 = Cache.listCache.get("get_list_feeds");
-//                if (cacheEntry4 != null) {
-//                    JSONObject cacheEntryJson = new JSONObject(cacheEntry4);
-//                    cacheEntryJson.put("cacheStatus", "invalid");
-////                    System.out.println("invalidated");
-//                    Cache.listCache.set("get_list_feeds", cacheEntryJson.toString());
-//                }
+                String cacheEntry = Cache.userCache.get("user_tweets");
+                if (cacheEntry != null) {
+                    JSONObject cacheEntryJson = new JSONObject(cacheEntry);
+                    cacheEntryJson.put("cacheStatus", "invalid");
+//                    System.out.println("invalidated");
+                    Cache.userCache.set("user_tweets", cacheEntryJson.toString());
+                }
+                String cacheEntry1 = Cache.userCache.get("timeline");
+                if (cacheEntry1 != null) {
+                    JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
+                    cacheEntryJson.put("cacheStatus", "invalid");
+//                    System.out.println("invalidated");
+                    Cache.userCache.set("timeline", cacheEntryJson.toString());
+                }
+                String cacheEntry2 = Cache.userCache.get("get_user");
+                if (cacheEntry2 != null) {
+                    JSONObject cacheEntryJson = new JSONObject(cacheEntry2);
+                    cacheEntryJson.put("cacheStatus", "invalid");
+//                    System.out.println("invalidated");
+                    Cache.userCache.set("get_user", cacheEntryJson.toString());
+                }
+                String cacheEntry4 = Cache.listCache.get("get_list_feeds");
+                if (cacheEntry4 != null) {
+                    JSONObject cacheEntryJson = new JSONObject(cacheEntry4);
+                    cacheEntryJson.put("cacheStatus", "invalid");
+//                    System.out.println("invalidated");
+                    Cache.listCache.set("get_list_feeds", cacheEntryJson.toString());
+                }
             } catch (JsonGenerationException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
