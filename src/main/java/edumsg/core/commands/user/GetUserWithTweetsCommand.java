@@ -12,14 +12,11 @@ IN THE SOFTWARE.
 
 package edumsg.core.commands.user;
 
-import edumsg.core.Command;
-import edumsg.core.CommandsHelp;
-import edumsg.core.PostgresConnection;
-import edumsg.core.User;
-import edumsg.redis.Cache;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.node.POJONode;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
+import edumsg.core.*;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -29,7 +26,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.logging.Logger;
 
-public class GetUser2Command extends Command implements Runnable {
+public class GetUserWithTweetsCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
 
     @Override
@@ -107,8 +104,51 @@ public class GetUser2Command extends Command implements Runnable {
                 user.setBackgroundColor(details.get("background_color"));
                 user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
             }
-            POJONode child = nf.POJONode(user);
-            root.put("user", child);
+            ValueNode child = nf.pojoNode(user);
+            root.set("user", child);
+
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(false);
+            proc = dbConn.prepareCall("{? = call get_tweets(?)}");
+            proc.setPoolable(true);
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.setString(2, map.get("session_id"));
+            proc.execute();
+
+            set = (ResultSet) proc.getObject(1);
+
+            ArrayNode tweets = nf.arrayNode();
+
+            while (set.next()) {
+                Integer id = set.getInt(1);
+                String tweet = set.getString(2);
+                String image_url = set.getString(3);
+                Timestamp created_at = set.getTimestamp(4);
+                Integer creator_id = set.getInt(5);
+                String creator_name = set.getString(6);
+                String creator_username = set.getString(7);
+                String creator_avatar = set.getString(8);
+
+                Tweet t = new Tweet();
+                t.setId(id);
+                t.setTweetText(tweet);
+                t.setImageUrl(image_url);
+                t.setCreatedAt(created_at);
+                User creator = new User();
+                creator.setId(creator_id);
+                creator.setName(creator_name);
+                creator.setAvatarUrl(creator_avatar);
+                creator.setUsername(creator_username);
+                t.setCreator(creator);
+
+                tweets.addPOJO(t);
+            }
+
+//            set.close();
+//            proc.close();
+            root.set("tweets", tweets);
+
+
             try {
                 CommandsHelp.submit(map.get("app"),
                         mapper.writeValueAsString(root),

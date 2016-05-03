@@ -6,11 +6,12 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Pipeline;
 
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Cache {
     public static JedisPool redisPool = new JedisPool(new JedisPoolConfig(), "localhost", 6379);

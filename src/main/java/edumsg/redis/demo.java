@@ -4,8 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.rmi.server.UID;
 
-import static java.net.URLEncoder.encode;
-
 /**
  * Created by Ahmed on 9/4/2016.
  */

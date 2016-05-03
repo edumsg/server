@@ -22,8 +22,6 @@ import io.netty.handler.codec.http.cors.CorsConfig;
 import io.netty.handler.codec.http.cors.CorsHandler;
 import io.netty.handler.ssl.SslContext;
 
-import java.util.Iterator;
-
 public class EduMsgNettyServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private final SslContext sslCtx;

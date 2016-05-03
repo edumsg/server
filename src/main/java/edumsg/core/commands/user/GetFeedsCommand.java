@@ -17,9 +17,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import edumsg.core.*;
 import edumsg.redis.EduMsgRedis;
-
-
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;

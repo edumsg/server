@@ -1,11 +1,11 @@
 package edumsg.core.commands.tweet;
 
 
-
-
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import edumsg.core.*;
+import edumsg.core.commands.user.GetUserCommand;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -15,13 +15,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import edumsg.core.Command;
-import edumsg.core.CommandsHelp;
-import edumsg.core.PostgresConnection;
-import edumsg.core.Tweet;
-import edumsg.core.User;
-import edumsg.core.commands.user.GetUserCommand;
 
 /**
  * Created by omarelhagin on 13/3/16.

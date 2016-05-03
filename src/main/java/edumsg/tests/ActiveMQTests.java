@@ -3,11 +3,7 @@ package edumsg.tests;
 
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Producer;
-import edumsg.netty.EduMsgNettyServer;
 
-import java.net.URLEncoder;
-import java.rmi.server.UID;
-import java.util.Base64;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.logging.Level;
