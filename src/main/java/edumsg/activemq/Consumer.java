@@ -22,14 +22,27 @@ public class Consumer {
 	Connection conn;
     MessageConsumer consumer;
     Session session;
+    private long correlationId;
 
-	public Consumer(ActiveMQConfig config) {
-		this.config = config;
+    public Consumer(ActiveMQConfig config) {
+        this.config = config;
         try {
             conn = config.connect();
             session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
             Destination destination = session.createQueue(config.getQueueName());
             consumer = session.createConsumer(destination);
+        } catch (JMSException e) {
+            lgr.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+	public Consumer(ActiveMQConfig config, long correlationId) {
+		this.config = config;
+        try {
+            conn = config.connect();
+            session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Destination destination = session.createQueue(config.getQueueName());
+            consumer = session.createConsumer(destination, "JMSCorrelationID='" + correlationId + "'");
         } catch (JMSException e) {
             lgr.log(Level.SEVERE, e.getMessage(), e);
         }

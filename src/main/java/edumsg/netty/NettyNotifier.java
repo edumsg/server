@@ -42,7 +42,7 @@ public class NettyNotifier implements Callable<String> {
 //            {
                 activeMQConfig = new ActiveMQConfig(getQueueName()
                         .toUpperCase() + ".OUTQUEUE");
-                consumer = new Consumer(activeMQConfig);
+                consumer = new Consumer(activeMQConfig, serverHandler.getCorrelationId());
 //            }
 //            consumer.getConn().start();
             Message message = consumer.getConsumer().receive();
