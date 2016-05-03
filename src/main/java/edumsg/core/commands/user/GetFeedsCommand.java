@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import edumsg.core.*;
+import edumsg.redis.Cache;
 import edumsg.redis.EduMsgRedis;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -90,10 +91,9 @@ public class GetFeedsCommand extends Command implements Runnable {
                 CommandsHelp.submit(map.get("app"),
                 mapper.writeValueAsString(root),
                 map.get("correlation_id"), LOGGER);
-                JSONObject cacheEntry = new JSONObject();
+                JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
                 cacheEntry.put("cacheStatus", "valid");
-                cacheEntry.put("response", new JSONObject(mapper.writeValueAsString(root)));
-                EduMsgRedis.redisCache.set("get_feeds", cacheEntry.toString());
+                Cache.userCache.set("get_feeds", cacheEntry.toString());
             } catch (JsonGenerationException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
