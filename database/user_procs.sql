@@ -59,6 +59,18 @@ BEGIN
 END; $$
 LANGUAGE PLPGSQL;
 
+CREATE OR REPLACE FUNCTION get_user_with_tweets(username VARCHAR)
+    RETURNS REFCURSOR AS $$
+DECLARE cursor REFCURSOR := 'cur';
+BEGIN
+    OPEN cursor FOR
+    SELECT *
+    FROM users U JOIN tweets T
+    ON U.id = T.creator_id
+    WHERE U.username = username;
+    RETURN cursor;
+END; $$
+LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION my_profile(session VARCHAR)
     RETURNS REFCURSOR AS $$

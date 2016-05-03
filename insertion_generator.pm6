@@ -85,9 +85,9 @@ sub mentions_insertions is export {
 
 sub lists_insertions is export {
     my @temp;
-    my $counter = 0;
+    my $counter = 1;
     for 1..20 -> $i {
-        @temp.push("INSERT INTO lists VALUES($counter, 'list$i', 'list', $i, false, now()::timestamp);");
+        @temp.push("INSERT INTO lists VALUES(DEFAULT, 'list$i', 'list', $i, false, now()::timestamp);");
         @temp.push("INSERT INTO subscriptions VALUES(DEFAULT, $i, $counter, now()::timestamp);");
         for 1..20 -> $j {
             next if ($i == $j);
