@@ -19,14 +19,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 import edumsg.shared.MyObjectMapper;
-
-
-
-
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;

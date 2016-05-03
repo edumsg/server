@@ -46,7 +46,7 @@ public class GetListCommand extends Command implements Runnable {
                 l.setDescription(set.getString("description"));
 
             }
-
+            
             ValueNode list = nf.pojoNode(l);
             set.close();
 

@@ -12,12 +12,11 @@ IN THE SOFTWARE.
 
 package edumsg.core.commands.user;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import edumsg.core.*;
-import edumsg.redis.Cache;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.node.POJONode;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -105,8 +104,8 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
                 user.setBackgroundColor(details.get("background_color"));
                 user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
             }
-            POJONode child = nf.POJONode(user);
-            root.put("user", child);
+            ValueNode child = nf.pojoNode(user);
+            root.set("user", child);
 
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
@@ -147,7 +146,7 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
 
 //            set.close();
 //            proc.close();
-            root.put("tweets", tweets);
+            root.set("tweets", tweets);
 
 
             try {

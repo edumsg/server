@@ -15,9 +15,9 @@ package edumsg.activemq;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
-import javax.jms.*;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
 
 public class ActiveMQConfig {
     private String url = ActiveMQConnection.DEFAULT_BROKER_URL;

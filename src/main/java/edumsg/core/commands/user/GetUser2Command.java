@@ -12,14 +12,14 @@ IN THE SOFTWARE.
 
 package edumsg.core.commands.user;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.node.POJONode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
 import edumsg.core.User;
-import edumsg.redis.Cache;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.node.POJONode;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -107,8 +107,8 @@ public class GetUser2Command extends Command implements Runnable {
                 user.setBackgroundColor(details.get("background_color"));
                 user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
             }
-            POJONode child = nf.POJONode(user);
-            root.put("user", child);
+            ValueNode child = nf.pojoNode(user);
+            root.set("user", child);
             try {
                 CommandsHelp.submit(map.get("app"),
                         mapper.writeValueAsString(root),

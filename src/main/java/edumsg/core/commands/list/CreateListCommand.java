@@ -17,9 +17,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
-
-
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;

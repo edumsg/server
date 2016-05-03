@@ -18,14 +18,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.core.User;
-
-
-
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.logging.Level;

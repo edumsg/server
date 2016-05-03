@@ -18,20 +18,14 @@ import edumsg.core.BCrypt;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 import edumsg.redis.EduMsgRedis;
-
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.logging.Logger;
-
-import static edumsg.redis.Cache.mapUsernameID;
 
 public class RegisterCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(RegisterCommand.class.getName());

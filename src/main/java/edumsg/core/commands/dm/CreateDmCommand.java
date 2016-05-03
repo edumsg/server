@@ -17,17 +17,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
-
-
-
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Types;
 import java.util.logging.Level;
 import java.util.logging.Logger;

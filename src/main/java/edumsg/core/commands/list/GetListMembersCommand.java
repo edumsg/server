@@ -19,9 +19,6 @@ import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
 import edumsg.core.User;
-
-
-
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;

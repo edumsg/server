@@ -16,18 +16,16 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import edumsg.core.*;
-import edumsg.redis.Cache;
-
-
-
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.rmi.server.UID;
-import java.sql.*;
-import java.util.HashMap;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.logging.Logger;
 
 public class LoginCommand extends Command {

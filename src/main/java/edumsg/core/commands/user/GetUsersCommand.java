@@ -20,9 +20,6 @@ import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
 import edumsg.core.User;
 import edumsg.redis.EduMsgRedis;
-
-
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;

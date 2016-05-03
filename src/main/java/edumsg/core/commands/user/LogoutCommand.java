@@ -18,12 +18,8 @@ import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
 
-
-
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.logging.Logger;
 
 public class LogoutCommand extends Command implements Runnable {

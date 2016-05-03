@@ -3,16 +3,14 @@ package edumsg.core.commands.user;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import edumsg.core.*;
-
-
-
+import edumsg.core.Command;
+import edumsg.core.CommandsHelp;
+import edumsg.core.PostgresConnection;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.logging.Level;
 import java.util.logging.Logger;

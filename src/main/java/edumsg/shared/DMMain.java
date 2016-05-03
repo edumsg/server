@@ -17,7 +17,6 @@ import edumsg.activemq.Consumer;
 import edumsg.concurrent.WorkerPool;
 import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 
 import javax.jms.*;
 import java.io.IOException;
