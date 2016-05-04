@@ -74,33 +74,33 @@ public class UpdateUserCommand extends Command implements Runnable {
             try {
                 CommandsHelp.submit(app, mapper.writeValueAsString(root),
                         correlationID, LOGGER);
-                String cacheEntry = Cache.userCache.get("user_tweets");
+                String cacheEntry = Cache.userCache.get("user_tweets:" + map.get("session_id"));
                 if (cacheEntry != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    Cache.userCache.set("user_tweets", cacheEntryJson.toString());
+                    Cache.userCache.set("user_tweets:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry1 = Cache.userCache.get("timeline");
+                String cacheEntry1 = Cache.userCache.get("timeline:" + map.get("session_id"));
                 if (cacheEntry1 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    Cache.userCache.set("timeline", cacheEntryJson.toString());
+                    Cache.userCache.set("timeline:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry2 = Cache.userCache.get("get_user");
+                String cacheEntry2 = Cache.userCache.get("get_user:" + map.get("session_id"));
                 if (cacheEntry2 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry2);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    Cache.userCache.set("get_user", cacheEntryJson.toString());
+                    Cache.userCache.set("get_user:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry4 = Cache.listCache.get("get_list_feeds");
+                String cacheEntry4 = Cache.listCache.get("get_list_feeds:" + map.get("session_id"));
                 if (cacheEntry4 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry4);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    Cache.listCache.set("get_list_feeds", cacheEntryJson.toString());
+                    Cache.listCache.set("get_list_feeds:" + map.get("session_id"), cacheEntryJson.toString());
                 }
             } catch (JsonGenerationException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
