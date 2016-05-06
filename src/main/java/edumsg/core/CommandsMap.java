@@ -51,9 +51,9 @@ public class CommandsMap {
         cmdMap.put("get_mentions", GetMentionsCommand.class);
         cmdMap.put("get_retweets", GetRetweetsCommand.class);
         cmdMap.put("get_tweet", GetTweetCommand.class);
-        cmdMap.put("user_tweets", GetTimelineCommand.class);
+        cmdMap.put("user_tweets", GetUserTweetsCommand.class);
         cmdMap.put("get_favorites", GetFavoritesCommand.class);
-        cmdMap.put("timeline", GetFeedsCommand.class);
+        cmdMap.put("timeline", GetTimelineCommand.class);
         cmdMap.put("get_subscribed_lists", GetSubscribedListsCommand.class);
         cmdMap.put("get_list_memberships", GetListMembershipsCommand.class);
         cmdMap.put("login", LoginCommand.class);

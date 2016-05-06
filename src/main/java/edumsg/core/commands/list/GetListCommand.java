@@ -14,12 +14,12 @@ package edumsg.core.commands.list;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.List;
 import edumsg.core.PostgresConnection;
+import edumsg.redis.Cache;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -46,7 +46,6 @@ public class GetListCommand extends Command implements Runnable {
                 l.setDescription(set.getString("description"));
 
             }
-
 
             ValueNode list = nf.pojoNode(l);
             set.close();

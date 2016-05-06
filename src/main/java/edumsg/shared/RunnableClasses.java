@@ -2,9 +2,15 @@ package edumsg.shared;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import edumsg.activemq.ActiveMQConfig;
+import edumsg.activemq.Producer;
 import edumsg.concurrent.WorkerPool;
 import edumsg.core.Command;
 import edumsg.core.CommandsMap;
+import edumsg.redis.Cache;
+import org.json.JSONException;
+import org.json.JSONObject;
+import redis.clients.jedis.Jedis;
 
 import javax.jms.JMSException;
 import java.io.IOException;
@@ -29,7 +35,7 @@ public abstract class RunnableClasses {
             LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
         }
 
-//        if (map != null) {
+        if (map != null && map.get("session_id") != null) {
 //            if (map.get("method").equals("login"))
 //            {
 //                if (!Cache.userCache.exists("username"))
@@ -45,43 +51,40 @@ public abstract class RunnableClasses {
 //                    }
 //                }
 //            }
-//            Jedis cache = null;
-//            switch (subclass.toLowerCase())
-//            {
-//                case "user": cache = Cache.userCache;
-//                    break;
-//                case "tweet": cache = Cache.tweetCache;
-//                    break;
-//                case "list": cache = Cache.listCache;
-//                    break;
-//                case "dm": cache = Cache.dmCache;
-//                    break;
-//            }
-//            String cachedEntry = cache.get(map.get("method"));
-//            if (cachedEntry != null) {
-//                System.out.println(cachedEntry);
-//                JSONObject cachedEntryJson;
-//                try {
-//                    cachedEntryJson = new JSONObject(cachedEntry);
-//                    String dataStatus = cachedEntryJson.getString("cacheStatus");
-//                    if (dataStatus.equals("valid")) {
-//                        cachedEntryJson.remove("cacheStatus");
-//                        Producer p = new Producer(new ActiveMQConfig(
-//                                subclass.toUpperCase() + ".OUTQUEUE"));
-//                        p.send(cachedEntryJson.toString(),
-//                                correlationID);
-//                        System.out.println("Sent from cache");
-//                        return;
-//                    }
-//                } catch (JSONException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                } catch (JMSException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
+            Jedis cache = null;
+            switch (subclass.toLowerCase())
+            {
+                case "user": cache = Cache.userCache;
+                    break;
+                case "tweet": cache = Cache.tweetCache;
+                    break;
+                case "list": cache = Cache.listCache;
+                    break;
+                case "dm": cache = Cache.dmCache;
+                    break;
+            }
+            String cachedEntry = cache.get(map.get("method") + ":" + map.get("session_id"));
+            if (cachedEntry != null) {
+                System.out.println(cachedEntry);
+                JSONObject cachedEntryJson;
+                try {
+                    cachedEntryJson = new JSONObject(cachedEntry);
+                    String dataStatus = cachedEntryJson.getString("cacheStatus");
+                    if (dataStatus.equals("valid")) {
+                        cachedEntryJson.remove("cacheStatus");
+                        Producer p = new Producer(new ActiveMQConfig(
+                                subclass.toUpperCase() + ".OUTQUEUE"));
+                        p.send(cachedEntryJson.toString(),
+                                correlationID, LOGGER);
+                        System.out.println("Sent from cache");
+                        return;
+                    }
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
 
         if (map != null) {
             map.put("app", subclass.toLowerCase());
