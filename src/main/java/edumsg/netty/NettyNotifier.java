@@ -70,7 +70,7 @@ public class NettyNotifier implements Callable<String> {
 ////                                break;
 ////                            case "tweet": cache = Cache.tweetCache;
 ////                                break;
-////                            case "list": cache = Cache.listCache;
+////                            case "list": cache = ListCache.listCache;
 ////                                break;
 ////                            case "dm": cache = Cache.dmCache;
 ////                                break;

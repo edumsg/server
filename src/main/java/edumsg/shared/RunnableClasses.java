@@ -7,7 +7,7 @@ import edumsg.activemq.Producer;
 import edumsg.concurrent.WorkerPool;
 import edumsg.core.Command;
 import edumsg.core.CommandsMap;
-import edumsg.redis.Cache;
+import edumsg.redis.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import redis.clients.jedis.Jedis;
@@ -46,7 +46,7 @@ public abstract class RunnableClasses {
 //                    {
 //                        Cache.userCache.flushAll();
 //                        Cache.tweetCache.flushAll();
-//                        Cache.listCache.flushAll();
+//                        ListCache.listCache.flushAll();
 //                        Cache.dmCache.flushAll();
 //                    }
 //                }
@@ -54,13 +54,13 @@ public abstract class RunnableClasses {
             Jedis cache = null;
             switch (subclass.toLowerCase())
             {
-                case "user": cache = Cache.userCache;
+                case "user": cache = UserCache.userCache;
                     break;
-                case "tweet": cache = Cache.tweetCache;
+                case "tweet": cache = TweetsCache.tweetCache;
                     break;
-                case "list": cache = Cache.listCache;
+                case "list": cache = ListCache.listCache;
                     break;
-                case "dm": cache = Cache.dmCache;
+                case "dm": cache = DMCache.dmCache;
                     break;
             }
             String cachedEntry = cache.get(map.get("method") + ":" + map.get("session_id"));

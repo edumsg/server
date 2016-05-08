@@ -65,8 +65,9 @@ DECLARE cursor REFCURSOR := 'cur';
 BEGIN
     OPEN cursor FOR
     SELECT *
-    FROM users U JOIN tweets T
-    ON U.id = T.creator_id
+    FROM users U
+        JOIN tweets T
+            ON U.id = T.creator_id
     WHERE U.username = username;
     RETURN cursor;
 END; $$
@@ -398,8 +399,8 @@ LANGUAGE PLPGSQL;
 -- JAVA DONE / JAVA DONE
 CREATE OR REPLACE FUNCTION get_user_favorites(session VARCHAR)
     RETURNS REFCURSOR AS $$
-DECLARE cursor  REFCURSOR := 'cur';
-        DECLARE userID INTEGER;
+DECLARE cursor REFCURSOR := 'cur';
+        userID INTEGER;
 BEGIN
     SELECT user_id
     INTO userID
@@ -534,7 +535,7 @@ END; $$
 LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION login(user_name VARCHAR, session VARCHAR)
-    RETURNS VOID AS $$
+    RETURNS SETOF users AS $$
 DECLARE userID INTEGER;
 
 BEGIN
@@ -548,6 +549,11 @@ BEGIN
     ON CONFLICT (user_id)
         DO UPDATE SET session_start = now() :: TIMESTAMP, id = $2
             WHERE S.user_id = userID;
+
+    RETURN QUERY
+    SELECT *
+    FROM users
+    WHERE id = userID;
 END; $$
 LANGUAGE PLPGSQL;
 
