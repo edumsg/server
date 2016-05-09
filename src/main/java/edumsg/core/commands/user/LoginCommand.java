@@ -86,7 +86,7 @@ public class LoginCommand extends Command {
 
 
                     while (set.next()) {
-                        id = set.getInt("user_id");
+                        id = set.getInt("id");
                         username = set.getString("username");
                         email = set.getString("email");
                         name = set.getString("name");
