@@ -46,7 +46,7 @@ public class GetUser2Command extends Command implements Runnable {
                 proc = dbConn.prepareCall("{? = call get_user2(?)}");
                 proc.setPoolable(true);
                 proc.registerOutParameter(1, Types.OTHER);
-                proc.setInt(2, Integer.parseInt(map.get("username")));
+                proc.setString(2, map.get("username"));
                 proc.execute();
 
                 set = (ResultSet) proc.getObject(1);
