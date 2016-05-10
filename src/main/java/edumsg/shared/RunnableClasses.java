@@ -7,7 +7,7 @@ import edumsg.activemq.Producer;
 import edumsg.concurrent.WorkerPool;
 import edumsg.core.Command;
 import edumsg.core.CommandsMap;
-import edumsg.redis.Cache;
+import edumsg.redis.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import redis.clients.jedis.Jedis;
@@ -35,35 +35,35 @@ public abstract class RunnableClasses {
             LOGGER.log(Level.SEVERE, e1.getMessage(), e1);
         }
 
-        if (map != null) {
-            if (map.get("method").equals("login"))
-            {
-                if (!Cache.userCache.exists("username"))
-                    Cache.userCache.set("username", map.get("username"));
-                else
-                {
-                    if (!Cache.userCache.get("username").equals(map.get("username")))
-                    {
-                        Cache.userCache.flushAll();
-                        Cache.tweetCache.flushAll();
-                        Cache.listCache.flushAll();
-                        Cache.dmCache.flushAll();
-                    }
-                }
-            }
+        if (map != null && map.get("session_id") != null) {
+//            if (map.get("method").equals("login"))
+//            {
+//                if (!Cache.userCache.exists("username"))
+//                    Cache.userCache.set("username", map.get("username"));
+//                else
+//                {
+//                    if (!Cache.userCache.get("username").equals(map.get("username")))
+//                    {
+//                        Cache.userCache.flushAll();
+//                        Cache.tweetCache.flushAll();
+//                        ListCache.listCache.flushAll();
+//                        Cache.dmCache.flushAll();
+//                    }
+//                }
+//            }
             Jedis cache = null;
             switch (subclass.toLowerCase())
             {
-                case "user": cache = Cache.userCache;
+                case "user": cache = UserCache.userCache;
                     break;
-                case "tweet": cache = Cache.tweetCache;
+                case "tweet": cache = TweetsCache.tweetCache;
                     break;
-                case "list": cache = Cache.listCache;
+                case "list": cache = ListCache.listCache;
                     break;
-                case "dm": cache = Cache.dmCache;
+                case "dm": cache = DMCache.dmCache;
                     break;
             }
-            String cachedEntry = cache.get(map.get("method"));
+            String cachedEntry = cache.get(map.get("method") + ":" + map.get("session_id"));
             if (cachedEntry != null) {
                 System.out.println(cachedEntry);
                 JSONObject cachedEntryJson;

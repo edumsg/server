@@ -32,6 +32,7 @@ public class GetUserCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
 
     @Override
+
     public void execute() {
 
         try {

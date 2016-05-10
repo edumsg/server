@@ -80,6 +80,13 @@
             <artifactId>annotations</artifactId>
             <version>12.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>io.iron.ironmq</groupId>
+            <artifactId>ironmq</artifactId>
+            <version>3.0.4</version>
+        </dependency>
+
     </dependencies>
 
     <build>
