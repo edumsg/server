@@ -535,8 +535,9 @@ END; $$
 LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION login(user_name VARCHAR, session VARCHAR)
-    RETURNS SETOF users AS $$
-DECLARE userID INTEGER;
+    RETURNS REFCURSOR AS $$
+DECLARE cursor REFCURSOR := 'cur';
+        userID INTEGER;
 
 BEGIN
     SELECT id
@@ -550,10 +551,12 @@ BEGIN
         DO UPDATE SET session_start = now() :: TIMESTAMP, id = $2
             WHERE S.user_id = userID;
 
-    RETURN QUERY
+    OPEN cursor FOR
     SELECT *
     FROM users
     WHERE id = userID;
+
+    RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
 
