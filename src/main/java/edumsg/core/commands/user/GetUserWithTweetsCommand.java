@@ -40,20 +40,23 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
 
                 dbConn = PostgresConnection.getDataSource().getConnection();
                 dbConn.setAutoCommit(false);
-                proc = dbConn.prepareCall("{? = call get_user2(?)}");
+                proc = dbConn.prepareCall("{? = call get_user_with_tweets(?)}");
                 proc.setPoolable(true);
                 proc.registerOutParameter(1, Types.OTHER);
-                proc.setInt(2, Integer.parseInt(map.get("username")));
+                proc.setString(2, map.get("username"));
                 proc.execute();
 
                 set = (ResultSet) proc.getObject(1);
+                ArrayNode tweets = nf.arrayNode();
 
                 root.put("app", map.get("app"));
                 root.put("method", map.get("method"));
                 root.put("status", "ok");
                 root.put("code", "200");
 
-                if (set.next()) {
+
+
+                while(set.next()) {
                     Integer id = set.getInt(1);
                     String username = set.getString(2);
                     String email = set.getString(3);
@@ -84,7 +87,31 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
                     user.setBackgroundColor(background_color);
                     user.setProtectedTweets(protected_tweets);
 
+
+                    Integer tweet_id = set.getInt(16);
+                    String tweet = set.getString(17);
+                    Timestamp tweet_created_at = set.getTimestamp(19);
+                    String image_url = set.getString(20);
+
+
+                    Tweet t = new Tweet();
+                    t.setId(tweet_id);
+                    t.setTweetText(tweet);
+                    t.setImageUrl(image_url);
+                    t.setCreatedAt(tweet_created_at);
+                    t.setCreator(user);
+                    tweets.addPOJO(t);
+
+                    System.out.println(set);
+
                 }
+
+
+                ValueNode child = nf.pojoNode(user);
+                root.set("user", child);
+                root.set("tweets", tweets);
+
+
                 set.close();
                 proc.close();
 
@@ -106,6 +133,7 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
             }
             ValueNode child = nf.pojoNode(user);
             root.set("user", child);
+
 
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
