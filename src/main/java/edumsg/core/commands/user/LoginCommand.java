@@ -66,105 +66,79 @@ public class LoginCommand extends Command {
             boolean authenticated = BCrypt.checkpw(map.get("password"), enc_password);
 
             if (authenticated) {
-                String user_id = UserCache.returnUserID(map.get("username"));
-                details = UserCache.returnUser(user_id);
                 User user = new User();
                 Statement query = dbConn.createStatement();
 
 
-                if (details == null) {
-                    query = dbConn.createStatement();
-                    query.setPoolable(true);
-                    set = query.executeQuery(String.format("SELECT * FROM login('%s','%s')"
-                            ,map.get("username")
-                            ,sessionID));
+                query = dbConn.createStatement();
+                query.setPoolable(true);
+                set = query.executeQuery(String.format("SELECT * FROM login('%s','%s')"
+                        , map.get("username")
+                        , cleaned_session));
 
-                    root.put("app", map.get("app"));
-                    root.put("method", map.get("method"));
-                    root.put("status", "ok");
-                    root.put("code", "200");
+                System.out.println(cleaned_session);
 
-
-                    while (set.next()) {
-                        id = set.getInt("id");
-                        username = set.getString("username");
-                        email = set.getString("email");
-                        name = set.getString("name");
-                        language = set.getString("language");
-                        country = set.getString("country");
-                        bio = set.getString("bio");
-                        website = set.getString("website");
-                        created_at = set.getTimestamp("created_at");
-                        avatar_url = set.getString("avatar_url");
-                        overlay = set.getBoolean("overlay");
-                        link_color = set.getString("link_color");
-                        background_color = set.getString("background_color");
-                        protected_tweets = set.getBoolean("protected_tweets");
-
-                        user.setUsername(username);
-                        user.setEmail(email);
-                        user.setName(name);
-                        user.setLanguage(language);
-                        user.setCountry(country);
-                        user.setBio(bio);
-                        user.setWebsite(website);
-                        user.setCreatedAt(created_at);
-                        user.setAvatarUrl(avatar_url);
-                        user.setOverlay(overlay);
-                        user.setLinkColor(link_color);
-                        user.setBackgroundColor(background_color);
-                        user.setProtectedTweets(protected_tweets);
-                        user.setSessionID(sessionID);
-
-                        details = new HashMap<String, String>();
-
-                        details.put("id", id.toString());
-                        details.put("username", username);
-                        details.put("email", email);
-                        details.put("name", name);
-                        details.put("language", language);
-                        details.put("country", country);
-                        details.put("bio", bio);
-                        details.put("website", website);
-                        details.put("created_at", created_at.toString());
-                        details.put("avatar_url", avatar_url);
-                        details.put("overlay", overlay.toString());
-                        details.put("link_color", link_color);
-                        details.put("background_color", background_color);
-                        details.put("protected_tweets", protected_tweets.toString());
-                        details.put("session_id", sessionID);
-                    }
-
-                    user.setSessionID(cleaned_session);
-                    UserCache.cacheUser(id.toString(), details);
-                    UserCache.mapUsernameID(username,id+"");
-                    UserCache.cacheUserSession(cleaned_session, details.get("id"));
-
-                } else {
-                    root.put("app", map.get("app"));
-                    root.put("method", map.get("method"));
-                    root.put("status", "ok");
-                    root.put("code", "200");
+                root.put("app", map.get("app"));
+                root.put("method", map.get("method"));
+                root.put("status", "ok");
+                root.put("code", "200");
 
 
-                    user.setId(Integer.parseInt(details.get("id")));
-                    user.setUsername(details.get("username"));
-                    user.setEmail(details.get("email"));
-                    user.setName(details.get("name"));
-                    user.setLanguage(details.get("language"));
-                    user.setCountry(details.get("country"));
-                    user.setBio(details.get("bio"));
-                    user.setWebsite(details.get("website"));
-                    user.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
-                    user.setAvatarUrl(details.get("avatar_url"));
-                    user.setOverlay(Boolean.parseBoolean(details.get("overlay")));
-                    user.setLinkColor(details.get("link_color"));
-                    user.setBackgroundColor(details.get("background_color"));
-                    user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
-                    user.setSessionID(cleaned_session);
+                while (set.next()) {
+                    id = set.getInt("id");
+                    username = set.getString("username");
+                    email = set.getString("email");
+                    name = set.getString("name");
+                    language = set.getString("language");
+                    country = set.getString("country");
+                    bio = set.getString("bio");
+                    website = set.getString("website");
+                    created_at = set.getTimestamp("created_at");
+                    avatar_url = set.getString("avatar_url");
+                    overlay = set.getBoolean("overlay");
+                    link_color = set.getString("link_color");
+                    background_color = set.getString("background_color");
+                    protected_tweets = set.getBoolean("protected_tweets");
 
-                    UserCache.cacheUserSession(cleaned_session, details.get("id"));
+                    user.setUsername(username);
+                    user.setEmail(email);
+                    user.setName(name);
+                    user.setLanguage(language);
+                    user.setCountry(country);
+                    user.setBio(bio);
+                    user.setWebsite(website);
+                    user.setCreatedAt(created_at);
+                    user.setAvatarUrl(avatar_url);
+                    user.setOverlay(overlay);
+                    user.setLinkColor(link_color);
+                    user.setBackgroundColor(background_color);
+                    user.setProtectedTweets(protected_tweets);
+                    user.setSessionID(sessionID);
+
+                    details = new HashMap<String, String>();
+
+                    details.put("id", id.toString());
+                    details.put("username", username);
+                    details.put("email", email);
+                    details.put("name", name);
+                    details.put("language", language);
+                    details.put("country", country);
+                    details.put("bio", bio);
+                    details.put("website", website);
+                    details.put("created_at", created_at.toString());
+                    details.put("avatar_url", avatar_url);
+                    details.put("overlay", overlay.toString());
+                    details.put("link_color", link_color);
+                    details.put("background_color", background_color);
+                    details.put("protected_tweets", protected_tweets.toString());
+                    details.put("session_id", sessionID);
                 }
+
+                user.setSessionID(cleaned_session);
+                UserCache.cacheUser(id.toString(), details);
+                UserCache.mapUsernameID(username, id + "");
+                UserCache.cacheUserSession(cleaned_session, details.get("id"));
+
 
                 ValueNode child = nf.pojoNode(user);
                 root.set("user", child);

@@ -36,144 +36,84 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
             details = null; //Cache.returnUser(map.get("username"));
             User user = new User();
 
-            if (details == null) {
-
-                dbConn = PostgresConnection.getDataSource().getConnection();
-                dbConn.setAutoCommit(false);
-                proc = dbConn.prepareCall("{? = call get_user_with_tweets(?)}");
-                proc.setPoolable(true);
-                proc.registerOutParameter(1, Types.OTHER);
-                proc.setString(2, map.get("username"));
-                proc.execute();
-
-                set = (ResultSet) proc.getObject(1);
-                ArrayNode tweets = nf.arrayNode();
-
-                root.put("app", map.get("app"));
-                root.put("method", map.get("method"));
-                root.put("status", "ok");
-                root.put("code", "200");
-
-
-
-                while(set.next()) {
-                    Integer id = set.getInt(1);
-                    String username = set.getString(2);
-                    String email = set.getString(3);
-                    String name = set.getString(5);
-                    String language = set.getString(6);
-                    String country = set.getString(7);
-                    String bio = set.getString(8);
-                    String website = set.getString(9);
-                    Timestamp created_at = set.getTimestamp(10);
-                    String avatar_url = set.getString(11);
-                    Boolean overlay = set.getBoolean(12);
-                    String link_color = set.getString(13);
-                    String background_color = set.getString(14);
-                    Boolean protected_tweets = set.getBoolean(15);
-
-                    user.setId(id);
-                    user.setUsername(username);
-                    user.setEmail(email);
-                    user.setName(name);
-                    user.setLanguage(language);
-                    user.setCountry(country);
-                    user.setBio(bio);
-                    user.setWebsite(website);
-                    user.setCreatedAt(created_at);
-                    user.setAvatarUrl(avatar_url);
-                    user.setOverlay(overlay);
-                    user.setLinkColor(link_color);
-                    user.setBackgroundColor(background_color);
-                    user.setProtectedTweets(protected_tweets);
-
-
-                    Integer tweet_id = set.getInt(16);
-                    String tweet = set.getString(17);
-                    Timestamp tweet_created_at = set.getTimestamp(19);
-                    String image_url = set.getString(20);
-
-
-                    Tweet t = new Tweet();
-                    t.setId(tweet_id);
-                    t.setTweetText(tweet);
-                    t.setImageUrl(image_url);
-                    t.setCreatedAt(tweet_created_at);
-                    t.setCreator(user);
-                    tweets.addPOJO(t);
-
-                    System.out.println(set);
-
-                }
-
-
-                ValueNode child = nf.pojoNode(user);
-                root.set("user", child);
-                root.set("tweets", tweets);
-
-
-                set.close();
-                proc.close();
-
-            } else {
-                user.setId(Integer.parseInt(details.get("id")));
-                user.setUsername(details.get("username"));
-                user.setEmail(details.get("email"));
-                user.setName(details.get("name"));
-                user.setLanguage(details.get("language"));
-                user.setCountry(details.get("country"));
-                user.setBio(details.get("bio"));
-                user.setWebsite(details.get("website"));
-                user.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
-                user.setAvatarUrl(details.get("avatar_url"));
-                user.setOverlay(Boolean.parseBoolean(details.get("overlay")));
-                user.setLinkColor(details.get("link_color"));
-                user.setBackgroundColor(details.get("background_color"));
-                user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
-            }
-            ValueNode child = nf.pojoNode(user);
-            root.set("user", child);
-
 
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
-            proc = dbConn.prepareCall("{? = call get_tweets(?)}");
+            proc = dbConn.prepareCall("{? = call get_user_with_tweets(?)}");
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.OTHER);
-            proc.setString(2, map.get("session_id"));
+            proc.setString(2, map.get("username"));
             proc.execute();
 
             set = (ResultSet) proc.getObject(1);
-
             ArrayNode tweets = nf.arrayNode();
+
+            root.put("app", map.get("app"));
+            root.put("method", map.get("method"));
+            root.put("status", "ok");
+            root.put("code", "200");
+
 
             while (set.next()) {
                 Integer id = set.getInt(1);
-                String tweet = set.getString(2);
-                String image_url = set.getString(3);
-                Timestamp created_at = set.getTimestamp(4);
-                Integer creator_id = set.getInt(5);
-                String creator_name = set.getString(6);
-                String creator_username = set.getString(7);
-                String creator_avatar = set.getString(8);
+                String username = set.getString(2);
+                String email = set.getString(3);
+                String name = set.getString(5);
+                String language = set.getString(6);
+                String country = set.getString(7);
+                String bio = set.getString(8);
+                String website = set.getString(9);
+                Timestamp created_at = set.getTimestamp(10);
+                String avatar_url = set.getString(11);
+                Boolean overlay = set.getBoolean(12);
+                String link_color = set.getString(13);
+                String background_color = set.getString(14);
+                Boolean protected_tweets = set.getBoolean(15);
+
+                user.setId(id);
+                user.setUsername(username);
+                user.setEmail(email);
+                user.setName(name);
+                user.setLanguage(language);
+                user.setCountry(country);
+                user.setBio(bio);
+                user.setWebsite(website);
+                user.setCreatedAt(created_at);
+                user.setAvatarUrl(avatar_url);
+                user.setOverlay(overlay);
+                user.setLinkColor(link_color);
+                user.setBackgroundColor(background_color);
+                user.setProtectedTweets(protected_tweets);
+
+
+
+                Integer tweet_id = set.getInt(16);
+                String tweet = set.getString(17);
+                Timestamp tweet_created_at = set.getTimestamp(19);
+                String image_url = set.getString(20);
+
 
                 Tweet t = new Tweet();
-                t.setId(id);
+                t.setId(tweet_id);
                 t.setTweetText(tweet);
                 t.setImageUrl(image_url);
-                t.setCreatedAt(created_at);
-                User creator = new User();
-                creator.setId(creator_id);
-                creator.setName(creator_name);
-                creator.setAvatarUrl(creator_avatar);
-                creator.setUsername(creator_username);
-                t.setCreator(creator);
+                t.setCreatedAt(tweet_created_at);
+                t.setCreator(user);
 
                 tweets.addPOJO(t);
+
+                System.out.println(tweet);
+
             }
 
-//            set.close();
-//            proc.close();
+
+            ValueNode child = nf.pojoNode(user);
+            root.set("user", child);
+//            root.set("tweets", tweets);
+
+
+            set.close();
+            proc.close();
             root.set("tweets", tweets);
 
 
@@ -197,7 +137,7 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(set, proc, dbConn,null);
+            PostgresConnection.disconnect(set, proc, dbConn, null);
         }
     }
 }

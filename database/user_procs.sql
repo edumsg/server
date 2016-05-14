@@ -67,7 +67,7 @@ BEGIN
     SELECT *
     FROM users U JOIN tweets T
     ON U.id = T.creator_id
-    WHERE U.username = $1
+    WHERE U.username = $1;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
