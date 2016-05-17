@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentMap;
 
 public class CommandsMap {
     private static ConcurrentMap<String, Class<?>> cmdMap;
-
+//Each new function you create, you must add it below
     public static void instantiate() {
         cmdMap = new ConcurrentHashMap<>();
         cmdMap.put("register", RegisterCommand.class);

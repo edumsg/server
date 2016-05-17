@@ -64,6 +64,7 @@ public class GetTimelineCommand extends Command implements Runnable {
                 Integer creator_id = set.getInt(9);
                 Integer retweeter_id = set.getInt(10);
 
+
                 Tweet t = new Tweet();
                 t.setId(id);
                 t.setTweetText(tweet);

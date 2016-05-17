@@ -36,7 +36,7 @@ public class ActiveMQTests {
     public static void main(String args[]) {
         Producer p = new Producer(new ActiveMQConfig("TEST_QUEUE"));
 
-        //creating CyclicBarrier with 3 parties i.e. 3 Threads needs to call await()
+        //creating CyclicBarrier for 100 thread to start simultaneously
         final CyclicBarrier cb = new CyclicBarrier(100, new Runnable(){
             @Override
             public void run(){
@@ -51,7 +51,7 @@ public class ActiveMQTests {
       //starting each of thread
         for(int i = 0; i<100; i++){
 
-      //      new Thread(new ActiveMQTests.Task(cb), "Thread "+i).start();
+            new Thread(new ActiveMQTests.Task(cb), "Thread "+i).start();
         }
 
     }

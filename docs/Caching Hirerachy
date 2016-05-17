@@ -1,3 +1,5 @@
+There are 4 main caching classes in redis package, that inherit from the master class "Cache". Each sub class creates a connection to Redis from the connection pool to support multithreaded redis
+
 User caching:
 User is cached as a hash set being "user:$id" where $id is a var representing user id and containing all details of user
 
