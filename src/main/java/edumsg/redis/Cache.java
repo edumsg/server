@@ -22,6 +22,7 @@ public class Cache {
         return map.containsValue(null);
     }
 
+    //converts HashMaps to ConcurrentHashmMaps
     protected static ConcurrentMap<String,String> toConcurrentMap(Map<String, String> map) {
         String[] mapStrings = map.toString().split(",");
         CopyOnWriteArrayList<String> mapStringsConcurrent = new CopyOnWriteArrayList<>(Arrays.asList(mapStrings));

@@ -14,11 +14,12 @@ import edumsg.redis.UserCache;
 import static edumsg.redis.UserCache.*;
 
 public class TweetsCache extends Cache {
+    //new instance of shared pool to support multithreaded environments
     public static Jedis tweetCache = redisPool.getResource();
     private static Pipeline tweetPipeline = tweetCache.pipelined();
 
 
-
+//non blocking saving executed every 15min
     public static void tweetBgSave(){
         Runnable runnable = () -> {
             String res;
@@ -44,7 +45,7 @@ public class TweetsCache extends Cache {
         }
 
     }
-
+//pipeline allows execution of multiple operations in 1 request to Redis saving network latencies
     public static void deleteTweet(String tweet_id) {
         if (tweet_id != null) {
             String user = tweetCache.hget("tweet:" + tweet_id, "creator_id");
@@ -54,19 +55,22 @@ public class TweetsCache extends Cache {
         }
     }
 
+    //generates timeline
     public static CopyOnWriteArrayList<ConcurrentMap<ConcurrentMap<String, String>, ConcurrentMap<String, String>>> getTimeline(String user_id) {
         CopyOnWriteArrayList<ConcurrentMap<String, String>> tweets = new CopyOnWriteArrayList<>();  // Array list of tweets only
+
+
+        //parallel stream used as this was designed to handle Redis' max limit of 4 billion entries per data set
         tweetCache.smembers("userfollowing:" + user_id).parallelStream()
                 .forEachOrdered(user -> getTweets(user).parallelStream()
                         .forEachOrdered(tweet_id -> tweets.add(toConcurrentMap(returnTweet(tweet_id)))));
 
+        //special type of ArrayList that is thread safe
         CopyOnWriteArrayList<ConcurrentMap<ConcurrentMap<String, String>, ConcurrentMap<String, String>>> users_and_tweets = new CopyOnWriteArrayList<>();  // Array list of user and tweets map
 
-        ConcurrentMap<ConcurrentMap<String, String>, ConcurrentMap<String, String>> temp = new ConcurrentHashMap<>();
-
+        //tweets with their users added to COW Array List in a HashMap
         tweets.parallelStream().forEachOrdered(tweet_map -> {
             users_and_tweets.add(new ConcurrentHashMap() {{put(tweet_map, toConcurrentMap(returnUser(tweet_map.get("creator_id"))));}});
-            temp.clear();
         });
         return users_and_tweets;
     }
@@ -75,6 +79,7 @@ public class TweetsCache extends Cache {
         return tweetCache.smembers("usertweets:" + user_id);
     }
 
+    //method used to test timeline generation
     public static void populateTimeline() {
         Map<String, String> details = new HashMap<>();
         for (int i = 0; i < 20; i++) {

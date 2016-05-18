@@ -10,6 +10,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class UserCache extends Cache {
+    //new instance of shared pool to support multithreaded environments
     public static Jedis userCache = redisPool.getResource();
     private static Pipeline userPipeline = userCache.pipelined();
 

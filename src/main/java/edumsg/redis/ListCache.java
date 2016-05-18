@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import static edumsg.redis.Cache.redisPool;
 
 public class ListCache extends Cache {
+    //new instance of shared pool to support multithreaded environments
     public static Jedis listCache = redisPool.getResource();
     private static Pipeline listPipeline = listCache.pipelined();
 
