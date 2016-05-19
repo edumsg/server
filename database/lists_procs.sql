@@ -12,7 +12,7 @@ SELECT user_id
   INSERT INTO lists (name, description, creator_id, private, created_at)
   VALUES (name, description, userID, private, created_at) RETURNING id INTO list_id;
 
-  PERFORM subscribe(userID, list_id, created_at);
+  PERFORM subscribe(session, list_id);
   RETURN QUERY
   SELECT *
   FROM lists
