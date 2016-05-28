@@ -37,7 +37,7 @@
         <jarDirectory url="file://$MODULE_DIR$/libs" recursive="false" type="SOURCES" />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
           <root url="jar://$USER_HOME$/Downloads/annotations-12.0.jar!/" />
@@ -46,17 +46,20 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Maven: org.apache.activemq:activemq-all:5.13.2" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.7.4" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.7.4" level="project" />
-    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.7.4" level="project" />
-    <orderEntry type="library" name="Maven: redis.clients:jedis:2.8.1" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-all:4.0.36.Final" level="project" />
-    <orderEntry type="library" name="Maven: org.json:json:20160212" level="project" />
-    <orderEntry type="library" name="Maven: org.postgresql:postgresql:9.4.1208.jre7" level="project" />
-    <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.2" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-dbcp2:2.1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-pool2:2.4.2" level="project" />
-    <orderEntry type="library" name="Maven: com.intellij:annotations:12.0" level="project" />
+    <orderEntry type="library" exported="" name="Maven: org.apache.activemq:activemq-all:5.13.2" level="project" />
+    <orderEntry type="library" exported="" name="Maven: com.fasterxml.jackson.core:jackson-core:2.7.4" level="project" />
+    <orderEntry type="library" exported="" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.7.4" level="project" />
+    <orderEntry type="library" exported="" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.7.4" level="project" />
+    <orderEntry type="library" exported="" name="Maven: redis.clients:jedis:2.8.1" level="project" />
+    <orderEntry type="library" exported="" name="Maven: io.netty:netty-all:4.0.36.Final" level="project" />
+    <orderEntry type="library" exported="" name="Maven: org.json:json:20160212" level="project" />
+    <orderEntry type="library" exported="" name="Maven: org.postgresql:postgresql:9.4.1208.jre7" level="project" />
+    <orderEntry type="library" exported="" name="Maven: commons-logging:commons-logging:1.2" level="project" />
+    <orderEntry type="library" exported="" name="Maven: org.apache.commons:commons-dbcp2:2.1.1" level="project" />
+    <orderEntry type="library" exported="" name="Maven: org.apache.commons:commons-pool2:2.4.2" level="project" />
+    <orderEntry type="library" exported="" name="Maven: com.intellij:annotations:12.0" level="project" />
+    <orderEntry type="library" exported="" name="Maven: io.iron.ironmq:ironmq:3.0.4" level="project" />
+    <orderEntry type="library" exported="" name="Maven: com.google.code.gson:gson:2.1" level="project" />
+    <orderEntry type="library" exported="" name="Maven: org.apache.commons:commons-lang3:3.1" level="project" />
   </component>
 </module>

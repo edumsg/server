@@ -66,6 +66,11 @@ public class LoginCommand extends Command {
                 User user = new User();
                 Statement query = dbConn.createStatement();
 
+//                query = dbConn.createStatement();
+//                query.setPoolable(true);
+//                set = query.executeQuery(String.format("SELECT * FROM login('%s','%s')"
+//                        , map.get("username")
+//                        , cleaned_session));
 
 
                 proc = dbConn.prepareCall("{? = call login(?,?)}");

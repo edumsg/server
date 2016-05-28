@@ -52,6 +52,7 @@ public class CommandsMap {
         cmdMap.put("get_retweets", GetRetweetsCommand.class);
         cmdMap.put("get_tweet", GetTweetCommand.class);
         cmdMap.put("user_tweets", GetUserTweetsCommand.class);
+        cmdMap.put("user_tweets2", GetUserTweets2Command.class);
         cmdMap.put("get_favorites", GetFavoritesCommand.class);
         cmdMap.put("timeline", GetTimelineCommand.class);
         cmdMap.put("get_subscribed_lists", GetSubscribedListsCommand.class);

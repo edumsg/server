@@ -234,8 +234,8 @@ BEGIN
     retweet,
     T2.created_at
   FROM replies R INNER JOIN tweets T ON R.original_tweet_id = T.id
-    INNER JOIN users U ON T.creator_id = U.id
     INNER JOIN tweets T2 ON R.reply_id = T2.id
+    INNER JOIN users U ON T2.creator_id = U.id
   WHERE R.original_tweet_id = $1
   ORDER BY T2.created_at ASC
   LIMIT 4;
@@ -258,8 +258,8 @@ BEGIN
     T2.image_url,
     T2.created_at
   FROM replies R INNER JOIN tweets T ON R.original_tweet_id = T.id
-    INNER JOIN users U ON T.creator_id = U.id
     INNER JOIN tweets T2 ON R.reply_id = T2.id
+    INNER JOIN users U ON T2.creator_id = U.id
   WHERE R.original_tweet_id = $1
   ORDER BY T2.created_at ASC;
   RETURN cursor;

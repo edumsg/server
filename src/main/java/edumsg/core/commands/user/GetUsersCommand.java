@@ -54,11 +54,13 @@ public class GetUsersCommand extends Command implements Runnable {
             root.put("code", "200");
 
             while (set.next()) {
-                String username = set.getString(1);
-                String name = set.getString(2);
-                String avatar_url = set.getString(3);
+                Integer id = set.getInt(1);
+                String username = set.getString(2);
+                String name = set.getString(3);
+                String avatar_url = set.getString(4);
 
                 User user = new User();
+                user.setId(id);
                 user.setUsername(username);
                 user.setName(name);
                 user.setAvatarUrl(avatar_url);
