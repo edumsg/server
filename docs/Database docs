@@ -4,3 +4,9 @@ http://rakudo.org/how-to-get-rakudo/
 If you are using linux, most distributions have the compiler packaged already for you make sure to check. Make sure to add the binary to your path on Windows and Mac.
 
 To connect to the database rename the "Postgres conf template" file to "Postgres.conf" and fill in the appropriate details
+
+To drop the database entirely and recreate it anew (tables, procedures and insertions) run the all_insertions.pl6 file using the following command:
+    perl6 all_insertions.pl6
+ensure that the PSQL command has been added to your path
+
+The inserstions_generator.pm6 module is what generates the SQL text, the insertions_writer.pl6 writes the text to disk. SQL files are contained in database.
