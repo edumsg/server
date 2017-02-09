@@ -1,0 +1,15 @@
+The JSON message format is of this template:
+url: "http://localhost:8080",
+type: "POST",
+datatype: "json",
+data: JSON.stringify(details),
+success: (result) ->
+    login_details = {
+    queue: MESSAGING QUEUE TO BE USED,
+    method: METHOD TO BE USED,
+    EXTRA PARAMETERS HERE
+    }
+
+There are 5 main queues which are stated in the README.md file
+To get the exact method names to be used check the CommandsMap.java in the core package, the extra parameters are depenedent on the postgres procedure, to check what exactly they are view the commands folder in the core package, there is a java file for each method
+

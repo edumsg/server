@@ -1,0 +1,6 @@
+To run the insertions files Perl 6 language must be installed, the main compiler is Rakudo, which can be obtained here:
+http://rakudo.org/how-to-get-rakudo/
+
+If you are using linux, most distributions have the compiler packaged already for you make sure to check. Make sure to add the binary to your path on Windows and Mac.
+
+To connect to the database rename the "Postgres conf template" file to "Postgres.conf" and fill in the appropriate details
