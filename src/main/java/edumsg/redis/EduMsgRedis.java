@@ -43,7 +43,7 @@ public class EduMsgRedis {
         else {
             jedis = new Jedis(redisURI);
         }
-
+        System.err.println(redisURI);
         return jedis;
     }
 
