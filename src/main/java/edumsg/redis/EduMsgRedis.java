@@ -15,14 +15,37 @@ package edumsg.redis;
 import redis.clients.jedis.Jedis;
 
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
 public class EduMsgRedis {
-    public static Jedis redisCache = new Jedis("localhost", 6379);
+    public static Jedis redisCache = getConnection();
 
+
+    private static Jedis getConnection() {
+        URI redisURI = null;
+        System.out.println("Redis URI 1");
+        try {
+            redisURI = new URI(System.getenv("REDIS_URL"));
+            System.out.println("Redis URI 2:" + redisURI);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        Jedis jedis = null;
+        if ( redisURI == null ) {
+            System.out.println("Redis URI 3");
+            jedis = new Jedis("localhost", 6379);
+        }
+        else {
+            jedis = new Jedis(redisURI);
+        }
+
+        return jedis;
+    }
 
     public static void bgSave(){
         Runnable runnable = new Runnable() {
