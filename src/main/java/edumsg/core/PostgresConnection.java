@@ -203,12 +203,14 @@ public class PostgresConnection {
     public static void readConfFile() throws Exception {
         String file = System.getProperty("user.dir") + "/Postgres.conf";
         java.util.List<String> lines = new ArrayList<String>();
+        //extract string between square brackets and compile regex for faster performance
         Pattern pattern = Pattern.compile("\\[(.+)\\]");
         Matcher matcher;
         Exception e;
         Stream<String> stream = Files.lines(Paths.get(file));
         lines = stream.filter(line -> !line.startsWith("#")).collect(Collectors.toList());
 
+        //set variables based on matches
         for (int i = 0; i < lines.size(); i++) {
             if (lines.get(i).contains("user")) {
                 matcher = pattern.matcher(lines.get(i));

@@ -16,10 +16,8 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import edumsg.core.*;
-import edumsg.redis.EduMsgRedis;
-
-
-
+import edumsg.redis.Cache;
+import edumsg.redis.UserCache;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
@@ -40,7 +38,7 @@ public class GetTimelineCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
-            proc = dbConn.prepareCall("{? = call get_tweets(?)}");
+            proc = dbConn.prepareCall("{? = call get_feeds(?)}");
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.OTHER);
             proc.setString(2, map.get("session_id"));
@@ -59,10 +57,13 @@ public class GetTimelineCommand extends Command implements Runnable {
                 String tweet = set.getString(2);
                 String image_url = set.getString(3);
                 Timestamp created_at = set.getTimestamp(4);
-                Integer creator_id = set.getInt(5);
-                String creator_name = set.getString(6);
-                String creator_username = set.getString(7);
-                String creator_avatar = set.getString(8);
+                String creator_name = set.getString(5);
+                String creator_username = set.getString(6);
+                String creator_avatar = set.getString(7);
+                String retweeter = set.getString(8);
+                Integer creator_id = set.getInt(9);
+                Integer retweeter_id = set.getInt(10);
+
 
                 Tweet t = new Tweet();
                 t.setId(id);
@@ -75,21 +76,25 @@ public class GetTimelineCommand extends Command implements Runnable {
                 creator.setAvatarUrl(creator_avatar);
                 creator.setUsername(creator_username);
                 t.setCreator(creator);
-
-                    tweets.addPOJO(t);
+                if (!creator_id.equals(retweeter_id)) {
+                    User r = new User();
+                    r.setId(retweeter_id);
+                    r.setName(retweeter);
+                    t.setRetweeter(r);
                 }
 
-//            set.close();
-//            proc.close();
-            root.set("tweets", tweets);
+                tweets.addPOJO(t);
+            }
+            set.close();
+            proc.close();
+            root.set("feeds", tweets);
             try {
                 CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
-                JSONObject cacheEntry = new JSONObject();
+                mapper.writeValueAsString(root),
+                map.get("correlation_id"), LOGGER);
+                JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
                 cacheEntry.put("cacheStatus", "valid");
-                cacheEntry.put("response", new JSONObject(mapper.writeValueAsString(root)));
-                EduMsgRedis.redisCache.set("timeline", cacheEntry.toString());
+                UserCache.userCache.set("timeline:" + map.get("session_id"), cacheEntry.toString());
             } catch (JsonGenerationException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
@@ -109,7 +114,7 @@ public class GetTimelineCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(set, proc, dbConn, null);
+            PostgresConnection.disconnect(set, proc, dbConn,null);
         }
     }
 }

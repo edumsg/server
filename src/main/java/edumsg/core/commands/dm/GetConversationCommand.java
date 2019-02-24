@@ -14,12 +14,11 @@ package edumsg.core.commands.dm;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import edumsg.core.*;
-
-
-
+import edumsg.redis.Cache;
+import edumsg.redis.DMCache;
+import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -93,6 +92,9 @@ public class GetConversationCommand extends Command implements Runnable {
             root.set("conv", child);
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+                JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
+                cacheEntry.put("cacheStatus", "valid");
+                DMCache.dmCache.set("get_conv:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {

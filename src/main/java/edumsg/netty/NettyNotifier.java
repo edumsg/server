@@ -17,7 +17,6 @@ import edumsg.activemq.Consumer;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 import java.util.concurrent.Callable;
 
@@ -42,7 +41,7 @@ public class NettyNotifier implements Callable<String> {
 //            {
                 activeMQConfig = new ActiveMQConfig(getQueueName()
                         .toUpperCase() + ".OUTQUEUE");
-                consumer = new Consumer(activeMQConfig);
+                consumer = new Consumer(activeMQConfig, serverHandler.getCorrelationId());
 //            }
 //            consumer.getConn().start();
             Message message = consumer.getConsumer().receive();
@@ -71,7 +70,7 @@ public class NettyNotifier implements Callable<String> {
 ////                                break;
 ////                            case "tweet": cache = Cache.tweetCache;
 ////                                break;
-////                            case "list": cache = Cache.listCache;
+////                            case "list": cache = ListCache.listCache;
 ////                                break;
 ////                            case "dm": cache = Cache.dmCache;
 ////                                break;

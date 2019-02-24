@@ -18,6 +18,7 @@ import edumsg.concurrent.WorkerPool;
 import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
 import edumsg.redis.Cache;
+import edumsg.redis.TweetsCache;
 
 import javax.jms.*;
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class TweetMain extends RunnableClasses{
     public static void main(String[] args) throws IOException {
         PostgresConnection.initSource();
         CommandsMap.instantiate();
-//        Cache.tweetBgSave();
+        TweetsCache.tweetBgSave();
         Consumer c = null;
         try {
             c = new Consumer(new ActiveMQConfig("TWEET.INQUEUE"));

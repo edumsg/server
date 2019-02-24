@@ -5,7 +5,7 @@ Dependencies:
 2) ActiveMQ
 3) PostgreSQL
 
-To run project compile the following:
+To run the project compile the following in "shared" package:
 1)UserMain
 2)TweetMain
 3)ListMain

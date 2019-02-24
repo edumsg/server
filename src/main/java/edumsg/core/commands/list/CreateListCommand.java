@@ -17,9 +17,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
-
-
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -40,7 +37,7 @@ public class CreateListCommand extends Command implements Runnable {
             Statement query = dbConn.createStatement();
             query.setPoolable(true);
 
-            set = query.executeQuery(String.format("SELECT * FROM create_list('%s','%s',%s, %s, now()::timestamp)",
+            set = query.executeQuery(String.format("SELECT * FROM create_list('%s','%s','%s', %s, now()::timestamp)",
                     map.get("name"), map.get("description"), map.get("session_id"), map.get("private")));
 
             while(set.next()){

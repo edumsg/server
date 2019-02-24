@@ -16,10 +16,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import edumsg.core.*;
-import edumsg.redis.Cache;
-
-
-
+import edumsg.redis.UserCache;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -66,119 +63,98 @@ public class LoginCommand extends Command {
             boolean authenticated = BCrypt.checkpw(map.get("password"), enc_password);
 
             if (authenticated) {
-//                String user_id = Cache.returnUserID(map.get("username"));
-                details = null; //Cache.returnUser(user_id);
                 User user = new User();
                 Statement query = dbConn.createStatement();
 
+//                query = dbConn.createStatement();
+//                query.setPoolable(true);
+//                set = query.executeQuery(String.format("SELECT * FROM login('%s','%s')"
+//                        , map.get("username")
+//                        , cleaned_session));
 
-                if (details == null) {
-                    proc = dbConn.prepareCall("{call login(?,?)}");
-                    proc.setPoolable(true);
-                    proc.setString(1, map.get("username"));
-                    proc.setString(2, cleaned_session);
-                    proc.execute();
-                    proc.close();
-                    dbConn.commit();
 
-                    root.put("app", map.get("app"));
-                    root.put("method", map.get("method"));
-                    root.put("status", "ok");
-                    root.put("code", "200");
+                proc = dbConn.prepareCall("{? = call login(?,?)}");
+                proc.setPoolable(true);
+                proc.registerOutParameter(1, Types.OTHER);
+                proc.setString(2, map.get("username"));
+                proc.setString(3, cleaned_session);
+                proc.execute();
+                set = (ResultSet) proc.getObject(1);
 
-                    //new
-//                    while (set.next()) {
-//                        id = set.getInt("user_id");
-//                        username = set.getString("username");
-//                        email = set.getString("email");
-//                        name = set.getString("name");
-//                        language = set.getString("language");
-//                        country = set.getString("country");
-//                        bio = set.getString("bio");
-//                        website = set.getString("website");
-//                        created_at = set.getTimestamp("created_at");
-//                        avatar_url = set.getString("avatar_url");
-//                        overlay = set.getBoolean("overlay");
-//                        link_color = set.getString("link_color");
-//                        background_color = set.getString("background_color");
-//                        protected_tweets = set.getBoolean("protected_tweets");
-//
-//                        user.setUsername(username);
-//                        user.setEmail(email);
-//                        user.setName(name);
-//                        user.setLanguage(language);
-//                        user.setCountry(country);
-//                        user.setBio(bio);
-//                        user.setWebsite(website);
-//                        user.setCreatedAt(created_at);
-//                        user.setAvatarUrl(avatar_url);
-//                        user.setOverlay(overlay);
-//                        user.setLinkColor(link_color);
-//                        user.setBackgroundColor(background_color);
-//                        user.setProtectedTweets(protected_tweets);
-//                        user.setSessionID(sessionID);
-//
-//                        details = new HashMap<String, String>();
-//
-//                        details.put("id", id.toString());
-//                        details.put("username", username);
-//                        details.put("email", email);
-//                        details.put("name", name);
-//                        details.put("language", language);
-//                        details.put("country", country);
-//                        details.put("bio", bio);
-//                        details.put("website", website);
-//                        details.put("created_at", created_at.toString());
-//                        details.put("avatar_url", avatar_url);
-//                        details.put("overlay", overlay.toString());
-//                        details.put("link_color", link_color);
-//                        details.put("background_color", background_color);
-//                        details.put("protected_tweets", protected_tweets.toString());
-//                        details.put("session_id", sessionID);
-//
-//
-//
-//                    }
-                    user.setSessionID(cleaned_session);
-//                    root.put("session_id", sessionID);
-                    //Cache.cacheUser(id.toString(), details);
 
-                } else {
-                    root.put("app", map.get("app"));
-                    root.put("method", map.get("method"));
-                    root.put("status", "ok");
-                    root.put("code", "200");
-                    root.put("session_id", details.get("id"));
+                root.put("app", map.get("app"));
+                root.put("method", map.get("method"));
+                root.put("status", "ok");
+                root.put("code", "200");
 
-                    user.setId(Integer.parseInt(details.get("id")));
-                    user.setUsername(details.get("username"));
-                    user.setEmail(details.get("email"));
-                    user.setName(details.get("name"));
-                    user.setLanguage(details.get("language"));
-                    user.setCountry(details.get("country"));
-                    user.setBio(details.get("bio"));
-                    user.setWebsite(details.get("website"));
-                    user.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
-                    user.setAvatarUrl(details.get("avatar_url"));
-                    user.setOverlay(Boolean.parseBoolean(details.get("overlay")));
-                    user.setLinkColor(details.get("link_color"));
-                    user.setBackgroundColor(details.get("background_color"));
-                    user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
+
+                while (set.next()) {
+                    id = set.getInt("id");
+                    username = set.getString("username");
+                    email = set.getString("email");
+                    name = set.getString("name");
+                    language = set.getString("language");
+                    country = set.getString("country");
+                    bio = set.getString("bio");
+                    website = set.getString("website");
+                    created_at = set.getTimestamp("created_at");
+                    avatar_url = set.getString("avatar_url");
+                    overlay = set.getBoolean("overlay");
+                    link_color = set.getString("link_color");
+                    background_color = set.getString("background_color");
+                    protected_tweets = set.getBoolean("protected_tweets");
+
+                    user.setUsername(username);
+                    user.setEmail(email);
+                    user.setName(name);
+                    user.setLanguage(language);
+                    user.setCountry(country);
+                    user.setBio(bio);
+                    user.setWebsite(website);
+                    user.setCreatedAt(created_at);
+                    user.setAvatarUrl(avatar_url);
+                    user.setOverlay(overlay);
+                    user.setLinkColor(link_color);
+                    user.setBackgroundColor(background_color);
+                    user.setProtectedTweets(protected_tweets);
                     user.setSessionID(sessionID);
-                    //Cache.cacheUserSession(details.get("id"), sessionID);
+
+                    details = new HashMap<String, String>();
+
+                    details.put("id", id.toString());
+                    details.put("username", username);
+                    details.put("email", email);
+                    details.put("name", name);
+                    details.put("language", language);
+                    details.put("country", country);
+                    details.put("bio", bio);
+                    details.put("website", website);
+                    details.put("created_at", created_at.toString());
+                    details.put("avatar_url", avatar_url);
+                    details.put("overlay", overlay.toString());
+                    details.put("link_color", link_color);
+                    details.put("background_color", background_color);
+                    details.put("protected_tweets", protected_tweets.toString());
+                    details.put("session_id", sessionID);
                 }
+
+
+                proc.close();
+                dbConn.commit();
+
+                user.setSessionID(cleaned_session);
+                UserCache.cacheUser(id.toString(), details);
+                UserCache.mapUsernameID(username, id + "");
+                UserCache.cacheUserSession(cleaned_session, details.get("id"));
+
 
                 ValueNode child = nf.pojoNode(user);
                 root.set("user", child);
 
                 try {
                     CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
-                } catch (JsonGenerationException e) {
-                    //Logger.log(Level.SEVERE, e.getMessage(), e);
-                } catch (JsonMappingException e) {
-                    //Logger.log(Level.SEVERE, e.getMessage(), e);
-                } catch (IOException e) {
-                    //Logger.log(Level.SEVERE, e.getMessage(), e);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
             } else {

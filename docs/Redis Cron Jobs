@@ -5,8 +5,3 @@ Currently the following is implemented:
 1) Auto Background Save
 Background Save is performed, every 15 minutes in a non-blocking fashion. The location of the save file is define be Redis' configuration file, in linux generally it will be under /etc/redis.conf (depends on distro), under windows you will find it in Chocolatey's (windows package manager) folder, not sure where under OS X or other Unix systems.
 
-2)Tweet Cleaner
-Tweets older than 1 month are removed periodically, this is run every 1 month
-
-4)DM Cleaner
-Using a garbage collection style cleaner, DMs that have been read by both parties and older than 1 month are removed from the cache, along with the thread they belong to

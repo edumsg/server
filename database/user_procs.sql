@@ -25,9 +25,11 @@ BEGIN
     FROM sessions
     WHERE id = $1;
     FOR i IN array_lower(params, 1)..array_upper(params, 1) LOOP
-        EXECUTE 'UPDATE users' ||
-                ' SET ' || quote_ident(params [i] [1]) || ' = ' || quote_literal(params [i] [2]) ||
-                ' WHERE id = ' || userID || ';';
+        -- EXECUTE 'UPDATE users' ||
+        --         ' SET ' || quote_ident(params [i] [1]) || ' = ' || quote_literal(params [i] [2]) ||
+        --         ' WHERE id = ' || userID || ';';
+        EXECUTE format('UPDATE users SET %I = %L WHERE id = $1;', params[i][1], params[i][2])
+                USING (userID);
     END LOOP;
 END; $$
 LANGUAGE PLPGSQL;
@@ -53,12 +55,24 @@ BEGIN
     OPEN cursor FOR
     SELECT *
     FROM users U
-    WHERE U.username = username
+    WHERE U.username = $1
     LIMIT 1;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
 
+CREATE OR REPLACE FUNCTION get_user_with_tweets(username VARCHAR)
+    RETURNS REFCURSOR AS $$
+DECLARE cursor REFCURSOR := 'cur';
+BEGIN
+    OPEN cursor FOR
+    SELECT *
+    FROM users U JOIN tweets T
+    ON U.id = T.creator_id
+    WHERE U.username = $1;
+    RETURN cursor;
+END; $$
+LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION my_profile(session VARCHAR)
     RETURNS REFCURSOR AS $$
@@ -86,6 +100,7 @@ DECLARE cursor REFCURSOR := 'cur';
 BEGIN
     OPEN cursor FOR
     SELECT
+        U.id,
         U.username,
         U.name,
         U.avatar_url
@@ -109,15 +124,15 @@ BEGIN
     SELECT U.protected_tweets
     INTO private_user
     FROM users U
-    WHERE U.id = $1;
+    WHERE U.id = $2;
 
     IF private_user
     THEN
         INSERT INTO followships (user_id, follower_of_user_id, confirmed, created_at)
-        VALUES (followee_id, user_id, '0', now() :: TIMESTAMP);
+        VALUES (followee_id, userID, '0', now() :: TIMESTAMP);
     ELSE
-        INSERT INTO followships (user_id, follower_of_user_id, created_at)
-        VALUES (followee_id, user_id, now() :: TIMESTAMP);
+        INSERT INTO followships (user_id, follower_of_user_id, confirmed, created_at)
+        VALUES (followee_id, userID, '1', now() :: TIMESTAMP);
     END IF;
 END; $$
 LANGUAGE PLPGSQL;
@@ -133,7 +148,7 @@ BEGIN
     WHERE id = $1;
 
     DELETE FROM followships F
-    WHERE F.user_id = $2 AND F.follower_of_user_id = user_id;
+    WHERE F.user_id = $2 AND F.follower_of_user_id = userID;
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -149,7 +164,7 @@ BEGIN
 
     UPDATE followships
     SET confirmed = TRUE
-    WHERE userID = $1 AND follower_of_user_id = $2;
+    WHERE user_id = userID AND follower_of_user_id = $2;
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -229,6 +244,59 @@ BEGIN
     INTO userID
     FROM sessions
     WHERE id = $1;
+
+    OPEN cursor FOR
+    SELECT
+        id,
+        tweet_text,
+        image_url,
+        created_at,
+        creator_id,
+        name,
+        username,
+        avatar_url
+    FROM (
+             (SELECT
+                  T.id,
+                  T.tweet_text,
+                  T.image_url,
+                  T.created_at,
+                  U.id         AS "creator_id",
+                  U.name,
+                  U.username,
+                  U.avatar_url,
+                  T.created_at AS "creation"
+              FROM tweets T INNER JOIN users U ON T.creator_id = U.id
+              WHERE T.creator_id = userID)
+             UNION
+             (SELECT
+                  T.id,
+                  T.tweet_text,
+                  T.image_url,
+                  T.created_at,
+                  C.id         AS "creator_id",
+                  C.name,
+                  C.username,
+                  C.avatar_url,
+                  R.created_at AS "creation"
+              FROM tweets T INNER JOIN retweets R ON T.id = R.tweet_id
+                  INNER JOIN users U ON R.retweeter_id = U.id
+                  INNER JOIN users C ON T.creator_id = C.id
+              WHERE U.id = userID)) AS timeline
+    ORDER BY creation DESC;
+    RETURN cursor;
+END; $$
+LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION get_tweets2(uname VARCHAR) --gets user tweets and retweets
+    RETURNS REFCURSOR AS $$
+DECLARE cursor REFCURSOR := 'cur';
+        userID INTEGER;
+BEGIN
+    SELECT id
+    INTO userID
+    FROM users
+    WHERE username = $1;
 
     OPEN cursor FOR
     SELECT
@@ -386,8 +454,8 @@ LANGUAGE PLPGSQL;
 -- JAVA DONE / JAVA DONE
 CREATE OR REPLACE FUNCTION get_user_favorites(session VARCHAR)
     RETURNS REFCURSOR AS $$
-DECLARE cursor  REFCURSOR := 'cur';
-        DECLARE userID INTEGER;
+DECLARE cursor REFCURSOR := 'cur';
+        userID INTEGER;
 BEGIN
     SELECT user_id
     INTO userID
@@ -433,7 +501,8 @@ BEGIN
         C.avatar_url
     FROM lists L INNER JOIN subscriptions S ON L.id = S.list_id
         INNER JOIN users C ON L.creator_id = C.id
-    WHERE S.subscriber_id = userID;
+    WHERE S.subscriber_id = userID
+    ORDER BY L.name ASC;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -521,8 +590,9 @@ END; $$
 LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION login(user_name VARCHAR, session VARCHAR)
-    RETURNS VOID AS $$
-DECLARE userID INTEGER;
+    RETURNS REFCURSOR AS $$
+DECLARE cursor REFCURSOR := 'cur';
+        userID INTEGER;
 
 BEGIN
     SELECT id
@@ -535,6 +605,13 @@ BEGIN
     ON CONFLICT (user_id)
         DO UPDATE SET session_start = now() :: TIMESTAMP, id = $2
             WHERE S.user_id = userID;
+
+    OPEN cursor FOR
+    SELECT *
+    FROM users
+    WHERE id = userID;
+
+    RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
 

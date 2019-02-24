@@ -14,7 +14,7 @@ package edumsg.core.commands.list;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.List;
@@ -39,15 +39,15 @@ public class GetListCommand extends Command implements Runnable {
             dbConn.setAutoCommit(true);
             Statement query = dbConn.createStatement();
             query.setPoolable(true);
-            ArrayNode list = nf.arrayNode();
             set = query.executeQuery(String.format("SELECT * FROM get_list(%s)",map.get("list_id")));
             List l = new List();
             while(set.next()){
                 l.setName(set.getString("name"));
                 l.setDescription(set.getString("description"));
-                list.addPOJO(l);
+
             }
 
+            ValueNode list = nf.pojoNode(l);
             set.close();
 
             root.put("app", map.get("app"));

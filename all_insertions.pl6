@@ -3,12 +3,12 @@ my $path;
 my @postgres_conf;
 if (($*KERNEL.name) === "win32") {
     $current_path = qx/cd/;
-    $current_path ~~ (m:g/\w+\:[\\\w+]+\\server/);
+    $current_path ~~ (m:g/.+\\server/);
     $path = $/;
     @postgres_conf = ($path~"\\Postgres.conf").IO.lines;
 } else {
     $current_path = qx/pwd/;
-    $current_path ~~ (m:g/[\/\w+]+\/server/);
+    $current_path ~~ (m:g/.+\/server/);
     $path = $/;
     @postgres_conf = ($path~"/Postgres.conf").IO.lines;
 }

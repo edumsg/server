@@ -9,7 +9,6 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 */
-
 package edumsg.activemq;
 
 import javax.jms.*;
@@ -17,19 +16,33 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Consumer {
-	Logger lgr = Logger.getLogger(Consumer.class.getName());
-	ActiveMQConfig config;
-	Connection conn;
+    Logger lgr = Logger.getLogger(Consumer.class.getName());
+    ActiveMQConfig config;
+    Connection conn;
     MessageConsumer consumer;
     Session session;
+    private long correlationId;
 
-	public Consumer(ActiveMQConfig config) {
-		this.config = config;
+    public Consumer(ActiveMQConfig config) {
+        this.config = config;
         try {
             conn = config.connect();
             session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
             Destination destination = session.createQueue(config.getQueueName());
             consumer = session.createConsumer(destination);
+        } catch (JMSException e) {
+            lgr.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+
+	public Consumer(ActiveMQConfig config, long correlationId) {
+		this.config = config;
+        try {
+            conn = config.connect();
+            session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Destination destination = session.createQueue(config.getQueueName());
+            consumer = session.createConsumer(destination, "JMSCorrelationID='" + correlationId + "'");
         } catch (JMSException e) {
             lgr.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -53,17 +66,14 @@ public class Consumer {
 //		config.disconnect(conn);
 //	}
 
-    public Message receive()
-    {
-        if (consumer != null)
-        {
+    public Message receive() {
+        if (consumer != null) {
             try {
                 return consumer.receive();
             } catch (JMSException e) {
                 lgr.log(Level.SEVERE, e.getMessage(), e);
             }
-        }
-        else {
+        } else {
             try {
                 conn = config.connect();
                 session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);

@@ -40,6 +40,7 @@ public class EduMsgNettyServerHandler extends
 
     private HttpRequest request;
     private String requestBody;
+    private long correlationId;
     volatile String responseBody;
     Logger log = Logger.getLogger(EduMsgNettyServer.class.getName());
     ExecutorService executorService = Executors.newCachedThreadPool();
@@ -51,6 +52,9 @@ public class EduMsgNettyServerHandler extends
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg)
             throws Exception {
+        if (correlationId == 0L)
+            correlationId = System.currentTimeMillis();
+        System.out.println(correlationId+"-");
 
 //        System.out.println("CH:" + ctx.channel().toString());
 
@@ -127,7 +131,7 @@ public class EduMsgNettyServerHandler extends
 
     private void sendMessageToActiveMQ(String jsonBody, String queue) {
         Producer p = new Producer(new ActiveMQConfig(queue.toUpperCase() + ".INQUEUE"));
-        p.send(jsonBody, "1", log);
+        p.send(jsonBody, correlationId+"", log);
     }
 
     private static void send100Continue(ChannelHandlerContext ctx) {
@@ -156,5 +160,9 @@ public class EduMsgNettyServerHandler extends
 
     public void setRequestBody(String requestBody) {
         this.requestBody = requestBody;
+    }
+
+    public long getCorrelationId() {
+        return correlationId;
     }
 }

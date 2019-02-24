@@ -3,7 +3,11 @@ package edumsg.core.commands.tweet;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import edumsg.core.*;
 import edumsg.core.commands.user.GetUserCommand;
+import edumsg.redis.Cache;
+import edumsg.redis.TweetsCache;
+import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -13,13 +17,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import edumsg.core.Command;
-import edumsg.core.CommandsHelp;
-import edumsg.core.PostgresConnection;
-import edumsg.core.Tweet;
-import edumsg.core.User;
-import edumsg.core.commands.user.GetUserCommand;
 
 /**
  * Created by omarelhagin on 15/3/16.
@@ -78,6 +75,9 @@ public class GetRepliesCommand extends Command implements Runnable
                 CommandsHelp.submit(map.get("app"),
                         mapper.writeValueAsString(root),
                         map.get("correlation_id"), LOGGER);
+                JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
+                cacheEntry.put("cacheStatus", "valid");
+                TweetsCache.tweetCache.set("get_replies:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
