@@ -11,8 +11,19 @@ import java.util.concurrent.TimeUnit;
 
 public class UserCache extends Cache {
     //new instance of shared pool to support multithreaded environments
-    public static Jedis userCache = redisPool.getResource();
+    public static Jedis userCache = getRedisPoolResource();
     private static Pipeline userPipeline = userCache.pipelined();
+
+    public static Jedis getRedisPoolResource () {
+        Jedis jedis = null;
+        try {
+            jedis = redisPool.getResource();
+        } catch ( Exception e ) {
+            System.err.print("Cannot get RedisPool resource");
+            System.err.print(e.getStackTrace());
+        }
+        return jedis;
+    }
 
 
     public static void userBgSave(){

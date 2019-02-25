@@ -32,7 +32,13 @@ public class UserMain extends RunnableClasses{
 
     public static void main(String[] args) throws IOException {
 
-        PostgresConnection.initSource();
+        try {
+            PostgresConnection.initSource();
+            System.err.println("Connected to PostgresDB");
+        } catch ( Exception e) {
+            System.err.println("Cannot connect to PostgresDB");
+        }
+
         CommandsMap.instantiate();
         UserCache.userBgSave();
         Consumer c = null;

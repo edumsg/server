@@ -59,7 +59,11 @@ public class EduMsgNettyServer {
                     + (SSL ? "https" : "http") + "://127.0.0.1:" + PORT + '/');
 
             ch.closeFuture().sync();
-        } finally {
+        }
+        catch (Exception e) {
+            System.err.println("Server is not running");
+        }
+        finally {
 //            bossGroup.shutdownGracefully();
 //            workerGroup.shutdownGracefully();
         }
