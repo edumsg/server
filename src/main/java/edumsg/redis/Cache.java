@@ -6,6 +6,8 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Pipeline;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +18,26 @@ import java.util.stream.Collectors;
 public class Cache {
     protected static JedisPool redisPool = new JedisPool(new JedisPoolConfig(), "localhost", 6379);
 
-
+    private static JedisPool getConnection() {
+        URI redisURI = null;
+        System.err.println("Redis URI 1");
+        try {
+            redisURI = new URI(System.getenv("REDIS_URL"));
+            System.err.println("Redis URI 2:" + redisURI);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        JedisPool jedis = null;
+        if ( redisURI == null ) {
+            System.err.println("Redis URI 3");
+            jedis = new JedisPool(new JedisPoolConfig(),"localhost", 6379);
+        }
+        else {
+            jedis = new JedisPool(redisURI);
+        }
+        System.err.println(redisURI);
+        return jedis;
+    }
 
     protected static boolean checkNulls(Map<String, String> map) {
         return map.containsValue(null);

@@ -20,6 +20,7 @@ public class UserCache extends Cache {
             jedis = redisPool.getResource();
         } catch ( Exception e ) {
             System.err.println("Cannot get RedisPool resource");
+            System.err.println(e.getMessage());
             System.err.print(e.getStackTrace());
         }
 
