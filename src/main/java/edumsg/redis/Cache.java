@@ -16,7 +16,7 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class Cache {
-    protected static JedisPool redisPool = new JedisPool(new JedisPoolConfig(), "localhost", 6379);
+    protected static JedisPool redisPool = getConnection();
 
     private static JedisPool getConnection() {
         URI redisURI = null;
