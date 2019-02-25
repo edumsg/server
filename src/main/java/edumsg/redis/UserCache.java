@@ -19,9 +19,14 @@ public class UserCache extends Cache {
         try {
             jedis = redisPool.getResource();
         } catch ( Exception e ) {
-            System.err.print("Cannot get RedisPool resource");
+            System.err.println("Cannot get RedisPool resource");
             System.err.print(e.getStackTrace());
         }
+
+        if ( jedis == null ) {
+            System.err.println("No User Cache Created !!");
+        }
+
         return jedis;
     }
 
