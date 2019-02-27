@@ -1,0 +1,21 @@
+There are 4 main caching classes in redis package, that inherit from the master class "Cache". Each sub class creates a connection to Redis from the connection pool to support multithreaded redis
+
+User caching:
+User is cached as a hash set being "user:$id" where $id is a var representing user id and containing all details of user
+
+Tweets caching:
+Tweets are cached as a hash set being "tweet:$id" where $id is a var representing tweet id and containing all details of tweet
+
+Lists caching:
+Lists are cached as a hash set being "list:$id" where $id is a var representing list id and containing all details of list
+
+User Tweets Caching
+Each user has a seperate redis set in the form "usertweets:$id" where $id is a var for user id and the set contains ONLY tweet ids, which can be fetched from tweets hashes.
+
+User Following Caching
+Each user has a seperate redis set in the form "userfollowing:$id" where $id is a var for user id and the set contains ONLY user ids which are being followed, which can be fetched from users hashes.
+
+User Followers Caching
+Each user has a seperate redis set in the form "userfollowers:$id" where $id is a var for user id and the set contains ONLY user ids which are followers of user, which can be fetched from users hashes.
+
+Session caching is NOT implemented yet
