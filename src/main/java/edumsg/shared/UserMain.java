@@ -12,12 +12,11 @@ IN THE SOFTWARE.
 
 package edumsg.shared;
 
-import edumsg.activemq.ActiveMQConfig;
-import edumsg.activemq.Consumer;
 import edumsg.concurrent.WorkerPool;
 import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
+import edumsg.activemq.Consumer;
+import edumsg.activemq.ActiveMQConfig;
 import edumsg.redis.UserCache;
 
 import javax.jms.*;
@@ -31,14 +30,7 @@ public class UserMain extends RunnableClasses{
     private static boolean run = true;
 
     public static void main(String[] args) throws IOException {
-
-        try {
-            PostgresConnection.initSource();
-            System.err.println("Connected to PostgresDB");
-        } catch ( Exception e) {
-            System.err.println("Cannot connect to PostgresDB");
-        }
-
+        PostgresConnection.initSource();
         CommandsMap.instantiate();
         UserCache.userBgSave();
         Consumer c = null;

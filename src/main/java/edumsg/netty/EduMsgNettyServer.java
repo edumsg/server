@@ -28,7 +28,17 @@ import org.apache.log4j.Logger;
 public class EduMsgNettyServer {
     static final boolean SSL = System.getProperty("ssl") != null;
 
-    static final int PORT = Integer.parseInt(System.getenv("PORT"));
+    static final int PORT = getPort();
+
+    private static int getPort() {
+        int PORT;
+        try {
+            PORT = Integer.parseInt(System.getenv("PORT"));
+        } catch ( Exception e ) {
+            PORT = Integer.parseInt(System.getProperty("port", SSL ? "8443" : "8080"));
+        }
+        return PORT;
+    }
 
     public static void main(String[] args) throws Exception {
         Logger log = Logger.getLogger(EduMsgNettyServer.class);

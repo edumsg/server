@@ -14,7 +14,7 @@ import static edumsg.redis.Cache.redisPool;
  */
 public class DMCache extends Cache {
     //new instance of shared pool to support multithreaded environments
-    public static Jedis dmCache = redisPool.getResource();
+    public static Jedis dmCache = edumsg.redis.Cache.getRedisPoolResource();
     private static Pipeline dmPipeline = dmCache.pipelined();
 
     public static void dmBgSave(){

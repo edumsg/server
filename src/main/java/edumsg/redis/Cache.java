@@ -1,5 +1,6 @@
 package edumsg.redis;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -18,26 +19,38 @@ import java.util.stream.Collectors;
 public class Cache {
     protected static JedisPool redisPool = getConnection();
 
-    private static JedisPool getConnection() {
-        URI redisURI = null;
-        System.err.println("Redis URI 1");
+    public static JedisPool getConnection() {
+        URI redisURI;
+        JedisPool jedis = null;
         try {
             redisURI = new URI(System.getenv("REDIS_URL"));
-            System.err.println("Redis URI 2:" + redisURI);
+            System.err.println("Redis URI :" + redisURI);
+            jedis = new JedisPool(redisURI);
         } catch (URISyntaxException e) {
             e.printStackTrace();
-        }
-        JedisPool jedis = null;
-        if ( redisURI == null ) {
-            System.err.println("Redis URI 3");
+        } catch ( NullPointerException e ) {
+            System.err.println("Redis URI : local-6379");
             jedis = new JedisPool(new JedisPoolConfig(),"localhost", 6379);
         }
-        else {
-            jedis = new JedisPool(redisURI);
-        }
-        System.err.println(redisURI);
         return jedis;
     }
+
+    public static Jedis getRedisPoolResource () {
+        Jedis jedis = null;
+        try {
+            jedis = redisPool.getResource();
+        } catch ( Exception e ) {
+            System.err.println("Cannot get RedisPool resource");
+            System.err.println(e.getMessage());
+        }
+
+        if ( jedis == null ) {
+            System.err.println("No User Cache Created !!");
+        }
+
+        return jedis;
+    }
+
 
     protected static boolean checkNulls(Map<String, String> map) {
         return map.containsValue(null);

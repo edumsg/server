@@ -11,25 +11,8 @@ import java.util.concurrent.TimeUnit;
 
 public class UserCache extends Cache {
     //new instance of shared pool to support multithreaded environments
-    public static Jedis userCache = getRedisPoolResource();
+    public static Jedis userCache = edumsg.redis.Cache.getRedisPoolResource();
     private static Pipeline userPipeline = userCache.pipelined();
-
-    public static Jedis getRedisPoolResource () {
-        Jedis jedis = null;
-        try {
-            jedis = redisPool.getResource();
-        } catch ( Exception e ) {
-            System.err.println("Cannot get RedisPool resource");
-            System.err.println(e.getMessage());
-            System.err.print(e.getStackTrace());
-        }
-
-        if ( jedis == null ) {
-            System.err.println("No User Cache Created !!");
-        }
-
-        return jedis;
-    }
 
 
     public static void userBgSave(){

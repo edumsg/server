@@ -12,7 +12,7 @@ import static edumsg.redis.Cache.redisPool;
 
 public class ListCache extends Cache {
     //new instance of shared pool to support multithreaded environments
-    public static Jedis listCache = redisPool.getResource();
+    public static Jedis listCache = edumsg.redis.Cache.getRedisPoolResource();
     private static Pipeline listPipeline = listCache.pipelined();
 
     public static void listBgSave(){

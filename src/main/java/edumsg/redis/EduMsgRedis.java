@@ -14,7 +14,6 @@ package edumsg.redis;
 
 import redis.clients.jedis.Jedis;
 
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.Executors;
@@ -27,23 +26,18 @@ public class EduMsgRedis {
 
 
     private static Jedis getConnection() {
-        URI redisURI = null;
-        System.out.println("Redis URI 1");
+        URI redisURI;
+        Jedis jedis = null;
         try {
             redisURI = new URI(System.getenv("REDIS_URL"));
-            System.out.println("Redis URI 2:" + redisURI);
+            System.out.println("Redis URI 1 :" + redisURI);
+            jedis = new Jedis(redisURI);
         } catch (URISyntaxException e) {
             e.printStackTrace();
-        }
-        Jedis jedis = null;
-        if ( redisURI == null ) {
-            System.out.println("Redis URI 3");
+        } catch ( NullPointerException e ) {
+            System.out.println("Redis URI : local-6379");
             jedis = new Jedis("localhost", 6379);
         }
-        else {
-            jedis = new Jedis(redisURI);
-        }
-        System.err.println(redisURI);
         return jedis;
     }
 

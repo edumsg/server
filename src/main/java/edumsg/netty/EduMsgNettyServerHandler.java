@@ -54,7 +54,7 @@ public class EduMsgNettyServerHandler extends
             throws Exception {
         if (correlationId == 0L)
             correlationId = System.currentTimeMillis();
-        System.out.println(correlationId+"-");
+        //System.out.println("Correlation ID (HANDLER): " + correlationId);
 
 //        System.out.println("CH:" + ctx.channel().toString());
 
@@ -85,8 +85,8 @@ public class EduMsgNettyServerHandler extends
         JSONObject requestJson = new JSONObject(requestBody);
         NettyNotifier notifier = new NettyNotifier(this, requestJson.getString("queue"));
 //        notifier.start();
-        sendMessageToActiveMQ(requestBody, requestJson.getString("queue"));
-
+        System.out.println("Request Body: " + requestBody);
+        sendMessageToRabbitMQ(requestBody, requestJson.getString("queue"));
 
         System.out.println("waited");
         String oldResponseBody = responseBody;
@@ -129,7 +129,7 @@ public class EduMsgNettyServerHandler extends
 //        notifyAll();
     }
 
-    private void sendMessageToActiveMQ(String jsonBody, String queue) {
+    private void sendMessageToRabbitMQ(String jsonBody, String queue) {
         Producer p = new Producer(new ActiveMQConfig(queue.toUpperCase() + ".INQUEUE"));
         p.send(jsonBody, correlationId+"", log);
     }

@@ -15,7 +15,7 @@ import static edumsg.redis.UserCache.*;
 
 public class TweetsCache extends Cache {
     //new instance of shared pool to support multithreaded environments
-    public static Jedis tweetCache = redisPool.getResource();
+    public static Jedis tweetCache = edumsg.redis.Cache.getRedisPoolResource();;
     private static Pipeline tweetPipeline = tweetCache.pipelined();
 
 

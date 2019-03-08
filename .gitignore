@@ -47,3 +47,7 @@ Temporary Items
 *.class
 
 /.precomp
+
+.classpath
+.project
+.settings/

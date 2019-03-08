@@ -62,7 +62,7 @@ public class PostgresConnection {
         return dataSource;
     }
 
-    public static void disconnect(ResultSet rs, PreparedStatement statment,
+    public static void disconnect(ResultSet rs, PreparedStatement statement,
                                   Connection conn, Statement query) {
         if (rs != null) {
             try {
@@ -70,9 +70,9 @@ public class PostgresConnection {
             } catch (SQLException e) {
             }
         }
-        if (statment != null) {
+        if (statement != null) {
             try {
-                statment.close();
+                statement.close();
             } catch (SQLException e) {
             }
         }
@@ -92,7 +92,7 @@ public class PostgresConnection {
         }
     }
 
-    public static void disconnect(ResultSet rs, PreparedStatement statment,
+    public static void disconnect(ResultSet rs, PreparedStatement statement,
                                   Connection conn) {
         if (rs != null) {
             try {
@@ -100,9 +100,9 @@ public class PostgresConnection {
             } catch (SQLException e) {
             }
         }
-        if (statment != null) {
+        if (statement != null) {
             try {
-                statment.close();
+                statement.close();
             } catch (SQLException e) {
             }
         }
@@ -124,17 +124,23 @@ public class PostgresConnection {
                 LOGGER.log(Level.SEVERE,
                         "Error loading Postgres driver: " + ex.getMessage(), ex);
             }
-//            try{
-//                readConfFile();
-//            }   catch (Exception e){
-//                e.printStackTrace();
-//            }
-            URI dbUri = new URI(System.getenv("DATABASE_URL"));
 
-            DB_USERNAME = dbUri.getUserInfo().split(":")[0];
-            DB_PASSWORD = dbUri.getUserInfo().split(":")[1];
-            DB_NAME = dbUri.getPath().replace("/", "");
-            DB_URL = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
+            try {
+                URI dbUri = new URI(System.getenv("DATABASE_URL"));
+                DB_USERNAME = dbUri.getUserInfo().split(":")[0];
+                DB_PASSWORD = dbUri.getUserInfo().split(":")[1];
+                DB_NAME = dbUri.getPath().replace("/", "");
+                DB_URL = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
+
+            } catch (Exception e1){
+                try {
+                    readConfFile();
+                } catch ( Exception e2 ) {
+                    e2.printStackTrace();
+                }
+                System.out.println("Used Config File For DB");
+            }
+
 
             Properties props = new Properties();
           //  System.out.println(DB_USERNAME);
