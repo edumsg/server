@@ -32,6 +32,7 @@ public class ActiveMQConfig {
         try {
             PORT = Integer.parseInt(System.getenv("ACTIVEMQ_PORT"));
         } catch ( Exception e ) {
+            e.printStackTrace();
             System.err.println("No ActiveMq Env Set");
         }
         System.out.println("ActiveMQConfig Class :: PORT = " + PORT);
