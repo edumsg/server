@@ -35,19 +35,7 @@ public class UserMain extends RunnableClasses{
         PostgresConnection.initSource();
         CommandsMap.instantiate();
         UserCache.userBgSave();
-
-        // Get Dyno IP
-        InetAddress ip;
-        String hostname;
-        try {
-            ip = InetAddress.getLocalHost();
-            hostname = ip.getHostName();
-            System.err.println("Your current IP address : " + ip);
-            System.err.println("Your current Hostname : " + hostname);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-
+        getHostDetails();
 
 //        String herokuPrivateIP = "No Such IP";
 //        try {
@@ -115,5 +103,17 @@ public class UserMain extends RunnableClasses{
         run = false;
     }
 
+    public static void getHostDetails () {
+        InetAddress ip;
+        String hostname;
+        try {
+            ip = InetAddress.getLocalHost();
+            hostname = ip.getHostName();
+            System.err.println("Your current IP address : " + ip);
+            System.err.println("Your current Hostname : " + hostname);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

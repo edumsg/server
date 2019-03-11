@@ -25,22 +25,16 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import org.apache.log4j.Logger;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class EduMsgNettyServer {
     static final boolean SSL = System.getProperty("ssl") != null;
 
     static final int PORT = getPort();
 
-    private static int getPort() {
-        int PORT;
-        try {
-            PORT = Integer.parseInt(System.getenv("PORT"));
-        } catch ( Exception e ) {
-            PORT = Integer.parseInt(System.getProperty("port", SSL ? "8443" : "8080"));
-        }
-        return PORT;
-    }
-
     public static void main(String[] args) throws Exception {
+        getHostDetails();
         Logger log = Logger.getLogger(EduMsgNettyServer.class);
         // Configure SSL.
         EduMsgRedis.redisCache.flushDB();
@@ -76,6 +70,29 @@ public class EduMsgNettyServer {
         finally {
 //            bossGroup.shutdownGracefully();
 //            workerGroup.shutdownGracefully();
+        }
+    }
+
+    private static int getPort() {
+        int PORT;
+        try {
+            PORT = Integer.parseInt(System.getenv("PORT"));
+        } catch ( Exception e ) {
+            PORT = Integer.parseInt(System.getProperty("port", SSL ? "8443" : "8080"));
+        }
+        return PORT;
+    }
+
+    public static void getHostDetails () {
+        InetAddress ip;
+        String hostname;
+        try {
+            ip = InetAddress.getLocalHost();
+            hostname = ip.getHostName();
+            System.err.println("Your current IP address : " + ip);
+            System.err.println("Your current Hostname : " + hostname);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
         }
     }
 }
