@@ -12,15 +12,17 @@ IN THE SOFTWARE.
 
 package edumsg.shared;
 
+import edumsg.activemq.ActiveMQConfig;
+import edumsg.activemq.Consumer;
 import edumsg.concurrent.WorkerPool;
 import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
-import edumsg.activemq.Consumer;
-import edumsg.activemq.ActiveMQConfig;
 import edumsg.redis.UserCache;
 
 import javax.jms.*;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,6 +35,28 @@ public class UserMain extends RunnableClasses{
         PostgresConnection.initSource();
         CommandsMap.instantiate();
         UserCache.userBgSave();
+
+        // Get Dyno IP
+        InetAddress ip;
+        String hostname;
+        try {
+            ip = InetAddress.getLocalHost();
+            hostname = ip.getHostName();
+            System.err.println("Your current IP address : " + ip);
+            System.err.println("Your current Hostname : " + hostname);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
+
+//        String herokuPrivateIP = "No Such IP";
+//        try {
+//            herokuPrivateIP = System.getenv("HEROKU_PRIVATE_IP");
+//        } catch ( Exception e) {
+//            System.err.println(e.getMessage());
+//        }
+//        System.err.println("User Main Class :: Heroku Private IP: " + herokuPrivateIP);
+
         Consumer c = null;
         try {
             c = new Consumer(new ActiveMQConfig("USER.INQUEUE"));
