@@ -36,7 +36,7 @@ public class UserMain extends RunnableClasses{
         CommandsMap.instantiate();
         UserCache.userBgSave();
         getHostDetails();
-
+        
 //        String herokuPrivateIP = "No Such IP";
 //        try {
 //            herokuPrivateIP = System.getenv("HEROKU_PRIVATE_IP");
@@ -103,7 +103,7 @@ public class UserMain extends RunnableClasses{
         run = false;
     }
 
-    public static void getHostDetails () {
+    private static void getHostDetails () {
         InetAddress ip;
         String hostname;
         try {
@@ -115,5 +115,5 @@ public class UserMain extends RunnableClasses{
             e.printStackTrace();
         }
     }
-
 }
+

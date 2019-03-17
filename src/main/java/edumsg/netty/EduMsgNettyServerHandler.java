@@ -75,18 +75,18 @@ public class EduMsgNettyServerHandler extends
             LastHttpContent trailer = (LastHttpContent) msg;
 //            ByteBuf content = trailer.content();
 //            System.out.println("ss " + content.toString(CharsetUtil.UTF_8));
-            writeresponse(trailer, ctx);
+            writeResponse(trailer, ctx);
         }
     }
 
-    private synchronized void writeresponse(HttpObject currentObj, final ChannelHandlerContext ctx) throws JMSException,
+    private synchronized void writeResponse(HttpObject currentObj, final ChannelHandlerContext ctx) throws JMSException,
             NumberFormatException, IOException, InterruptedException, JSONException, ExecutionException {
 
         JSONObject requestJson = new JSONObject(requestBody);
         NettyNotifier notifier = new NettyNotifier(this, requestJson.getString("queue"));
 //        notifier.start();
         System.out.println("Request Body: " + requestBody);
-        sendMessageToRabbitMQ(requestBody, requestJson.getString("queue"));
+        sendMessageToActiveMQ(requestBody, requestJson.getString("queue"));
 
         System.out.println("waited");
         String oldResponseBody = responseBody;
@@ -129,7 +129,7 @@ public class EduMsgNettyServerHandler extends
 //        notifyAll();
     }
 
-    private void sendMessageToRabbitMQ(String jsonBody, String queue) {
+    private void sendMessageToActiveMQ(String jsonBody, String queue) {
         Producer p = new Producer(new ActiveMQConfig(queue.toUpperCase() + ".INQUEUE"));
         p.send(jsonBody, correlationId+"", log);
     }

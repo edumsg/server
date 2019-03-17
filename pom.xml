@@ -11,9 +11,15 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.rabbitmq.jms</groupId>
-            <artifactId>rabbitmq-jms</artifactId>
-            <version>1.11.2</version>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>5.6.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-http</artifactId>
+            <version>5.15.8</version>
         </dependency>
 
         <dependency>

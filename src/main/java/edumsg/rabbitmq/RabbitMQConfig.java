@@ -12,7 +12,8 @@ IN THE SOFTWARE.
 
 package edumsg.rabbitmq;
 
-import com.rabbitmq.jms.admin.RMQConnectionFactory;
+import edumsg.activemq.ActiveMQConfig;
+import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -29,7 +30,7 @@ public class RabbitMQConfig {
 
     public Connection connect() throws JMSException {
         if (connection == null) {
-            ConnectionFactory connectionFactory = new RMQConnectionFactory();
+            ConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
             connection = connectionFactory.createConnection();
             connection.start();
         }
