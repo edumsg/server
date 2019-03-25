@@ -34,6 +34,8 @@ public class EduMsgNettyServer {
     static final int PORT = getPort();
 
     public static void main(String[] args) throws Exception {
+        InetAddress ip = InetAddress.getLocalHost();
+        String address = ip.getHostAddress();
         getHostDetails();
         Logger log = Logger.getLogger(EduMsgNettyServer.class);
         // Configure SSL.
@@ -42,7 +44,7 @@ public class EduMsgNettyServer {
         final SslContext sslCtx;
         if (SSL) {
             SelfSignedCertificate ssc = new SelfSignedCertificate();
-          sslCtx =  SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
+            sslCtx =  SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
         } else {
             sslCtx = null;
         }
@@ -60,7 +62,7 @@ public class EduMsgNettyServer {
             Channel ch = b.bind(PORT).sync().channel();
 
             System.err.println("Server is listening on "
-                    + (SSL ? "https" : "http") + "://127.0.0.1:" + PORT + '/');
+                    + (SSL ? "https" : "http") + "://" + address + ":" + PORT + '/');
 
             ch.closeFuture().sync();
         }

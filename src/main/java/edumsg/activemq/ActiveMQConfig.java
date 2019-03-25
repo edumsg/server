@@ -20,28 +20,12 @@ import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 
 public class ActiveMQConfig {
-    private String url = getPort();
-//    private String url = ActiveMQConnection.DEFAULT_BROKER_URL;
+    private String url = ActiveMQConnection.DEFAULT_BROKER_URL;
     private Connection connection;
     private String queueName;
 
     public ActiveMQConfig(String queueName) {
         this.queueName = queueName;
-    }
-
-    private String getPort() {
-        int PORT = 61616;
-        try {
-            String activeMQenv = (System.getenv("ACTIVEMQ_PORT"));
-            if ( activeMQenv != null ) {
-                PORT = Integer.parseInt(activeMQenv);
-            }
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            System.err.println("No ActiveMq Env Set");
-        }
-        System.out.println("ActiveMQConfig Class :: PORT = " + PORT);
-        return "failover://tcp://localhost:" + PORT;
     }
 
     public Connection connect() throws JMSException {

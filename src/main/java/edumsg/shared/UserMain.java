@@ -36,14 +36,6 @@ public class UserMain extends RunnableClasses{
         CommandsMap.instantiate();
         UserCache.userBgSave();
         getHostDetails();
-        
-//        String herokuPrivateIP = "No Such IP";
-//        try {
-//            herokuPrivateIP = System.getenv("HEROKU_PRIVATE_IP");
-//        } catch ( Exception e) {
-//            System.err.println(e.getMessage());
-//        }
-//        System.err.println("User Main Class :: Heroku Private IP: " + herokuPrivateIP);
 
         Consumer c = null;
         try {
