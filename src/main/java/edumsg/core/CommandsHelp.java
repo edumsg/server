@@ -48,6 +48,7 @@ public class CommandsHelp {
 
     public static void submit(String app, String json, String correlationID,
                               Logger logger) {
+        System.out.println("Commands Help Class :: JSON: " + json);
         Producer p = new Producer(new ActiveMQConfig(app.toUpperCase()
                 + ".OUTQUEUE"));
         p.send(json, correlationID, logger);

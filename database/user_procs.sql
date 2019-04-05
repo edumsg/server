@@ -571,8 +571,8 @@ BEGIN
     INTO userID
     FROM sessions
     WHERE id = $2;
-    INSERT INTO reports (reported_id, userID, created_at, type)
-    VALUES (reported_id, creator_id, created_at, 'users');
+    INSERT INTO reports (reported_id, creator_id, created_at, type)
+    VALUES (reported_id, userID, created_at, 'users');
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -603,7 +603,7 @@ BEGIN
     INSERT INTO sessions AS S (id, user_id, session_start, created_at)
     VALUES ($2, userID, now() :: TIMESTAMP, now() :: TIMESTAMP)
     ON CONFLICT (user_id)
-        DO UPDATE SET session_start = now() :: TIMESTAMP, id = $2
+        DO UPDATE SET session_start = now() :: TIMESTAMP, id = $2, session_end = null
             WHERE S.user_id = userID;
 
     OPEN cursor FOR

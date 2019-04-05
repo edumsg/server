@@ -87,6 +87,7 @@ public abstract class RunnableClasses {
         }
 
         if (map != null) {
+            System.out.println("Runnable Classes :: map != null");
             map.put("app", subclass.toLowerCase());
             if (map.containsKey("method")) {
                 map.put("correlation_id", correlationID);

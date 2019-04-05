@@ -42,6 +42,9 @@ public class LogoutCommand extends Command implements Runnable {
             root.put("status", "ok");
             root.put("code", "200");
 
+            proc.close();
+            dbConn.commit();
+
             try {
                 CommandsHelp.submit(map.get("app"),
                         mapper.writeValueAsString(root),
