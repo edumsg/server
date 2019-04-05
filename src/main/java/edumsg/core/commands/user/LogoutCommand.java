@@ -43,7 +43,6 @@ public class LogoutCommand extends Command implements Runnable {
             root.put("code", "200");
 
             proc.close();
-            dbConn.commit();
 
             try {
                 CommandsHelp.submit(map.get("app"),
@@ -57,6 +56,7 @@ public class LogoutCommand extends Command implements Runnable {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
             }
 
+            dbConn.commit();
 
         } catch (SQLException e) {
             e.printStackTrace();

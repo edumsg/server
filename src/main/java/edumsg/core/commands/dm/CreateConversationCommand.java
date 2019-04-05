@@ -87,6 +87,7 @@ public class CreateConversationCommand extends Command implements Runnable {
             }
 
         } catch (PSQLException e) {
+            System.out.println("Create Conv :: PSQL Exception");
             if (e.getMessage().contains("value too long")) {
                 CommandsHelp.handleError(map.get("app"), map.get("method"), "DM length cannot exceed 140 character", map.get("correlation_id"), LOGGER);
             } else {

@@ -1,6 +1,5 @@
 -- JAVA / JSON DONE
-CREATE OR REPLACE FUNCTION create_dm(session VARCHAR, reciever_id INTEGER, dm_text VARCHAR(140),
-    created_at TIMESTAMP, image_url VARCHAR(100) DEFAULT NULL)
+CREATE OR REPLACE FUNCTION create_dm(session VARCHAR, reciever_id INTEGER, dm_text VARCHAR(140),image_url VARCHAR(100) DEFAULT NULL)
 RETURNS BOOLEAN AS $$  --Delimiter for functions and strings
 DECLARE followers INTEGER;
         conv      INTEGER;
@@ -22,7 +21,7 @@ BEGIN
     FROM conversations C
     WHERE (C.user_id = userID AND C.user2_id = $2) OR (C.user_id = $2 AND C.user2_id = userID);
 
-    IF followers > 0
+    IF followers >= 0
     THEN
         IF conv = 0
         THEN
@@ -42,7 +41,7 @@ BEGIN
         END IF;
 
         INSERT INTO direct_messages (sender_id, reciever_id, dm_text, image_url, conv_id, created_at)
-        VALUES (userID, reciever_id, dm_text, image_url, conv_id, created_at);
+        VALUES (userID, reciever_id, dm_text, image_url, conv_id, now()::TIMESTAMP);
 
         RETURN TRUE;
     ELSE
