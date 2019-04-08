@@ -1,6 +1,6 @@
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION create_list(name VARCHAR(50), description VARCHAR(140),
-                                       session varchar, private BOOLEAN, created_at TIMESTAMP)
+                                       session varchar, private BOOLEAN)
   RETURNS SETOF lists AS $$
 DECLARE list_id INTEGER;
         userID INTEGER;
@@ -10,7 +10,7 @@ SELECT user_id
     FROM sessions
     WHERE id = $3;
   INSERT INTO lists (name, description, creator_id, private, created_at)
-  VALUES (name, description, userID, private, created_at) RETURNING id INTO list_id;
+  VALUES (name, description, userID, private, now()::TIMESTAMP) RETURNING id INTO list_id;
 
   PERFORM subscribe(session, list_id);
   RETURN QUERY
@@ -36,10 +36,11 @@ SELECT user_id
 
   PERFORM subscribe2(userID, list_id);
 
-  FOR i IN array_lower(members,1)..array_upper(members,1) LOOP
-      PERFORM add_member_with_username(quote_ident(members [i]),list_id);
-  END LOOP;
-
+  IF members <> ARRAY[]::VARCHAR[] THEN
+    FOR i IN array_lower(members,1)..array_upper(members,1) LOOP
+        PERFORM add_member_with_username(quote_ident(members [i]),list_id);
+    END LOOP;
+  END IF;
 
 END; $$
 LANGUAGE PLPGSQL;
@@ -91,6 +92,7 @@ BEGIN
   INTO userID
   FROM sessions
   WHERE id = $1;
+
   INSERT INTO subscriptions (subscriber_id, list_id, created_at)
   VALUES (userID, list_id, now()::timestamp);
 END; $$
@@ -143,19 +145,41 @@ CREATE OR REPLACE FUNCTION add_member_with_username(user_name VARCHAR, list_id I
   RETURNS VOID AS $$
   DECLARE userID INTEGER;
 BEGIN
-    SELECT id INTO userID FROM users where username=$1;
+    SELECT id 
+    INTO userID
+    FROM users 
+    WHERE username=$1;
 
-  INSERT INTO memberships (member_id, list_id, created_at)
-  VALUES (userID, list_id, now()::timestamp);
+    INSERT INTO memberships (member_id, list_id, created_at)
+    VALUES (userID, list_id, now()::timestamp);
 END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION delete_member(user_id INTEGER, list_id INTEGER)
   RETURNS VOID AS $$
+DECLARE userID INTEGER;
+        creatorID INTEGER;
+
 BEGIN
-  DELETE FROM memberships M
-  WHERE M.member_id = $1 AND M.list_id = $2;
+
+  SELECT user_id
+  INTO userID
+  FROM sessions
+  WHERE id = $1;
+
+  SELECT creator_id
+  INTO creatorID
+  FROM lists
+  WHERE id = $2;
+
+  IF userID = creatorID THEN 
+    RAISE EXCEPTION 'Cannot Delete The Owner Of The List';
+  ELSE 
+    DELETE FROM memberships M
+    WHERE M.member_id = $1 AND M.list_id = $2;
+  END IF;
+  
 END; $$
 LANGUAGE PLPGSQL;
 

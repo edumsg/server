@@ -37,7 +37,7 @@ public class CreateListCommand extends Command implements Runnable {
             Statement query = dbConn.createStatement();
             query.setPoolable(true);
 
-            set = query.executeQuery(String.format("SELECT * FROM create_list('%s','%s','%s', %s, now()::timestamp)",
+            set = query.executeQuery(String.format("SELECT * FROM create_list('%s','%s','%s', %s)",
                     map.get("name"), map.get("description"), map.get("session_id"), map.get("private")));
 
             while(set.next()){

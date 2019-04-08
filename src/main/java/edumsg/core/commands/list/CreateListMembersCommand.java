@@ -39,7 +39,8 @@ public class CreateListMembersCommand extends Command implements Runnable {
             }
             return newMembers;
         } else {
-            return null;
+            String noMembers[] = {};
+            return noMembers;
         }
     }
 
@@ -52,15 +53,10 @@ public class CreateListMembersCommand extends Command implements Runnable {
             proc = dbConn.prepareCall("{call create_list_with_members(?,?,?,?,?)}");
             proc.setPoolable(true);proc.registerOutParameter(1, Types.OTHER);
             proc.setString(1, map.get("name"));
-            proc.setString(2, map.get("description"));
+            proc.setString(2, map.get("description").trim());
             proc.setString(3, map.get("session_id"));
             proc.setBoolean(4, Boolean.parseBoolean(map.get("private")));
-            Array array = null;
-            if ( getMembersNames(map.get("members")) != null ) {
-                array = dbConn.createArrayOf("varchar",getMembersNames(map.get("members")) );
-            } else {
-                array = dbConn.createArrayOf("varchar",map.get("members").split(""));
-            }
+            Array array = dbConn.createArrayOf("varchar",getMembersNames(map.get("members")) );
             System.out.println("Members Array: " + array);
             System.out.println("Description Array: " + map.get("description"));
             proc.setArray(5, array);
