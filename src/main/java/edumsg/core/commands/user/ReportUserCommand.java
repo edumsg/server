@@ -33,10 +33,10 @@ public class ReportUserCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
-            proc = dbConn.prepareCall("{call report_user(?,?,now()::timestamp)}");
+            proc = dbConn.prepareCall("{call report_user(?,?)}");
             proc.setPoolable(true);
             proc.setInt(1, Integer.parseInt(map.get("reported_id")));
-            proc.setInt(2, Integer.parseInt(map.get("creator_id")));
+            proc.setInt(2, Integer.parseInt(map.get("session_id")));
             proc.execute();
 
 

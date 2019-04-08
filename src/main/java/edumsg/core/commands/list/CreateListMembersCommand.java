@@ -29,19 +29,40 @@ import java.util.logging.Logger;
 public class CreateListMembersCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(CreateListCommand.class.getName());
 
+    private String[] getMembersNames( String members ) {
+        members.trim();
+        members = members.substring(1,members.length() - 1);
+        if ( members.length() > 0 ) {
+            String newMembers[] = members.split(",");
+            for (int i = 0; i < newMembers.length; i++) {
+                newMembers[i] = newMembers[i].substring(1, newMembers[i].length() - 1);
+            }
+            return newMembers;
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public void execute() {
 
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
-            proc = dbConn.prepareCall("{call create_list_with_members(?,?,?,?,now()::TIMESTAMP ,?)}");
+            proc = dbConn.prepareCall("{call create_list_with_members(?,?,?,?,?)}");
             proc.setPoolable(true);proc.registerOutParameter(1, Types.OTHER);
             proc.setString(1, map.get("name"));
             proc.setString(2, map.get("description"));
             proc.setString(3, map.get("session_id"));
             proc.setBoolean(4, Boolean.parseBoolean(map.get("private")));
-            Array array = dbConn.createArrayOf("varchar", map.get("members").split(""));
+            Array array = null;
+            if ( getMembersNames(map.get("members")) != null ) {
+                array = dbConn.createArrayOf("varchar",getMembersNames(map.get("members")) );
+            } else {
+                array = dbConn.createArrayOf("varchar",map.get("members").split(""));
+            }
+            System.out.println("Members Array: " + array);
+            System.out.println("Description Array: " + map.get("description"));
             proc.setArray(5, array);
 
             proc.execute();

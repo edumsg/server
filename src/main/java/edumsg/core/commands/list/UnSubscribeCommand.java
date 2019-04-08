@@ -53,11 +53,13 @@ public class UnSubscribeCommand extends Command implements Runnable {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         } catch (PSQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            if ( e.getMessage().contains("Cannot Unsubscribe From Your Own List"))
+                CommandsHelp.handleError(map.get("app"), map.get("method"), "Cannot Unsubscribe From Your Own List", map.get("correlation_id"), LOGGER);
+            else {
+                CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            }
         } catch (SQLException e) {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }

@@ -34,9 +34,6 @@ public abstract class Command implements Runnable {
     protected ObjectNode root = nf.objectNode();
     protected Map<String, String> details = new HashMap<String, String>();
 
-
-
-
     public abstract void execute();
 
     public void setMap(HashMap<String, String> map) {

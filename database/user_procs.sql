@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION create_user(username   VARCHAR(30),
                                        email      VARCHAR(100),
                                        password   VARCHAR(150),
                                        name       VARCHAR(100),
-                                       avatar_url VARCHAR(70) DEFAULT NULL)
+                                       avatar_url VARCHAR(70) DEFAULT 'http://i.imgur.com/LkovBT3.png')
     RETURNS SETOF users AS $$
 BEGIN
     INSERT INTO users (username, email, encrypted_password, name, created_at, avatar_url)
@@ -572,7 +572,7 @@ BEGIN
     FROM sessions
     WHERE id = $2;
     INSERT INTO reports (reported_id, creator_id, created_at, type)
-    VALUES (reported_id, userID, created_at, 'users');
+    VALUES (reported_id, userID, now()::TIMESTAMP, 'users');
 END; $$
 LANGUAGE PLPGSQL;
 

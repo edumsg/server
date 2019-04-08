@@ -22,7 +22,7 @@ END; $$
 LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION create_list_with_members(name VARCHAR(50), description VARCHAR(140),
-                                       session varchar, private BOOLEAN, created_at TIMESTAMP, members VARCHAR[])
+                                       session varchar, private BOOLEAN, members VARCHAR[])
 RETURNS VOID AS $$
 DECLARE list_id INTEGER;
         userID INTEGER;
@@ -32,7 +32,7 @@ SELECT user_id
     FROM sessions
     WHERE id = $3;
   INSERT INTO lists (id, name, description, creator_id, private, created_at)
-  VALUES (DEFAULT, name, description, userID, private, created_at) RETURNING id INTO list_id;
+  VALUES (DEFAULT, name, description, userID, private, now()::TIMESTAMP) RETURNING id INTO list_id;
 
   PERFORM subscribe2(userID, list_id);
 
@@ -45,11 +45,28 @@ END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA / JSON DONE
-CREATE OR REPLACE FUNCTION delete_list(list_id INTEGER)
+CREATE OR REPLACE FUNCTION delete_list(session VARCHAR,list_id INTEGER)
   RETURNS VOID AS $$
+  DECLARE userID INTEGER;
+          creatorID INTEGER;
 BEGIN
-  DELETE FROM lists L
-  WHERE L.id = $1;
+  SELECT user_id
+    INTO userID
+    FROM sessions
+    WHERE id = $1;
+  
+  SELECT creator_id
+  INTO creatorID
+  FROM lists
+  WHERE id = $2;
+
+  IF creatorID <> userID THEN
+    RAISE EXCEPTION 'Cannot Delete A List You Didn''t Create';
+  ELSE
+     DELETE FROM lists L
+    WHERE L.id = $2 AND L.creator_id = userID;
+  END IF;
+
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -92,13 +109,24 @@ LANGUAGE PLPGSQL;
 CREATE OR REPLACE FUNCTION unsubscribe(session VARCHAR, list_id INTEGER)
   RETURNS VOID AS $$
 DECLARE userID INTEGER;
+        creatorID INTEGER;
 BEGIN
   SELECT user_id
   INTO userID
   FROM sessions
   WHERE id = $1;
-  DELETE FROM subscriptions S
-  WHERE S.subscriber_id = userID AND S.list_id = $2;
+
+  SELECT creator_id
+  INTO creatorID
+  FROM lists
+  WHERE id = $2;
+
+  IF userID = creatorID THEN
+    RAISE EXCEPTION 'Cannot Unsubscribe From Your Own List';
+  ELSE
+    DELETE FROM subscriptions S
+    WHERE S.subscriber_id = userID AND S.list_id = $2;
+  END IF;
 END; $$
 LANGUAGE PLPGSQL;
 
