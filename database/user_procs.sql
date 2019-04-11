@@ -656,7 +656,7 @@ LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION is_following(session VARCHAR, user_name VARCHAR)
     RETURNS BOOLEAN AS $$
-DECLARE is_following BOOLEAN;
+DECLARE is_following BOOLEAN := FALSE;
         userID       INTEGER;
         userID2      INTEGER;
 BEGIN
@@ -674,13 +674,9 @@ BEGIN
     INTO is_following
     FROM followships
     WHERE user_id = userID AND follower_of_user_id = userID2;
-
-    IF FOUND
-    THEN
-        RETURN is_following;
-    ELSE
-        RETURN FALSE;
-    END IF;
+    
+    RETURN is_following;
+    
 
 END; $$
 LANGUAGE PLPGSQL;

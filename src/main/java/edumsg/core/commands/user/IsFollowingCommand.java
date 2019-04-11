@@ -29,7 +29,6 @@ import java.util.logging.Logger;
 public class IsFollowingCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(FollowingCommand.class.getName());
 
-
     @Override
     public void execute() {
 
@@ -53,7 +52,7 @@ public class IsFollowingCommand extends Command implements Runnable {
             root.put("following", is_following);
             proc.close();
 
-            root.set("following", usersArray);
+            //root.set("following", usersArray);
             try {
                 CommandsHelp.submit(map.get("app"),
                         mapper.writeValueAsString(root),

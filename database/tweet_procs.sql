@@ -7,6 +7,7 @@ BEGIN
   INTO userID
   FROM sessions
   WHERE id = $2;
+
   INSERT INTO tweets (tweet_text, creator_id, created_at, image_url)
   VALUES (tweet_text, userID, now()::timestamp, image_url);
   RETURN QUERY
@@ -17,11 +18,27 @@ END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA DONE
-CREATE OR REPLACE FUNCTION delete_tweet(tweet_id INTEGER)
+CREATE OR REPLACE FUNCTION delete_tweet(session VARCHAR, tweet_id INTEGER)
   RETURNS VOID AS $$
+  DECLARE userID INTEGER;
+  DECLARE creatorID INTEGER;
 BEGIN
-  DELETE FROM tweets T
-  WHERE T.id = tweet_id;
+  SELECT user_id
+  INTO userID
+  FROM sessions
+  WHERE id = $1;
+
+  SELECT creator_id
+  INTO creatorID
+  FROM tweets
+  WHERE id = tweet_id;
+
+  IF ( userID = creatorID ) THEN
+    DELETE FROM tweets T
+    WHERE T.id = tweet_id;
+  ELSE
+    RAISE EXCEPTION 'Only The Tweet''s Owner Can Delete This Tweet.';  
+  END IF;
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -101,6 +118,7 @@ BEGIN
   INTO userID
   FROM sessions
   WHERE id = $2;
+
   DELETE FROM favorites F
   WHERE F.tweet_id = $1 AND F.user_id = userID;
   RETURN get_favorites_count(tweet_id);
@@ -110,22 +128,23 @@ LANGUAGE PLPGSQL;
 -- JAVA DONE
 CREATE OR REPLACE FUNCTION retweet(tweet_id INTEGER, session VARCHAR)
   RETURNS INTEGER AS $$
-DECLARE temp   INTEGER;
+DECLARE creatorID INTEGER;
         userID INTEGER;
 BEGIN
   SELECT user_id
   INTO userID
   FROM sessions
   WHERE id = $2;
+
   SELECT T.creator_id
-  INTO temp
+  INTO creatorID
   FROM tweets T
   WHERE T.id = $1
   LIMIT 1;
-  IF temp != userID
-  THEN
+
+  IF creatorID != userID THEN
     INSERT INTO retweets (tweet_id, creator_id, retweeter_id, created_at)
-    VALUES (tweet_id, temp, userID, now()::timestamp);
+    VALUES (tweet_id, creatorID, userID, now()::timestamp);
   END IF;
   RETURN get_retweets_count(tweet_id);
 END; $$
@@ -140,6 +159,7 @@ BEGIN
   INTO userID
   FROM sessions
   WHERE id = $2;
+
   DELETE FROM retweets R
   WHERE R.tweet_id = $1 AND R.retweeter_id = userID;
   RETURN get_retweets_count(tweet_id);
@@ -182,7 +202,8 @@ BEGIN
   SELECT id
   FROM create_tweet(tweet_text, session, image_url)
   INTO reply_id;
-  INSERT INTO replies (original_tweet_id, reply_id, created_at) VALUES (tweet_id, reply_id, now()::timestamp);
+  INSERT INTO replies (original_tweet_id, reply_id, created_at)
+     VALUES (tweet_id, reply_id, now()::timestamp);
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -195,7 +216,9 @@ BEGIN
   INTO userID
   FROM sessions
   WHERE id = $2;
-  INSERT INTO reports (reported_id, creator_id, created_at) VALUES (reported_id, userID, now()::timestamp);
+
+  INSERT INTO reports (reported_id, creator_id, created_at)
+       VALUES (reported_id, userID, now()::timestamp);
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -211,11 +234,11 @@ BEGIN
   FROM sessions
   WHERE id = $2;
 
-
   SELECT COUNT(*)
   INTO favorite
   FROM favorites F
   WHERE F.tweet_id = $1 AND F.user_id = userID;
+
   SELECT COUNT(*)
   INTO retweet
   FROM retweets rt
