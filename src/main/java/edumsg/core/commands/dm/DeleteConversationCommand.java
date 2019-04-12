@@ -33,9 +33,10 @@ public class DeleteConversationCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
-            proc = dbConn.prepareCall("{call delete_conversation(?)}");
+            proc = dbConn.prepareCall("{call delete_conversation(?,?)}");
             proc.setPoolable(true);
-            proc.setInt(1, Integer.parseInt(map.get("conv_id")));
+            proc.setString(1,map.get("session_id"));
+            proc.setInt(2, Integer.parseInt(map.get("conv_id")));
             proc.execute();
 
             root.put("app", map.get("app"));

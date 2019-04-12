@@ -34,8 +34,8 @@ public class MarkAllReadCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
-            proc = dbConn.prepareCall("{call mark_all_read()}");
-
+            proc = dbConn.prepareCall("{call mark_all_read(?)}");
+            proc.setString(1,map.get("session_id"));
             proc.setPoolable(true);
             proc.execute();
 

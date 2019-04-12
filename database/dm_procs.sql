@@ -6,16 +6,19 @@ DECLARE followers INTEGER;
         conv_id   INTEGER;
         userID    INTEGER;
 BEGIN
+    -- Finds user's id through user's session.
     SELECT user_id
     INTO userID
     FROM sessions
     WHERE id = $1;
 
+    -- Checks if reciever is following sender.
     SELECT count(*)
     INTO followers
     FROM followships F
     WHERE F.user_id = userID AND F.follower_of_user_id = $2 AND F.confirmed = TRUE;
 
+    -- Checks if there are previous conversations or not.
     SELECT count(*)
     INTO conv
     FROM conversations C
@@ -56,30 +59,33 @@ CREATE OR REPLACE FUNCTION create_dm2(session VARCHAR, conv_id INTEGER, dm_text 
 RETURNS BOOLEAN AS $$  --Delimiter for functions and strings
 DECLARE followers  INTEGER;
         userID     INTEGER;
-        recieverID INTEGER;
+        receiverID INTEGER;
 
 BEGIN
+    -- Finds user's id through user's session.
     SELECT user_id
     INTO userID
     FROM sessions
     WHERE id = $1;
 
-    SELECT INTO recieverID
+    -- Checks if userID was considered sender or receiver in previous conversation.
+    SELECT INTO receiverID
         CASE WHEN user_id = userID
         THEN user2_id
         ELSE user_id END
     FROM conversations
     WHERE id = $2;
 
+    -- Checks if reciever is following sender.
     SELECT count(*)
     INTO followers
     FROM followships F
-    WHERE F.user_id = userID AND F.follower_of_user_id = recieverID AND F.confirmed = TRUE;
+    WHERE F.user_id = userID AND F.follower_of_user_id = receiverID AND F.confirmed = TRUE;
 
     IF followers > 0
     THEN
         INSERT INTO direct_messages (sender_id, reciever_id, dm_text, image_url, conv_id, created_at)
-        VALUES (userID, recieverID, dm_text, image_url, conv_id, now()::timestamp);
+        VALUES (userID, receiverID, dm_text, image_url, conv_id, now()::timestamp);
 
         RETURN TRUE;
     ELSE
@@ -89,11 +95,30 @@ END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA / JSON DONE
-CREATE OR REPLACE FUNCTION delete_dm(dm_id INTEGER)
+CREATE OR REPLACE FUNCTION delete_dm(session VARCHAR, dm_id INTEGER)
     RETURNS VOID AS $$
+DECLARE userID INTEGER;
+        senderID INTEGER DEFAULT NULL;
 BEGIN
-    DELETE FROM direct_messages D
-    WHERE D.id = $1;
+    -- Finds user's id through user's session.
+    SELECT user_id
+    INTO userID
+    FROM sessions
+    WHERE id = $1;
+
+    -- Finds the sender's id of the message.
+    SELECT sender_id
+    INTO senderID
+    FROM direct_messages
+    WHERE id = $2;
+
+    -- Checks if userID not equal the senderID.
+    IF userID = senderID THEN
+        DELETE FROM direct_messages D
+        WHERE D.id = $2;
+    ELSE
+        RAISE EXCEPTION 'Only The Message Sender Can Delete The Message';
+    END IF;
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -131,10 +156,13 @@ CREATE OR REPLACE FUNCTION get_conversations(session VARCHAR)
 DECLARE cursor REFCURSOR := 'cur';
         userID INTEGER;
 BEGIN
+
+    -- Finds user's id through user's session.
     SELECT user_id
     INTO userID
     FROM sessions
     WHERE id = $1;
+
     OPEN cursor FOR
     SELECT
         temp.id,
@@ -170,11 +198,14 @@ DECLARE userID  INTEGER;
         userID2 INTEGER;
         conv_id INTEGER;
 BEGIN
+
+    -- Finds user's id through user's session.
     SELECT user_id
     INTO userID
     FROM sessions
     WHERE id = $1;
 
+    -- Finds the receiver's id through its username.
     SELECT id
     INTO userID2
     FROM users
@@ -208,20 +239,50 @@ END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA / JSON DONE
-CREATE OR REPLACE FUNCTION delete_conversation(conv_id INTEGER)
+CREATE OR REPLACE FUNCTION delete_conversation(session VARCHAR, conv_id INTEGER)
     RETURNS VOID AS $$
+DECLARE userID INTEGER;
+        senderID INTEGER;
+        receiverID INTEGER;
 BEGIN
-    DELETE FROM conversations
+
+     -- Finds user's id through user's session.
+    SELECT user_id
+    INTO userID
+    FROM sessions
     WHERE id = $1;
+
+    -- Finds the sender and receiver ids of the conversation.
+    SELECT user_id, user2_id
+    INTO senderID, receiverID
+    FROM conversations
+    WHERE id = conv_id;
+
+    IF userID <> senderID AND userID <> receiverID THEN
+        RAISE EXCEPTION 'Cannot Delete A Conversation You Aren''t A Part Of';
+    ELSE
+        DELETE FROM conversations
+        WHERE id = $2;
+    END IF;
 END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA / JSON DONE
-CREATE OR REPLACE FUNCTION mark_all_read()
+CREATE OR REPLACE FUNCTION mark_all_read(session VARCHAR)
     RETURNS VOID AS $$
+DECLARE userID INTEGER;
 BEGIN
+
+    -- Finds user's id through user's session.
+    SELECT user_id
+    INTO userID
+    FROM sessions
+    WHERE id = $1;
+
     UPDATE direct_messages
-    SET read = TRUE; --All users??
+    SET read = TRUE
+    WHERE reciever_id = userID;
+
 END; $$
 LANGUAGE PLPGSQL;
 

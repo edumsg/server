@@ -658,25 +658,30 @@ CREATE OR REPLACE FUNCTION is_following(session VARCHAR, user_name VARCHAR)
     RETURNS BOOLEAN AS $$
 DECLARE is_following BOOLEAN := FALSE;
         userID       INTEGER;
-        userID2      INTEGER;
+        followerID   INTEGER;
 BEGIN
+
+    -- Finds user's id through user's session.
     SELECT user_id
     INTO userID
     FROM sessions
     WHERE id = $1;
 
+    -- Finds the id of follower using username.
     SELECT id
-    INTO userID2
+    INTO followerID
     FROM users
     WHERE username = $2;
 
     SELECT confirmed
     INTO is_following
     FROM followships
-    WHERE user_id = userID AND follower_of_user_id = userID2;
+    WHERE user_id = userID AND follower_of_user_id = followerID;
     
-    RETURN is_following;
-    
-
+    IF is_following = true THEN
+        RETURN TRUE;
+    ELSE  
+        RETURN FALSE;
+    END IF;
 END; $$
 LANGUAGE PLPGSQL;
