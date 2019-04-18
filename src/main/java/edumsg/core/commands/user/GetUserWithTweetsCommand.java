@@ -39,10 +39,11 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
 
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
-            proc = dbConn.prepareCall("{? = call get_user_with_tweets(?)}");
+            proc = dbConn.prepareCall("{? = call get_user_with_tweets(?,?)}");
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.OTHER);
             proc.setString(2, map.get("username"));
+            proc.setString(3,map.get("type"));
             proc.execute();
 
             set = (ResultSet) proc.getObject(1);

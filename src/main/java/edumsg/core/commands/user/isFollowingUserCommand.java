@@ -26,7 +26,7 @@ import java.sql.Types;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class IsFollowingCommand extends Command implements Runnable {
+public class isFollowingUserCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(FollowingCommand.class.getName());
 
     @Override
@@ -35,7 +35,7 @@ public class IsFollowingCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
-            proc = dbConn.prepareCall("{? = call is_following(?,?)}");
+            proc = dbConn.prepareCall("{? = call is_following_user(?,?)}");
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.BOOLEAN);
             proc.setString(2, map.get("session_id"));
@@ -44,6 +44,7 @@ public class IsFollowingCommand extends Command implements Runnable {
 
             boolean is_following = proc.getBoolean(1);
 
+            ArrayNode usersArray = nf.arrayNode();
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
@@ -51,6 +52,7 @@ public class IsFollowingCommand extends Command implements Runnable {
             root.put("following", is_following);
             proc.close();
 
+            //root.set("following", usersArray);
             try {
                 CommandsHelp.submit(map.get("app"),
                         mapper.writeValueAsString(root),
@@ -75,3 +77,4 @@ public class IsFollowingCommand extends Command implements Runnable {
         }
     }
 }
+

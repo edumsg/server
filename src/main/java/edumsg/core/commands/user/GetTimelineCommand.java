@@ -38,10 +38,11 @@ public class GetTimelineCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
-            proc = dbConn.prepareCall("{? = call get_feeds(?)}");
+            proc = dbConn.prepareCall("{? = call get_feeds(?,?)}");
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.OTHER);
             proc.setString(2, map.get("session_id"));
+            proc.setString(3,map.get("type"));
             proc.execute();
 
             set = (ResultSet) proc.getObject(1);

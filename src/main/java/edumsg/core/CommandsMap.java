@@ -29,6 +29,7 @@ public class CommandsMap {
         cmdMap.put("register", RegisterCommand.class);
         cmdMap.put("follow", FollowCommand.class);
         cmdMap.put("is_following", IsFollowingCommand.class);
+        cmdMap.put("is_following_user",isFollowingUserCommand.class);
         cmdMap.put("unfollow", UnFollowCommand.class);
         cmdMap.put("confirm_follow", ConfirmFollowCommand.class);
         cmdMap.put("report_user", ReportUserCommand.class);
@@ -55,6 +56,7 @@ public class CommandsMap {
         cmdMap.put("user_tweets2", GetUserTweets2Command.class);
         cmdMap.put("get_favorites", GetFavoritesCommand.class);
         cmdMap.put("timeline", GetTimelineCommand.class);
+        cmdMap.put("timeline_with_type", GetTimelineWithTypeCommand.class); // Still to be used instead of timeline.
         cmdMap.put("get_subscribed_lists", GetSubscribedListsCommand.class);
         cmdMap.put("get_list_memberships", GetListMembershipsCommand.class);
         cmdMap.put("login", LoginCommand.class);
@@ -87,6 +89,7 @@ public class CommandsMap {
         cmdMap.put("update_list", UpdateListCommand.class);
         cmdMap.put("get_list_feeds", GetListFeedsCommand.class);
         cmdMap.put("get_list", GetListCommand.class);
+        cmdMap.put("is_owner_of_list", isOwnerOfListCommand.class);
     }
 
     public static Class<?> queryClass(String cmd) {

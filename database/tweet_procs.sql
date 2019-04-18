@@ -1,5 +1,5 @@
 -- JAVA DONE
-CREATE OR REPLACE FUNCTION create_tweet(tweet_text VARCHAR(140), session VARCHAR, image_url VARCHAR(100) DEFAULT NULL)
+CREATE OR REPLACE FUNCTION create_tweet(tweet_text VARCHAR(140), session VARCHAR, type VARCHAR DEFAULT 'random thoughts', image_url VARCHAR(100) DEFAULT NULL)
   RETURNS SETOF tweets AS $$
 DECLARE userID INTEGER;
 BEGIN
@@ -8,8 +8,8 @@ BEGIN
   FROM sessions
   WHERE id = $2;
 
-  INSERT INTO tweets (tweet_text, creator_id, created_at, image_url)
-  VALUES (tweet_text, userID, now()::timestamp, image_url);
+  INSERT INTO tweets (tweet_text, creator_id, created_at, type, image_url)
+  VALUES (tweet_text, userID, now()::timestamp, type, image_url);
   RETURN QUERY
   SELECT *
   FROM tweets

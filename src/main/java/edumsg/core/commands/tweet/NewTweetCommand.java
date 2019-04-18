@@ -39,25 +39,33 @@ public class NewTweetCommand extends Command implements Runnable {
             dbConn.setAutoCommit(true);
             Statement query = dbConn.createStatement();
             query.setPoolable(true);
+            System.out.println(map.get("type"));
             if (map.containsKey("image_url")) {
-
-                set = query.executeQuery(String.format("SELECT * FROM create_tweet('%s','%s','%s')",
+                String execQuery = String.format("SELECT * FROM create_tweet('%s','%s','%s,'%s')",
                         map.get("tweet_text"),
                         map.get("session_id"),
-                        map.get("image_url")));
-            } else {
-                set = query.executeQuery(String.format("SELECT * FROM create_tweet('%s','%s')",
-                        map.get("tweet_text"),
-                        map.get("session_id")));
+                        map.get("type"),
+                        map.get("image_url"));
 
+                set = query.executeQuery(execQuery);
+            } else {
+                String execQuery = String.format("SELECT * FROM create_tweet('%s','%s','%s')",
+                        map.get("tweet_text"),
+                        map.get("session_id"),
+                        map.get("type"));
+
+                set = query.executeQuery(execQuery);
             }
+
             String id = null;
+
             while(set.next()) {
                 id = set.getInt("id") + "";
                 details.put("id", id);
                 details.put("tweet_text", set.getString("tweet_text"));
                 details.put("creator_id", set.getInt("creator_id") + "");
                 details.put("image_url", set.getString("image_url"));
+                details.put("type", set.getString("type"));
                 details.put("created_at", set.getTimestamp("created_at")+"");
                 //Cache.cacheTweet(set.getInt("id")+"", details);
                 //Cache.cacheUserTweet(map.get("creator_id"),set.getInt("id")+"");

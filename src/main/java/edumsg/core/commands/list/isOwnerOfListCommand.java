@@ -10,11 +10,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 IN THE SOFTWARE.
 */
 
-package edumsg.core.commands.user;
+package edumsg.core.commands.list;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
@@ -22,39 +21,33 @@ import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class IsFollowingCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(FollowingCommand.class.getName());
+public class isOwnerOfListCommand extends Command implements Runnable {
+    private final Logger LOGGER = Logger.getLogger(DeleteMemberCommand.class.getName());
 
     @Override
     public void execute() {
 
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
-            dbConn.setAutoCommit(false);
-            proc = dbConn.prepareCall("{? = call is_following(?,?)}");
+            dbConn.setAutoCommit(true);
+            proc = dbConn.prepareCall("{? = call is_owner_of_list(?,?)}");
             proc.setPoolable(true);
-            proc.registerOutParameter(1, Types.BOOLEAN);
             proc.setString(2, map.get("session_id"));
-            proc.setString(3, map.get("username"));
+            proc.setInt(3, Integer.parseInt(map.get("list_id")));
             proc.execute();
 
-            boolean is_following = proc.getBoolean(1);
+            boolean isOwner = proc.getBoolean(1);
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
-            root.put("following", is_following);
-            proc.close();
-
+            root.put("isOwner", isOwner);
             try {
-                CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
+                CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
@@ -62,8 +55,6 @@ public class IsFollowingCommand extends Command implements Runnable {
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
-
-            dbConn.commit();
         } catch (PSQLException e) {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -71,7 +62,7 @@ public class IsFollowingCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(set, proc, dbConn,null);
+            PostgresConnection.disconnect(null, proc, dbConn);
         }
     }
 }

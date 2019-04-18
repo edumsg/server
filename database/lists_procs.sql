@@ -72,7 +72,7 @@ END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA / JSON DONE
-CREATE OR REPLACE FUNCTION update_list(list_id INTEGER, params TEXT [] [2])
+CREATE OR REPLACE FUNCTION update_list(list_id INTEGER, params TEXT [])
   RETURNS VOID AS $$
 BEGIN
   FOR i IN array_lower(params, 1)..array_upper(params, 1) LOOP
@@ -218,7 +218,7 @@ END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA / JSON DONE
-CREATE OR REPLACE FUNCTION get_list_feeds(list_id INTEGER)
+CREATE OR REPLACE FUNCTION get_list_feeds(list_id INTEGER, type VARCHAR)
   RETURNS REFCURSOR AS $$
 DECLARE cursor REFCURSOR := 'cur';
 BEGIN
@@ -250,7 +250,7 @@ BEGIN
           FROM tweets T INNER JOIN users C ON T.creator_id = C.id
             INNER JOIN memberships M ON M.member_id = C.id
             INNER JOIN users U ON C.id = U.id
-          WHERE M.list_id = $1)
+          WHERE M.list_id = $1 AND T.type = $2)
          UNION
          (SELECT
             T.id,
@@ -268,7 +268,7 @@ BEGIN
             INNER JOIN users C ON T.creator_id = C.id
             INNER JOIN memberships M ON R.retweeter_id = M.member_id
             INNER JOIN users U ON U.id = M.member_id
-          WHERE M.list_id = $1)) AS feeds
+          WHERE M.list_id = $1 AND T.type = $2)) AS feeds
   ORDER BY creation DESC;
   RETURN cursor;
 END; $$
@@ -280,4 +280,30 @@ BEGIN
   RETURN QUERY
   SELECT * FROM lists WHERE id = $1;
 END; $$
+LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION is_owner_of_list(session VARCHAR, list_id INTEGER)
+  RETURNS BOOLEAN AS $$
+DECLARE userID INTEGER;
+        isOwner BOOLEAN;
+BEGIN
+
+    -- Finds user's id through user's session.
+    SELECT user_id
+    INTO userID
+    FROM sessions
+    WHERE id = $1;
+
+    -- Finds a list with the given id and its creator is userID.
+    PERFORM id
+    FROM lists
+    WHERE id = $2 AND creator_id = userID;
+
+    IF FOUND THEN
+      RETURN TRUE;
+    ELSE 
+      RETURN FALSE;
+    END IF;
+
+END;  $$
 LANGUAGE PLPGSQL;

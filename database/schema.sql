@@ -26,6 +26,7 @@ CREATE TABLE tweets(
   tweet_text varchar(140) NOT NULL CHECK (char_length(tweet_text) <= 140),
   creator_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   created_at timestamp NOT NULL,
+  type VARCHAR (20) CHECK (type IN ('random thoughts','news','value adding','debatable')) DEFAULT 'random thoughts',
   image_url varchar(100)
 );
 

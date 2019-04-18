@@ -38,10 +38,11 @@ public class GetUserTweetsCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
-            proc = dbConn.prepareCall("{? = call get_tweets(?)}");
+            proc = dbConn.prepareCall("{? = call get_tweets(?,?)}");
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.OTHER);
             proc.setString(2, map.get("session_id"));
+            proc.setString(3,map.get("type"));
             proc.execute();
 
             set = (ResultSet) proc.getObject(1);
@@ -74,7 +75,7 @@ public class GetUserTweetsCommand extends Command implements Runnable {
                 creator.setUsername(creator_username);
                 t.setCreator(creator);
 
-                    tweets.addPOJO(t);
+                tweets.addPOJO(t);
                 }
 
 //            set.close();

@@ -1,26 +1,33 @@
+/*
+EduMsg is made available under the OSI-approved MIT license.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.
+*/
+
 package edumsg.core.commands.user;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import edumsg.core.*;
+import edumsg.redis.Cache;
 import edumsg.redis.UserCache;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 import java.util.logging.Logger;
 
-/**
- * Created by omarelhagin on 21/5/16.
- */
-public class GetUserTweets2Command extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(GetUserTweetsCommand.class.getName());
+public class GetTimelineWithTypeCommand extends Command implements Runnable {
+    private final Logger LOGGER = Logger.getLogger(GetTimelineCommand.class.getName());
 
     @Override
     public void execute() {
@@ -28,10 +35,10 @@ public class GetUserTweets2Command extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
-            proc = dbConn.prepareCall("{? = call get_tweets2(?,?)}");
+            proc = dbConn.prepareCall("{? = call get_timeline_with_type(?,?)}");
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.OTHER);
-            proc.setString(2, map.get("username"));
+            proc.setString(2, map.get("session_id"));
             proc.setString(3,map.get("type"));
             proc.execute();
 
@@ -46,12 +53,15 @@ public class GetUserTweets2Command extends Command implements Runnable {
             while (set.next()) {
                 Integer id = set.getInt(1);
                 String tweet = set.getString(2);
-                Integer creator_id = set.getInt(3);
+                String image_url = set.getString(3);
                 Timestamp created_at = set.getTimestamp(4);
-                String image_url = set.getString(6);
-                String creator_name = set.getString(7);
-                String creator_username = set.getString(8);
-                String creator_avatar = set.getString(9);
+                String creator_name = set.getString(5);
+                String creator_username = set.getString(6);
+                String creator_avatar = set.getString(7);
+                String retweeter = set.getString(8);
+                Integer creator_id = set.getInt(9);
+                Integer retweeter_id = set.getInt(10);
+
 
                 Tweet t = new Tweet();
                 t.setId(id);
@@ -64,20 +74,26 @@ public class GetUserTweets2Command extends Command implements Runnable {
                 creator.setAvatarUrl(creator_avatar);
                 creator.setUsername(creator_username);
                 t.setCreator(creator);
+                if (!creator_id.equals(retweeter_id)) {
+                    User r = new User();
+                    r.setId(retweeter_id);
+                    r.setName(retweeter);
+                    t.setRetweeter(r);
+                }
 
                 tweets.addPOJO(t);
             }
+            set.close();
+            proc.close();
+            root.set("feeds", tweets);
 
-//            set.close();
-//            proc.close();
-            root.set("tweets", tweets);
             try {
                 CommandsHelp.submit(map.get("app"),
                         mapper.writeValueAsString(root),
                         map.get("correlation_id"), LOGGER);
                 JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
                 cacheEntry.put("cacheStatus", "valid");
-                UserCache.userCache.set("user_tweets:" + map.get("session_id"), cacheEntry.toString());
+                UserCache.userCache.set("timeline:" + map.get("session_id"), cacheEntry.toString());
             } catch (JsonGenerationException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
@@ -97,7 +113,7 @@ public class GetUserTweets2Command extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(set, proc, dbConn, null);
+            PostgresConnection.disconnect(set, proc, dbConn,null);
         }
     }
 }

@@ -39,10 +39,11 @@ public class GetListFeedsCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
-            proc = dbConn.prepareCall("{? = call get_list_feeds(?)}");
+            proc = dbConn.prepareCall("{? = call get_list_feeds(?,?)}");
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.OTHER);
             proc.setInt(2, Integer.parseInt(map.get("list_id")));
+            proc.setString(3,map.get("type"));
             proc.execute();
 
             set = (ResultSet) proc.getObject(1);

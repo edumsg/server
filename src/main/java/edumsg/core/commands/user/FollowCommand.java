@@ -38,7 +38,7 @@ public class FollowCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
-            proc = dbConn.prepareCall("{call follow(?,?,now()::timestamp)}");
+            proc = dbConn.prepareCall("{call follow(?,?)}");
             proc.setPoolable(true);
             proc.setString(1, map.get("session_id"));
             proc.setInt(2, Integer.parseInt(map.get("followee_id")));

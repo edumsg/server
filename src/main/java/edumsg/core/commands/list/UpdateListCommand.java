@@ -19,9 +19,11 @@ import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
 import edumsg.redis.Cache;
 import edumsg.redis.ListCache;
+import org.apache.log4j.ConsoleAppender;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.sql.Array;
 import java.sql.SQLException;
@@ -63,6 +65,7 @@ public class UpdateListCommand extends Command implements Runnable {
                 i++;
             }
             Array array = dbConn.createArrayOf("text", arraySet);
+            System.out.println("Array Value: " + array);
             proc.setArray(2, array);
             proc.execute();
 
