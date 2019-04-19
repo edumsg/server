@@ -53,13 +53,15 @@ public class GetTimelineWithTypeCommand extends Command implements Runnable {
             while (set.next()) {
                 Integer id = set.getInt(1);
                 String tweet = set.getString(2);
-                String image_url = set.getString(3);
+                Integer creator_id = set.getInt(9);
                 Timestamp created_at = set.getTimestamp(4);
+
+                String image_url = set.getString(3);
                 String creator_name = set.getString(5);
                 String creator_username = set.getString(6);
                 String creator_avatar = set.getString(7);
+
                 String retweeter = set.getString(8);
-                Integer creator_id = set.getInt(9);
                 Integer retweeter_id = set.getInt(10);
 
 

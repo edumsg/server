@@ -1,6 +1,5 @@
 DROP TABLE IF EXISTS users CASCADE;
 
-
 CREATE TABLE users(
   id serial PRIMARY KEY NOT NULL,
   username varchar(30) UNIQUE NOT NULL,
@@ -19,6 +18,10 @@ CREATE TABLE users(
   protected_tweets boolean DEFAULT '0' -- public 0 and private 1
 );
 
+-- DROP INDEX IF EXISTS user_id_index;
+-- CREATE INDEX IF NOT EXISTS user_id_index ON users(id);
+
+
 DROP TABLE IF EXISTS tweets CASCADE;
 
 CREATE TABLE tweets(
@@ -29,6 +32,16 @@ CREATE TABLE tweets(
   type VARCHAR (20) CHECK (type IN ('random thoughts','news','value adding','debatable')) DEFAULT 'random thoughts',
   image_url varchar(100)
 );
+
+-- DROP INDEX IF EXISTS tweet_id_index;
+-- CREATE INDEX IF NOT EXISTS tweet_id_index ON tweets(id);
+
+-- DROP INDEX IF EXISTS tweet_type_index;
+-- CREATE INDEX IF NOT EXISTS tweet_type_index ON tweets(lower(type));
+
+-- CLUSTER tweets USING tweet_type_index;
+
+
 
 DROP TABLE IF EXISTS reports CASCADE;
 
@@ -61,6 +74,11 @@ CREATE TABLE retweets(
   created_at timestamp NOT NULL,
   UNIQUE (tweet_id, creator_id, retweeter_id)
 );
+
+-- DROP INDEX IF EXISTS retweet_type_index;
+-- CREATE INDEX IF NOT EXISTS retweet_type_index ON retweets(id);
+
+
 
 DROP TABLE IF EXISTS followships CASCADE;
 

@@ -3,12 +3,8 @@ CREATE OR REPLACE FUNCTION create_list(name VARCHAR(50), description VARCHAR(140
                                        session varchar, private BOOLEAN)
   RETURNS SETOF lists AS $$
 DECLARE list_id INTEGER;
-        userID INTEGER;
+        userID INTEGER := get_user_id_from_session($3);
 BEGIN
-SELECT user_id
-    INTO userID
-    FROM sessions
-    WHERE id = $3;
   INSERT INTO lists (name, description, creator_id, private, created_at)
   VALUES (name, description, userID, private, now()::TIMESTAMP) RETURNING id INTO list_id;
 
@@ -25,12 +21,8 @@ CREATE OR REPLACE FUNCTION create_list_with_members(name VARCHAR(50), descriptio
                                        session varchar, private BOOLEAN, members VARCHAR[])
 RETURNS VOID AS $$
 DECLARE list_id INTEGER;
-        userID INTEGER;
+        userID INTEGER := get_user_id_from_session($3);
 BEGIN
-SELECT user_id
-    INTO userID
-    FROM sessions
-    WHERE id = $3;
   INSERT INTO lists (id, name, description, creator_id, private, created_at)
   VALUES (DEFAULT, name, description, userID, private, now()::TIMESTAMP) RETURNING id INTO list_id;
 
@@ -48,14 +40,10 @@ LANGUAGE PLPGSQL;
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION delete_list(session VARCHAR,list_id INTEGER)
   RETURNS VOID AS $$
-  DECLARE userID INTEGER;
+  DECLARE userID INTEGER := get_user_id_from_session($1);
           creatorID INTEGER;
 BEGIN
-  SELECT user_id
-    INTO userID
-    FROM sessions
-    WHERE id = $1;
-  
+
   SELECT creator_id
   INTO creatorID
   FROM lists
@@ -86,12 +74,8 @@ LANGUAGE PLPGSQL;
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION subscribe(session VARCHAR, list_id INTEGER)
   RETURNS VOID AS $$
-DECLARE userID INTEGER;
+DECLARE userID INTEGER := get_user_id_from_session($1);
 BEGIN
-  SELECT user_id
-  INTO userID
-  FROM sessions
-  WHERE id = $1;
 
   INSERT INTO subscriptions (subscriber_id, list_id, created_at)
   VALUES (userID, list_id, now()::timestamp);
@@ -110,13 +94,9 @@ LANGUAGE PLPGSQL;
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION unsubscribe(session VARCHAR, list_id INTEGER)
   RETURNS VOID AS $$
-DECLARE userID INTEGER;
+DECLARE userID INTEGER := get_user_id_from_session($1);
         creatorID INTEGER;
 BEGIN
-  SELECT user_id
-  INTO userID
-  FROM sessions
-  WHERE id = $1;
 
   SELECT creator_id
   INTO creatorID
@@ -284,16 +264,9 @@ LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION is_owner_of_list(session VARCHAR, list_id INTEGER)
   RETURNS BOOLEAN AS $$
-DECLARE userID INTEGER;
+DECLARE userID INTEGER := get_user_id_from_session($1);
         isOwner BOOLEAN;
 BEGIN
-
-    -- Finds user's id through user's session.
-    SELECT user_id
-    INTO userID
-    FROM sessions
-    WHERE id = $1;
-
     -- Finds a list with the given id and its creator is userID.
     PERFORM id
     FROM lists

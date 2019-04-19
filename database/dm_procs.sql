@@ -4,13 +4,8 @@ RETURNS BOOLEAN AS $$  --Delimiter for functions and strings
 DECLARE followers INTEGER;
         conv      INTEGER;
         conv_id   INTEGER;
-        userID    INTEGER;
+        userID    INTEGER := get_user_id_from_session($1);
 BEGIN
-    -- Finds user's id through user's session.
-    SELECT user_id
-    INTO userID
-    FROM sessions
-    WHERE id = $1;
 
     -- Checks if reciever is following sender.
     SELECT count(*)
@@ -58,15 +53,10 @@ CREATE OR REPLACE FUNCTION create_dm2(session VARCHAR, conv_id INTEGER, dm_text 
  image_url VARCHAR(100) DEFAULT NULL)
 RETURNS BOOLEAN AS $$  --Delimiter for functions and strings
 DECLARE followers  INTEGER;
-        userID     INTEGER;
+        userID     INTEGER := get_user_id_from_session($1);
         receiverID INTEGER;
 
 BEGIN
-    -- Finds user's id through user's session.
-    SELECT user_id
-    INTO userID
-    FROM sessions
-    WHERE id = $1;
 
     -- Checks if userID was considered sender or receiver in previous conversation.
     SELECT INTO receiverID
@@ -97,14 +87,9 @@ LANGUAGE PLPGSQL;
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION delete_dm(session VARCHAR, dm_id INTEGER)
     RETURNS VOID AS $$
-DECLARE userID INTEGER;
+DECLARE userID INTEGER := get_user_id_from_session($1);
         senderID INTEGER DEFAULT NULL;
 BEGIN
-    -- Finds user's id through user's session.
-    SELECT user_id
-    INTO userID
-    FROM sessions
-    WHERE id = $1;
 
     -- Finds the sender's id of the message.
     SELECT sender_id
@@ -154,14 +139,8 @@ LANGUAGE PLPGSQL;
 CREATE OR REPLACE FUNCTION get_conversations(session VARCHAR)
     RETURNS REFCURSOR AS $$
 DECLARE cursor REFCURSOR := 'cur';
-        userID INTEGER;
+        userID INTEGER := get_user_id_from_session($1);
 BEGIN
-
-    -- Finds user's id through user's session.
-    SELECT user_id
-    INTO userID
-    FROM sessions
-    WHERE id = $1;
 
     OPEN cursor FOR
     SELECT
@@ -194,16 +173,10 @@ LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION create_conversation(session VARCHAR, username2 VARCHAR, dm_text VARCHAR(140))
     RETURNS BOOLEAN AS $$
-DECLARE userID  INTEGER;
+DECLARE userID  INTEGER := get_user_id_from_session($1);
         userID2 INTEGER;
         conv_id INTEGER;
 BEGIN
-
-    -- Finds user's id through user's session.
-    SELECT user_id
-    INTO userID
-    FROM sessions
-    WHERE id = $1;
 
     -- Finds the receiver's id through its username.
     SELECT id
@@ -241,16 +214,10 @@ LANGUAGE PLPGSQL;
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION delete_conversation(session VARCHAR, conv_id INTEGER)
     RETURNS VOID AS $$
-DECLARE userID INTEGER;
+DECLARE userID INTEGER := get_user_id_from_session($1);
         senderID INTEGER;
         receiverID INTEGER;
 BEGIN
-
-     -- Finds user's id through user's session.
-    SELECT user_id
-    INTO userID
-    FROM sessions
-    WHERE id = $1;
 
     -- Finds the sender and receiver ids of the conversation.
     SELECT user_id, user2_id
@@ -270,14 +237,8 @@ LANGUAGE PLPGSQL;
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION mark_all_read(session VARCHAR)
     RETURNS VOID AS $$
-DECLARE userID INTEGER;
+DECLARE userID INTEGER := get_user_id_from_session($1);
 BEGIN
-
-    -- Finds user's id through user's session.
-    SELECT user_id
-    INTO userID
-    FROM sessions
-    WHERE id = $1;
 
     UPDATE direct_messages
     SET read = TRUE
