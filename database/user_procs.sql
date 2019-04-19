@@ -386,7 +386,7 @@ END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA / JSON DONE
-CREATE OR REPLACE FUNCTION get_feeds(session VARCHAR) -- Gets timeline of user
+CREATE OR REPLACE FUNCTION get_feeds(session VARCHAR , type VARCHAR) -- Gets timeline of user
     RETURNS REFCURSOR AS $$
 DECLARE cursor REFCURSOR := 'cur';
         userID INTEGER;
@@ -427,7 +427,7 @@ BEGIN
               FROM tweets T INNER JOIN users C ON T.creator_id = C.id
                   INNER JOIN followships F ON C.id = F.user_id
                   INNER JOIN users U ON C.id = U.id
-              WHERE F.confirmed = TRUE AND F.follower_of_user_id = userID)
+              WHERE F.confirmed = TRUE AND F.follower_of_user_id = userID AND T.type = $2)
              UNION ALL
              (SELECT
                   T.id,
@@ -445,7 +445,7 @@ BEGIN
                   INNER JOIN users C ON T.creator_id = C.id
                   INNER JOIN followships F ON R.retweeter_id = F.user_id
                   INNER JOIN users U ON U.id = F.user_id
-              WHERE F.confirmed = TRUE AND F.follower_of_user_id = userID)) AS feeds
+              WHERE F.confirmed = TRUE AND F.follower_of_user_id = userID AND T.type = $2)) AS feeds
     ORDER BY creation DESC;
     RETURN cursor;
 END; $$
