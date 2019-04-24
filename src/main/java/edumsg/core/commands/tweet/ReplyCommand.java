@@ -29,15 +29,16 @@ public class ReplyCommand extends Command implements Runnable
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
             if (map.containsKey("image_url")) {
-                proc = dbConn.prepareCall("{call reply(?,?,?,?)}");
+                proc = dbConn.prepareCall("{call reply(?,?,?,?,?)}");
             } else {
-                proc = dbConn.prepareCall("{call reply(?,?,?)}");
+                proc = dbConn.prepareCall("{call reply(?,?,?,?)}");
             }
 
             proc.setPoolable(true);
             proc.setInt(1, Integer.parseInt(map.get("tweet_id")));
             proc.setString(2, map.get("tweet_text"));
             proc.setString(3, map.get("session_id"));
+            proc.setString(3, map.get("type"));
 
             if (map.containsKey("image_url")) {
                 proc.setString(4, map.get("image_url"));

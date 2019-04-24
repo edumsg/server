@@ -32,6 +32,9 @@ public class User {
     private String background_color;
     private Boolean protected_tweets;
     private String session_id;
+    private Integer tweets_count;
+    private Integer followings_count;
+    private Integer followers_count;
 
     private String gender;
 
@@ -103,6 +106,18 @@ public class User {
 
     public void setProtectedTweets(Boolean protected_tweets) {
         this.protected_tweets = protected_tweets;
+    }
+
+    public void setTweetsCount ( Integer tweets_count ) {
+        this.tweets_count = tweets_count;
+    }
+
+    public void setFollowingsCount ( Integer followings_count ) {
+        this.followings_count = followings_count;
+    }
+
+    public void setFollowersCount ( Integer followers_count ) {
+        this.followers_count = followers_count;
     }
 
     public void setSessionID(String sessionID) {

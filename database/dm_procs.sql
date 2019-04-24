@@ -1,41 +1,28 @@
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION create_dm(session VARCHAR, reciever_id INTEGER, dm_text VARCHAR(140),image_url VARCHAR(100) DEFAULT NULL)
 RETURNS BOOLEAN AS $$  --Delimiter for functions and strings
-DECLARE followers INTEGER;
-        conv      INTEGER;
-        conv_id   INTEGER;
+DECLARE conv_id   INTEGER;
         userID    INTEGER := get_user_id_from_session($1);
 BEGIN
 
     -- Checks if reciever is following sender.
-    SELECT count(*)
-    INTO followers
-    FROM followships F
-    WHERE F.user_id = userID AND F.follower_of_user_id = $2 AND F.confirmed = TRUE;
+    PERFORM user_id
+    FROM followships 
+    WHERE user_id = userID AND follower_of_user_id = $2 AND confirmed = TRUE;
 
-    -- Checks if there are previous conversations or not.
-    SELECT count(*)
-    INTO conv
-    FROM conversations C
-    WHERE (C.user_id = userID AND C.user2_id = $2) OR (C.user_id = $2 AND C.user2_id = userID);
+    IF FOUND THEN
 
-    IF followers >= 0
-    THEN
-        IF conv = 0
-        THEN
-            INSERT INTO conversations (user_id, user2_id) VALUES (userID, $2);
-
-            SELECT C.id
-            INTO conv_id
-            FROM conversations C
-            WHERE C.user_id = userID AND C.user2_id = $2
-            LIMIT 1;
-        ELSE
-            SELECT C.id
-            INTO conv_id
-            FROM conversations C
-            WHERE (C.user_id = userID AND C.user2_id = $2) OR (C.user_id = $2 AND C.user2_id = userID)
-            LIMIT 1;
+        -- Checks if there are previous conversations or not.
+        SELECT id
+        INTO conv_id
+        FROM conversations 
+        WHERE (user_id = userID AND user2_id = $2) OR (user_id = $2 AND user2_id = userID);
+        
+        IF NOT FOUND THEN
+            INSERT INTO conversations (user_id, user2_id) 
+            VALUES (userID, $2)
+            RETURNING id
+            INTO conv_id;
         END IF;
 
         INSERT INTO direct_messages (sender_id, reciever_id, dm_text, image_url, conv_id, created_at)
@@ -59,24 +46,22 @@ DECLARE followers  INTEGER;
 BEGIN
 
     -- Checks if userID was considered sender or receiver in previous conversation.
-    SELECT INTO receiverID
-        CASE WHEN user_id = userID
-        THEN user2_id
-        ELSE user_id END
+    SELECT 
+    INTO receiverID
+         CASE WHEN user_id = userID
+         THEN user2_id
+         ELSE user_id END
     FROM conversations
     WHERE id = $2;
 
     -- Checks if reciever is following sender.
-    SELECT count(*)
-    INTO followers
-    FROM followships F
-    WHERE F.user_id = userID AND F.follower_of_user_id = receiverID AND F.confirmed = TRUE;
+    PERFORM user_id
+    FROM followships 
+    WHERE user_id = userID AND follower_of_user_id = receiverID AND confirmed = TRUE;
 
-    IF followers > 0
-    THEN
+    IF FOUND THEN
         INSERT INTO direct_messages (sender_id, reciever_id, dm_text, image_url, conv_id, created_at)
         VALUES (userID, receiverID, dm_text, image_url, conv_id, now()::timestamp);
-
         RETURN TRUE;
     ELSE
         RETURN FALSE;
@@ -85,10 +70,10 @@ END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA / JSON DONE
-CREATE OR REPLACE FUNCTION delete_dm(session VARCHAR, dm_id INTEGER)
     RETURNS VOID AS $$
 DECLARE userID INTEGER := get_user_id_from_session($1);
         senderID INTEGER DEFAULT NULL;
+CREATE OR REPLACE FUNCTION delete_dm(session VARCHAR, dm_id INTEGER)
 BEGIN
 
     -- Finds the sender's id of the message.
@@ -110,7 +95,8 @@ LANGUAGE PLPGSQL;
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION get_conversation(conv_id INTEGER)
     RETURNS REFCURSOR AS $$
-DECLARE cursor REFCURSOR := 'cur'; --Points to query rows
+DECLARE cursor REFCURSOR := 'cur'; 
+        U.avatar_url,
 BEGIN
     OPEN cursor FOR
     SELECT
@@ -123,11 +109,22 @@ BEGIN
         D.dm_text,
         D.image_url,
         D.created_at,
-        U.avatar_url,
         X.avatar_url
-    FROM conversations C INNER JOIN direct_messages D ON C.id = D.conv_id
-        INNER JOIN users U ON D.sender_id = U.id
-        INNER JOIN users X ON D.reciever_id = X.id
+
+    FROM    conversations C 
+        INNER JOIN 
+            direct_messages D 
+        ON 
+            C.id = D.conv_id
+        INNER JOIN 
+            users U 
+        ON 
+            D.sender_id = U.id
+        INNER JOIN
+            users X
+        ON 
+            D.reciever_id = X.id
+
     WHERE C.id = $1
     ORDER BY D.created_at ASC;
     RETURN cursor;
@@ -171,42 +168,29 @@ BEGIN
 END; $$
 LANGUAGE PLPGSQL;
 
+-- No need for it can use create_dm directly instead.
 CREATE OR REPLACE FUNCTION create_conversation(session VARCHAR, username2 VARCHAR, dm_text VARCHAR(140))
     RETURNS BOOLEAN AS $$
 DECLARE userID  INTEGER := get_user_id_from_session($1);
-        userID2 INTEGER;
+        userID2 INTEGER := get_user_id_from_username($2);
         conv_id INTEGER;
 BEGIN
 
-    -- Finds the receiver's id through its username.
     SELECT id
-    INTO userID2
-    FROM users
-    WHERE username = $2;
+    INTO conv_id
+    FROM conversations
+    WHERE user_id = userID AND user2_id = userID2;
 
-    IF NOT FOUND
-    THEN
+    IF FOUND THEN
         RETURN FALSE;
     ELSE
-
-        SELECT id
-        INTO conv_id
-        FROM conversations
-        WHERE user_id = userID AND user2_id = userID2;
-
-        IF FOUND
-        THEN
-            RETURN FALSE;
-        ELSE
-
-            INSERT INTO conversations VALUES (DEFAULT, userID, userID2)
-            ON CONFLICT (user_id, user2_id)
-                DO NOTHING;
+        INSERT INTO conversations VALUES (DEFAULT, userID, userID2)
+        ON CONFLICT (user_id, user2_id)
+        DO NOTHING;
 
         PERFORM create_dm($1, userID2, $3);
-        END IF;
-        RETURN TRUE;
     END IF;
+    RETURN TRUE;
 
 END; $$
 LANGUAGE PLPGSQL;

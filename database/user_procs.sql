@@ -7,8 +7,7 @@ BEGIN
     SELECT id
     INTO userID
     FROM users
-    WHERE username = $1
-    LIMIT 1;
+    WHERE username = $1;
 
     IF NOT FOUND THEN
         RAISE EXCEPTION 'no such username exists';
@@ -30,8 +29,7 @@ BEGIN
     SELECT user_id
     INTO userID
     FROM sessions
-    WHERE id = $1
-    LIMIT 1;
+    WHERE id = $1;
 
     IF NOT FOUND THEN
         RAISE EXCEPTION 'no such session exists';
@@ -42,20 +40,78 @@ BEGIN
 END; $$
 LANGUAGE PLPGSQL;
 
+CREATE OR REPLACE FUNCTION get_user_tweets_count(session VARCHAR)
+    RETURNS INTEGER AS $$
+DECLARE userID INTEGER := get_user_id_from_session($1);
+        tweets_count INTEGER;
+BEGIN
+    SELECT count(*)
+    INTO tweets_count
+    FROM    users U 
+        INNER JOIN 
+            tweets T
+        ON 
+            U.id = T.creator_id
+    WHERE U.id = $1;
+
+    RETURN tweets_count;
+
+END; $$
+LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION get_user_followers_count(session VARCHAR)
+    RETURNS INTEGER AS $$
+DECLARE userID INTEGER := get_user_id_from_session($1);
+        followers_count INTEGER;
+BEGIN
+    SELECT count(*)
+    INTO followers_count
+    FROM    users U 
+        INNER JOIN 
+            followships F
+        ON 
+             U.id = user_id
+    WHERE U.id = userID;
+
+    RETURN followers_count;
+
+END; $$
+LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION get_user_followings_count(session VARCHAR)
+    RETURNS INTEGER AS $$
+DECLARE userID INTEGER := get_user_id_from_session($1);
+        followings_count INTEGER;
+BEGIN
+    SELECT count(*)
+    INTO followings_count
+    FROM    users U 
+        INNER JOIN 
+            followships F
+        ON 
+             U.id = F.follower_of_user_id
+    WHERE U.id = userID;
+
+    RETURN followings_count;
+
+END; $$
+LANGUAGE PLPGSQL;
+
 -- JAVA DONE
 CREATE OR REPLACE FUNCTION create_user(username   VARCHAR(30),
                                        email      VARCHAR(100),
                                        password   VARCHAR(150),
                                        name       VARCHAR(100),
                                        avatar_url VARCHAR(70) DEFAULT 'http://i.imgur.com/LkovBT3.png')
-    RETURNS SETOF users AS $$
+    RETURNS REFCURSOR AS $$
+DECLARE cursor REFCURSOR := 'cur';
 BEGIN
-    INSERT INTO users (username, email, encrypted_password, name, created_at, avatar_url)
-    VALUES (username, email, password, name, now() :: TIMESTAMP, avatar_url);
-    RETURN QUERY
-    SELECT *
-    FROM users
-    WHERE id = CURRVAL(pg_get_serial_sequence('users', 'id')); -- Gets the last user id entered.
+    OPEN cursor
+        INSERT 
+        INTO users
+        VALUES (DEFAULT,username, email, password, name, now() :: TIMESTAMP, avatar_url)
+        RETURNING *;
+    RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -82,8 +138,7 @@ BEGIN
     OPEN cursor FOR
         SELECT *
         FROM users U
-        WHERE U.id = user_id
-        LIMIT 1;
+        WHERE U.id = user_id;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -95,8 +150,7 @@ BEGIN
     OPEN cursor FOR
         SELECT *
         FROM users U
-        WHERE U.username = $1
-        LIMIT 1;
+        WHERE U.username = $1;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -122,13 +176,15 @@ CREATE OR REPLACE FUNCTION my_profile(session VARCHAR)
     RETURNS REFCURSOR AS $$
 DECLARE cursor REFCURSOR := 'cur';
         userID INTEGER := get_user_id_from_session($1);
+        tweets_count INTEGER := get_user_tweets_count($1);
+        followings_count INTEGER := get_user_followings_count($1);
+        followers_count INTEGER := get_user_followers_count($1);
 BEGIN
     -- Finds user with ID.
     OPEN cursor FOR
-        SELECT *
+        SELECT U.*, tweets_count, followings_count, followers_count
         FROM users U
-        WHERE U.id = userID
-        LIMIT 1;
+        WHERE U.id = userID;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -141,13 +197,13 @@ BEGIN
 
     -- Finds users with username or names that contains (user_substring).
     OPEN cursor FOR
-    SELECT
-        U.id,
-        U.username,
-        U.name,
-        U.avatar_url
-    FROM users U
-    WHERE U.name LIKE '%' || $1 || '%' OR U.username LIKE '%' || $1 || '%';
+        SELECT
+            U.id,
+            U.username,
+            U.name,
+            U.avatar_url
+        FROM users U
+        WHERE U.name LIKE '%' || $1 || '%' OR U.username LIKE '%' || $1 || '%';
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -174,8 +230,7 @@ BEGIN
         -- If yes unfollow user.
         PERFORM unfollow($1,$2);
     ELSE
-        IF private_user
-        THEN
+        IF private_user THEN
             INSERT INTO followships (user_id, follower_of_user_id, confirmed, created_at)
             VALUES (followee_id, userID, '0', now() :: TIMESTAMP);
         ELSE
@@ -214,13 +269,19 @@ DECLARE userID INTEGER := get_user_id_from_session($1);
         cursor REFCURSOR := 'cur';
 BEGIN
     OPEN cursor FOR
-    SELECT
-        U.id,
-        U.username,
-        U.name,
-        U.avatar_url
-    FROM users U INNER JOIN followships F ON U.id = F.follower_of_user_id
-    WHERE F.user_id = userID AND F.confirmed = TRUE;
+        SELECT
+            U.id,
+            U.username,
+            U.name,
+            U.avatar_url
+
+        FROM    users U 
+            INNER JOIN 
+                followships F 
+            ON 
+                U.id = F.follower_of_user_id
+                
+        WHERE F.user_id = userID AND F.confirmed = TRUE;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -232,12 +293,18 @@ DECLARE cursor REFCURSOR := 'cur';
         userID INTEGER := get_user_id_from_session($1);
 BEGIN
     OPEN cursor FOR
-    SELECT
-        U.username,
-        U.name,
-        U.avatar_url
-    FROM users U INNER JOIN followships F ON U.id = F.user_id
-    WHERE F.follower_of_user_id = userID AND F.confirmed = TRUE;
+        SELECT
+            U.username,
+            U.name,
+            U.avatar_url
+        
+        FROM    users U 
+            INNER JOIN 
+                followships F 
+            ON 
+                U.id = F.user_id
+        
+        WHERE F.follower_of_user_id = userID AND F.confirmed = TRUE;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -250,12 +317,16 @@ DECLARE cursor REFCURSOR := 'cur';
 BEGIN
 
     OPEN cursor FOR
-    SELECT
-        U.username,
-        U.name,
-        U.avatar_url
-    FROM users U INNER JOIN followships F ON U.id = F.follower_of_user_id
-    WHERE F.user_id = userID AND F.confirmed = FALSE;
+        SELECT
+            U.username,
+            U.name,
+            U.avatar_url
+        FROM    users U 
+            INNER JOIN 
+                followships F 
+            ON 
+                U.id = F.follower_of_user_id
+        WHERE F.user_id = userID AND F.confirmed = FALSE;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -275,6 +346,7 @@ BEGIN
         timeline.type,
         image_url,
         name,
+        timeline.type
         username,
         avatar_url
     FROM (
@@ -386,6 +458,71 @@ BEGIN
 END; $$
 LANGUAGE PLPGSQL;
 
+
+CREATE OR REPLACE FUNCTION get_tweets_by_id(user_id INTEGER, type VARCHAR)
+    RETURNS REFCURSOR AS $$
+DECLARE cursor REFCURSOR := 'cur';
+        userID INTEGER := $1;
+BEGIN
+
+    OPEN cursor FOR
+    SELECT
+        id,
+        tweet_text,
+        creation,
+        timeline.type,
+        image_url,
+        name,
+        username,
+        avatar_url
+    FROM (
+            -- Gets tweets originally by user.
+            ( SELECT
+                T.*,
+                U.id AS "creator_id",
+                U.name,
+                U.username,
+                U.avatar_url,
+                T.created_at AS "creation"
+
+            FROM    tweets T 
+                INNER JOIN 
+                    users U 
+                ON 
+                    T.creator_id = U.id
+
+            WHERE T.creator_id = userID AND T.type = $2 )
+        UNION
+            -- Gets tweets retweeted by user.
+            ( SELECT
+                T.*,
+                R.retweeter_id AS "creator_id",
+                U.name,
+                U.username,
+                U.avatar_url,
+                R.created_at AS "creation"
+
+            FROM    tweets T 
+                INNER JOIN 
+                    retweets R 
+                ON 
+                    T.id = R.tweet_id
+                INNER JOIN 
+                    users U 
+                ON 
+                    R.retweeter_id = U.id
+                AND 
+                    T.creator_id = U.id
+                    
+            WHERE U.id = userID AND T.type = $2) ) AS timeline
+
+    ORDER BY creation DESC;
+    RETURN cursor;
+END; $$
+LANGUAGE PLPGSQL;
+
+
+
 -- JAVA / JSON DONE
 -- Gets timeline of user
 CREATE OR REPLACE FUNCTION get_feeds(session VARCHAR , type VARCHAR) 
@@ -446,13 +583,12 @@ BEGIN
 END; $$
 LANGUAGE PLPGSQL;
 
--- Use The Type Attribute.
+
 CREATE OR REPLACE FUNCTION get_timeline_with_type(session VARCHAR, type VARCHAR)
     RETURNS REFCURSOR AS $$
 DECLARE userID INTEGER := get_user_id_from_session($1);
         followedUser followships%ROWTYPE;
         fetchedTweet RECORD;
-        followedUsername VARCHAR;
         timelineCursor REFCURSOR := 'cur';
 
 BEGIN
@@ -466,16 +602,11 @@ BEGIN
     FOR followedUser IN 
         SELECT *
         FROM followships
-        WHERE follower_of_user_id = userID
+        WHERE follower_of_user_id = userID;
     LOOP
-        -- Fetches the id of the followed user.
-        SELECT username
-        INTO followedUsername
-        FROM users U INNER JOIN followships F ON U.id = F.user_id
-        WHERE user_id = followedUser.user_id;
 
         -- Fetches followed user tweets & retweets.
-        DECLARE cursor REFCURSOR := get_tweets2(followedUsername,$2);
+        DECLARE cursor REFCURSOR := get_tweets_by_id(followedUser.user_id,$2);
 
         BEGIN
             LOOP
@@ -521,18 +652,30 @@ DECLARE cursor REFCURSOR := 'cur';
         userID INTEGER := get_user_id_from_session($1);
 BEGIN
     OPEN cursor FOR
-    SELECT
-        T.id,
-        T.tweet_text,
-        T.image_url,
-        C.name,
-        C.username,
-        C.avatar_url
-    FROM tweets T INNER JOIN retweets R ON T.id = R.tweet_id
-        INNER JOIN users U ON R.retweeter_id = U.id
-        INNER JOIN users C ON T.creator_id = C.id
-    WHERE U.id = userID
-    ORDER BY R.created_at DESC;
+        SELECT
+            T.id,
+            T.tweet_text,
+            T.image_url,
+            C.name,
+            C.username,
+            C.avatar_url
+
+        FROM    tweets T 
+            INNER JOIN 
+                retweets R 
+            ON 
+                T.id = R.tweet_id
+            INNER JOIN 
+                users U 
+            ON 
+                R.retweeter_id = U.id
+            INNER JOIN 
+                users C 
+            ON 
+                T.creator_id = C.id
+                
+        WHERE U.id = userID
+        ORDER BY R.created_at DESC;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -561,19 +704,31 @@ DECLARE cursor REFCURSOR := 'cur';
 BEGIN
 
     OPEN cursor FOR
-    SELECT
-        T.id,
-        T.tweet_text,
-        T.image_url,
-        T.created_at,
-        C.name,
-        C.username,
-        C.avatar_url
-    FROM tweets T INNER JOIN favorites F ON T.id = F.tweet_id
-        INNER JOIN users U ON F.user_id = U.id
-        INNER JOIN users C ON T.creator_id = C.id
-    WHERE U.id = userID
-    ORDER BY F.created_at DESC;
+        SELECT
+            T.id,
+            T.tweet_text,
+            T.image_url,
+            T.created_at,
+            C.name,
+            C.username,
+            C.avatar_url
+            
+        FROM    tweets T 
+            INNER JOIN 
+                favorites F 
+            ON 
+                T.id = F.tweet_id
+            INNER JOIN 
+                users U 
+            ON 
+                F.user_id = U.id
+            INNER JOIN 
+                users C 
+            ON 
+                T.creator_id = C.id
+
+        WHERE U.id = userID
+        ORDER BY F.created_at DESC;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -585,17 +740,26 @@ DECLARE cursor REFCURSOR := 'cur';
         userID INTEGER := get_user_id_from_session($1);
 BEGIN
     OPEN cursor FOR
-    SELECT
-        L.id,
-        L.name,
-        L.description,
-        C.name,
-        C.username,
-        C.avatar_url
-    FROM lists L INNER JOIN subscriptions S ON L.id = S.list_id
-        INNER JOIN users C ON L.creator_id = C.id
-    WHERE S.subscriber_id = userID
-    ORDER BY L.name ASC;
+        SELECT
+            L.id,
+            L.name,
+            L.description,
+            C.name,
+            C.username,
+            C.avatar_url
+
+        FROM    lists L 
+            INNER JOIN 
+                subscriptions S 
+            ON
+                L.id = S.list_id
+            INNER JOIN 
+                users C 
+            ON 
+                L.creator_id = C.id
+                
+        WHERE S.subscriber_id = userID
+        ORDER BY L.name ASC;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -607,16 +771,25 @@ DECLARE cursor REFCURSOR := 'cur';
         userID INTEGER := get_user_id_from_session($1);
 BEGIN
     OPEN cursor FOR
-    SELECT
-        L.id,
-        L.name,
-        L.description,
-        C.name,
-        C.username,
-        C.avatar_url
-    FROM lists L INNER JOIN memberships M ON L.id = M.list_id
-        INNER JOIN users C ON L.creator_id = C.id
-    WHERE M.member_id = userID;
+        SELECT
+            L.id,
+            L.name,
+            L.description,
+            C.name,
+            C.username,
+            C.avatar_url
+        
+        FROM    lists L 
+            INNER JOIN 
+                memberships M 
+            ON 
+                L.id = M.list_id
+            INNER JOIN 
+                users C 
+            ON 
+                L.creator_id = C.id
+        
+        WHERE M.member_id = userID;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -632,8 +805,7 @@ BEGIN
     FROM users
     WHERE id = (SELECT user_id
                 FROM sessions
-                WHERE id = $1
-                LIMIT 1);
+                WHERE id = $1);
 
     OPEN cursor FOR
     SELECT
@@ -689,8 +861,7 @@ BEGIN
     OPEN cursor FOR
         SELECT *
         FROM users
-        WHERE id = userID
-        LIMIT 1;
+        WHERE id = userID;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -725,8 +896,7 @@ BEGIN
     SELECT id
     INTO session
     FROM sessions
-    WHERE user_id = userID
-    LIMIT 1;
+    WHERE user_id = userID;
     RETURN session;
 END; $$
 LANGUAGE PLPGSQL;

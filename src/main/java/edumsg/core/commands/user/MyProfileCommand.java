@@ -42,10 +42,13 @@ public class MyProfileCommand extends Command implements Runnable {
 
                 dbConn = PostgresConnection.getDataSource().getConnection();
                 dbConn.setAutoCommit(false);
+
                 proc = dbConn.prepareCall("{? = call my_profile(?)}");
                 proc.setPoolable(true);
+
                 proc.registerOutParameter(1, Types.OTHER);
                 proc.setString(2, map.get("session_id"));
+
                 proc.execute();
 
                 set = (ResultSet) proc.getObject(1);
@@ -55,7 +58,7 @@ public class MyProfileCommand extends Command implements Runnable {
                 root.put("status", "ok");
                 root.put("code", "200");
 
-                if (set.next()) {
+                while ( set.next() ) {
                     Integer id = set.getInt(1);
                     String username = set.getString(2);
                     String email = set.getString(3);
@@ -70,6 +73,9 @@ public class MyProfileCommand extends Command implements Runnable {
                     String link_color = set.getString(13);
                     String background_color = set.getString(14);
                     Boolean protected_tweets = set.getBoolean(15);
+                    Integer tweets_count = set.getInt(16);
+                    Integer followings_count = set.getInt(17);
+                    Integer followers_count = set.getInt(18);
 
                     user.setId(id);
                     user.setUsername(username);
@@ -85,29 +91,20 @@ public class MyProfileCommand extends Command implements Runnable {
                     user.setLinkColor(link_color);
                     user.setBackgroundColor(background_color);
                     user.setProtectedTweets(protected_tweets);
+                    user.setTweetsCount(tweets_count);
+                    user.setFollowingsCount(followings_count);
+                    user.setFollowersCount(followers_count);
 
                 }
+
                 set.close();
                 proc.close();
 
-            } else {
-                user.setId(Integer.parseInt(details.get("id")));
-                user.setUsername(details.get("username"));
-                user.setEmail(details.get("email"));
-                user.setName(details.get("name"));
-                user.setLanguage(details.get("language"));
-                user.setCountry(details.get("country"));
-                user.setBio(details.get("bio"));
-                user.setWebsite(details.get("website"));
-                user.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
-                user.setAvatarUrl(details.get("avatar_url"));
-                user.setOverlay(Boolean.parseBoolean(details.get("overlay")));
-                user.setLinkColor(details.get("link_color"));
-                user.setBackgroundColor(details.get("background_color"));
-                user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
             }
+
             ValueNode child = nf.pojoNode(user);
             root.set("user", child);
+
             try {
                 CommandsHelp.submit(map.get("app"),
                         mapper.writeValueAsString(root),

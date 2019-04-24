@@ -25,8 +25,10 @@ import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.logging.Logger;
 
 public class NewTweetCommand extends Command implements Runnable {
@@ -36,39 +38,30 @@ public class NewTweetCommand extends Command implements Runnable {
     public void execute() {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
-            dbConn.setAutoCommit(true);
-            Statement query = dbConn.createStatement();
-            query.setPoolable(true);
-            System.out.println(map.get("type"));
-            if (map.containsKey("image_url")) {
-                String execQuery = String.format("SELECT * FROM create_tweet('%s','%s','%s,'%s')",
-                        map.get("tweet_text"),
-                        map.get("session_id"),
-                        map.get("type"),
-                        map.get("image_url"));
+            dbConn.setAutoCommit(false);
 
-                set = query.executeQuery(execQuery);
-            } else {
-                String execQuery = String.format("SELECT * FROM create_tweet('%s','%s','%s')",
-                        map.get("tweet_text"),
-                        map.get("session_id"),
-                        map.get("type"));
+            // Registers in & outs of function.
+            proc = dbConn.prepareCall("{ ? = call create_tweet(?,?,?,?) }");
+            proc.setPoolable(true);
 
-                set = query.executeQuery(execQuery);
-            }
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.setString(2, map.get("tweet_text"));
+            proc.setString(3, map.get("session_id"));
+            proc.setString(4, map.get("type"));
+            proc.setString(5, map.get("image_url"));
 
-            String id = null;
+            proc.execute();
+            set = (ResultSet) proc.getObject(1);
 
-            while(set.next()) {
-                id = set.getInt("id") + "";
-                details.put("id", id);
+            while( set.next() ) {
+
+                details.put("id", "" + set.getInt("id") );
                 details.put("tweet_text", set.getString("tweet_text"));
                 details.put("creator_id", set.getInt("creator_id") + "");
                 details.put("image_url", set.getString("image_url"));
                 details.put("type", set.getString("type"));
                 details.put("created_at", set.getTimestamp("created_at")+"");
-                //Cache.cacheTweet(set.getInt("id")+"", details);
-                //Cache.cacheUserTweet(map.get("creator_id"),set.getInt("id")+"");
+
                 root.put("id", set.getInt("id"));
             }
 
@@ -77,10 +70,13 @@ public class NewTweetCommand extends Command implements Runnable {
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
+
+            proc.close();
             set.close();
 
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+
                 String cacheEntry = UserCache.userCache.get("user_tweets:" + map.get("session_id"));
                 if (cacheEntry != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry);
@@ -123,10 +119,8 @@ public class NewTweetCommand extends Command implements Runnable {
             } catch (IOException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
             }
-//            catch (JSONException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
+
+            dbConn.commit();
 
         } catch (PSQLException e) {
             if (e.getMessage().contains("value too long")) {

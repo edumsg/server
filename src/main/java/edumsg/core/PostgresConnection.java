@@ -200,7 +200,7 @@ public class PostgresConnection {
 
     private static boolean formatURL() {
         setDBURL("jdbc:postgresql://" + DB_HOST + ":" + DB_PORT + "/" + DB_NAME);
-        System.out.println(DB_URL);
+        System.out.println("DB URL: " + DB_URL);
         Pattern pattern = Pattern.compile("^\\w+:\\w+:\\/{2}\\w+:\\d+\\/\\w+(?:\\W|\\w)*$");
         Matcher matcher = pattern.matcher(DB_URL);
         return matcher.matches();

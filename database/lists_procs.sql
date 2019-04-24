@@ -1,18 +1,21 @@
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION create_list(name VARCHAR(50), description VARCHAR(140),
                                        session varchar, private BOOLEAN)
-  RETURNS SETOF lists AS $$
+  RETURNS RECORD AS $$
 DECLARE list_id INTEGER;
+        new_list lists%ROWTYPE;
         userID INTEGER := get_user_id_from_session($3);
 BEGIN
-  INSERT INTO lists (name, description, creator_id, private, created_at)
-  VALUES (name, description, userID, private, now()::TIMESTAMP) RETURNING id INTO list_id;
+
+  INSERT 
+  INTO lists
+  VALUES (DEFAULT, name, description, userID, private, now()::TIMESTAMP)
+  RETURNING * 
+  INTO new_list;
 
   PERFORM subscribe(session, list_id);
-  RETURN QUERY
-  SELECT *
-  FROM lists
-  WHERE id = CURRVAL(pg_get_serial_sequence('lists', 'id'));
+  
+  RETURN new_list;
 
 END; $$
 LANGUAGE PLPGSQL;
@@ -23,8 +26,11 @@ RETURNS VOID AS $$
 DECLARE list_id INTEGER;
         userID INTEGER := get_user_id_from_session($3);
 BEGIN
-  INSERT INTO lists (id, name, description, creator_id, private, created_at)
-  VALUES (DEFAULT, name, description, userID, private, now()::TIMESTAMP) RETURNING id INTO list_id;
+
+  INSERT 
+  INTO lists
+  VALUES (DEFAULT, name, description, userID, private, now()::TIMESTAMP) 
+  RETURNING id INTO list_id;
 
   PERFORM subscribe2(userID, list_id);
 
@@ -50,9 +56,10 @@ BEGIN
   WHERE id = $2;
 
   IF creatorID <> userID THEN
-    RAISE EXCEPTION 'Cannot Delete A List You Didn''t Create';
+    RAISE EXCEPTION 'cannot delete a list you didn''t create';
   ELSE
-     DELETE FROM lists L
+    DELETE 
+    FROM lists L
     WHERE L.id = $2 AND L.creator_id = userID;
   END IF;
 
@@ -77,8 +84,19 @@ CREATE OR REPLACE FUNCTION subscribe(session VARCHAR, list_id INTEGER)
 DECLARE userID INTEGER := get_user_id_from_session($1);
 BEGIN
 
-  INSERT INTO subscriptions (subscriber_id, list_id, created_at)
-  VALUES (userID, list_id, now()::timestamp);
+  PERFORM id
+  FROM lists
+  WHERE id = $2
+  LIMIT 1;
+
+  IF FOUND THEN
+    INSERT 
+    INTO subscriptions
+    VALUES (DEFAULT, userID, list_id, now()::timestamp);
+  ELSE  
+    RAISE EXCEPTION 'no such list exists';
+  END IF;
+
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -86,8 +104,19 @@ CREATE OR REPLACE FUNCTION subscribe2(userID INTEGER, list_id INTEGER)
   RETURNS VOID AS $$
 BEGIN
 
-  INSERT INTO subscriptions (subscriber_id, list_id, created_at)
-  VALUES (userID, list_id, now()::timestamp);
+  PERFORM id
+  FROM lists
+  WHERE id = $2
+  LIMIT 1;
+
+  IF FOUND THEN
+    INSERT 
+    INTO subscriptions
+    VALUES (DEFAULT, userID, list_id, now()::timestamp);
+  ELSE  
+    RAISE EXCEPTION 'no such list exists';
+  END IF;
+
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -103,12 +132,17 @@ BEGIN
   FROM lists
   WHERE id = $2;
 
-  IF userID = creatorID THEN
-    RAISE EXCEPTION 'Cannot Unsubscribe From Your Own List';
+  IF FOUND THEN 
+    IF userID = creatorID THEN
+      RAISE EXCEPTION 'cannot unsubscribe from your own list';
+    ELSE
+      DELETE FROM subscriptions S
+      WHERE S.subscriber_id = userID AND S.list_id = $2;
+    END IF;
   ELSE
-    DELETE FROM subscriptions S
-    WHERE S.subscriber_id = userID AND S.list_id = $2;
+    RAISE EXCEPTION 'no such list exists';
   END IF;
+
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -116,48 +150,62 @@ LANGUAGE PLPGSQL;
 CREATE OR REPLACE FUNCTION add_member(user_id INTEGER, list_id INTEGER)
   RETURNS VOID AS $$
 BEGIN
-  INSERT INTO memberships (member_id, list_id, created_at)
-  VALUES (user_id, list_id, now()::timestamp);
+
+  PERFORM id
+  FROM lists
+  WHERE id = $2
+  LIMIT 1;
+
+  IF FOUND THEN
+    INSERT 
+    INTO memberships
+    VALUES(DEFAULT, $1, $2, now()::timestamp);
+  ELSE 
+    RAISE EXCEPTION 'no such list exists';
+  END IF;
+
 END; $$
 LANGUAGE PLPGSQL;
 
 CREATE OR REPLACE FUNCTION add_member_with_username(user_name VARCHAR, list_id INTEGER)
   RETURNS VOID AS $$
-  DECLARE userID INTEGER;
+  DECLARE userID INTEGER := get_user_id_from_username($1);
 BEGIN
-    SELECT id 
-    INTO userID
-    FROM users 
-    WHERE username=$1;
 
-    INSERT INTO memberships (member_id, list_id, created_at)
-    VALUES (userID, list_id, now()::timestamp);
+  PERFORM id
+  FROM lists
+  WHERE id = $2
+  LIMIT 1;
+
+  IF FOUND THEN
+    INSERT 
+    INTO memberships
+    VALUES(DEFAULT, $1, $2, now()::timestamp);
+  ELSE 
+    RAISE EXCEPTION 'no such list exists';
+  END IF;
+
 END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA / JSON DONE
-CREATE OR REPLACE FUNCTION delete_member(user_id INTEGER, list_id INTEGER)
+CREATE OR REPLACE FUNCTION delete_member(session INTEGER, member_id INTEGER, list_id INTEGER)
   RETURNS VOID AS $$
-DECLARE userID INTEGER;
+DECLARE userID INTEGER := get_user_id_from_session($1);
         creatorID INTEGER;
-
 BEGIN
-
-  SELECT user_id
-  INTO userID
-  FROM sessions
-  WHERE id = $1;
 
   SELECT creator_id
   INTO creatorID
   FROM lists
-  WHERE id = $2;
+  WHERE id = $3;
 
   IF userID = creatorID THEN 
-    RAISE EXCEPTION 'Cannot Delete The Owner Of The List';
+    RAISE EXCEPTION 'cannot delete the owner of the list';
   ELSE 
-    DELETE FROM memberships M
-    WHERE M.member_id = $1 AND M.list_id = $2;
+    DELETE 
+    FROM memberships M
+    WHERE M.member_id = userID AND M.list_id = $2;
   END IF;
   
 END; $$
@@ -169,13 +217,22 @@ CREATE OR REPLACE FUNCTION get_list_subscribers(list_id INTEGER)
 DECLARE cursor REFCURSOR := 'cur';
 BEGIN
   OPEN cursor FOR
-  SELECT
-    U.name,
-    U.username,
-    U.avatar_url
-  FROM lists L INNER JOIN subscriptions S ON L.id = S.list_id
-    INNER JOIN users U ON U.id = S.subscriber_id
-  WHERE L.id = $1;
+    SELECT
+      U.name,
+      U.username,
+      U.avatar_url
+      
+    FROM  lists L
+      INNER JOIN 
+          subscriptions S 
+      ON 
+          L.id = S.list_id
+      INNER JOIN
+          users U 
+      ON 
+          U.id = S.subscriber_id
+
+    WHERE L.id = $1;
   RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -186,13 +243,23 @@ CREATE OR REPLACE FUNCTION get_list_members(list_id INTEGER)
 DECLARE cursor REFCURSOR := 'cur';
 BEGIN
   OPEN cursor FOR
-  SELECT
-    U.name,
-    U.username,
-    U.avatar_url
-  FROM lists L INNER JOIN memberships M ON L.id = M.list_id
-    INNER JOIN users U ON U.id = M.member_id
-  WHERE L.id = $1;
+    SELECT
+      U.name,
+      U.username,
+      U.avatar_url
+
+    FROM  lists L 
+      INNER JOIN 
+          memberships M 
+      ON 
+          L.id = M.list_id
+      INNER JOIN
+          users U 
+      ON
+          U.id = M.member_id
+
+    WHERE L.id = $1
+    LIMIT 1;
   RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -211,44 +278,67 @@ BEGIN
     name,
     username,
     avatar_url,
-    name2,
-    creator_id,
-    retweeter_id
+    retweeter_name,
+    retweeter_username,
+    creation
   FROM (
-         (SELECT
-            T.id,
-            T.tweet_text,
-            T.image_url,
-            T.created_at,
-            C.id         AS "creator_id",
-            C.name,
-            C.username,
-            C.avatar_url,
-            C.name       AS "name2",
-            U.id         AS "retweeter_id",
-            T.created_at AS "creation"
-          FROM tweets T INNER JOIN users C ON T.creator_id = C.id
-            INNER JOIN memberships M ON M.member_id = C.id
-            INNER JOIN users U ON C.id = U.id
-          WHERE M.list_id = $1 AND T.type = $2)
-         UNION
-         (SELECT
-            T.id,
-            T.tweet_text,
-            T.image_url,
-            T.created_at,
-            C.id         AS "creator_id",
-            C.name,
-            C.username,
-            C.avatar_url,
-            U.name       AS "name2",
-            U.id         AS "retweeter_id",
-            R.created_at AS "creation"
-          FROM tweets T INNER JOIN retweets R ON T.id = R.tweet_id
-            INNER JOIN users C ON T.creator_id = C.id
-            INNER JOIN memberships M ON R.retweeter_id = M.member_id
-            INNER JOIN users U ON U.id = M.member_id
-          WHERE M.list_id = $1 AND T.type = $2)) AS feeds
+        -- Gets tweets originally made by members.
+         (  SELECT
+              T.id,
+              T.tweet_text,
+              T.image_url,
+              T.created_at,
+              C.name,
+              C.username,
+              C.avatar_url,
+              NULL          AS "retweeter_name",
+              NULL          AS "retweeter_username",
+              NULL          AS "creation"
+
+            FROM    tweets T 
+                INNER JOIN 
+                    users C 
+                ON 
+                    T.creator_id = C.id
+                INNER JOIN 
+                    memberships M 
+                ON 
+                    M.member_id = C.id
+
+            WHERE M.list_id = $1 AND T.type = $2 )
+        UNION
+        -- Gets tweets retweeted by members.
+         (  SELECT
+              T.id,
+              T.tweet_text,
+              T.image_url,
+              T.created_at,
+              C.name,
+              C.username,
+              C.avatar_url,
+              U.name        AS "retweeter_name",
+              U.username    AS "retweeter_username",
+              R.created_at  AS "creation"
+
+            FROM    tweets T 
+                INNER JOIN 
+                    retweets R 
+                ON 
+                    T.id = R.tweet_id
+                INNER JOIN 
+                    users C 
+                ON 
+                    T.creator_id = C.id
+                INNER JOIN 
+                    memberships M 
+                ON 
+                    R.retweeter_id = M.member_id
+                INNER JOIN 
+                    users U 
+                ON 
+                    U.id = M.member_id
+                    
+            WHERE M.list_id = $1 AND T.type = $2 ) ) AS feeds
   ORDER BY creation DESC;
   RETURN cursor;
 END; $$
@@ -258,7 +348,10 @@ CREATE OR REPLACE FUNCTION get_list(list_id INTEGER)
   RETURNS SETOF lists AS $$
 BEGIN
   RETURN QUERY
-  SELECT * FROM lists WHERE id = $1;
+  SELECT * 
+  FROM lists 
+  WHERE id = $1
+  LIMIT 1;
 END; $$
 LANGUAGE PLPGSQL;
 
