@@ -68,6 +68,7 @@ public class RegisterCommand extends Command implements Runnable {
             details.put("email", map.get("email"));
             details.put("name", map.get("name"));
             details.put("created_at", set.getTimestamp("created_at")+"");
+
             //Cache.cacheUser(set.getInt("id")+"", details);
             //Cache.mapUsernameID(map.get("username"), set.getInt("id")+"");
         }

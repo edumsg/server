@@ -70,10 +70,10 @@ END; $$
 LANGUAGE PLPGSQL;
 
 -- JAVA / JSON DONE
+CREATE OR REPLACE FUNCTION delete_dm(session VARCHAR, dm_id INTEGER)
     RETURNS VOID AS $$
 DECLARE userID INTEGER := get_user_id_from_session($1);
         senderID INTEGER DEFAULT NULL;
-CREATE OR REPLACE FUNCTION delete_dm(session VARCHAR, dm_id INTEGER)
 BEGIN
 
     -- Finds the sender's id of the message.
@@ -96,13 +96,13 @@ LANGUAGE PLPGSQL;
 CREATE OR REPLACE FUNCTION get_conversation(conv_id INTEGER)
     RETURNS REFCURSOR AS $$
 DECLARE cursor REFCURSOR := 'cur'; 
-        U.avatar_url,
 BEGIN
     OPEN cursor FOR
     SELECT
         U.id,
         U.name,
         U.username,
+        U.avatar_url,
         X.id,
         X.name,
         X.username,
@@ -184,7 +184,9 @@ BEGIN
     IF FOUND THEN
         RETURN FALSE;
     ELSE
-        INSERT INTO conversations VALUES (DEFAULT, userID, userID2)
+        INSERT 
+        INTO conversations
+        VALUES (DEFAULT, userID, userID2)
         ON CONFLICT (user_id, user2_id)
         DO NOTHING;
 

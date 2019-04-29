@@ -13,7 +13,7 @@ BEGIN
     RETURN res;
   ELSE 
     RAISE EXCEPTION 'no such tweet exists';
-  END IF
+  END IF;
   
 END; $$
 LANGUAGE PLPGSQL;
@@ -33,6 +33,7 @@ BEGIN
     RETURN res;
   ELSE  
     RAISE EXCEPTION 'no such tweet exists';
+  END IF;
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -46,8 +47,8 @@ BEGIN
 
   OPEN cursor FOR
     INSERT 
-    INTO tweets
-    VALUES (DEFAULT,tweet_text, userID, now()::timestamp, type, image_url)
+    INTO tweets (tweet_text, creator_id, created_at,type, image_url)
+    VALUES (tweet_text, userID, now()::timestamp, type, image_url)
     RETURNING *;
   RETURN cursor;
 END; $$
@@ -111,12 +112,13 @@ BEGIN
 
   IF FOUND THEN
     INSERT 
-    INTO favorites 
-    VALUES (DEFAULT, tweet_id, userID, now()::timestamp);
+    INTO favorites (tweet_id, user_id, created_at)
+    VALUES (tweet_id, userID, now()::timestamp);
 
     RETURN get_favorites_count(tweet_id);
   ELSE 
     RAISE EXCEPTION 'no such tweet exists';
+  END IF;
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -227,7 +229,7 @@ LANGUAGE PLPGSQL;
 
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION reply( tweet_id  INTEGER, tweet_text VARCHAR(140), 
-                                  session VARCHAR, VARCHAR type, image_url VARCHAR(100) DEFAULT NULL)
+                                  session VARCHAR, type VARCHAR, image_url VARCHAR(100) DEFAULT NULL)
   RETURNS VOID AS $$
 DECLARE reply_id INTEGER;
 BEGIN
@@ -237,8 +239,8 @@ BEGIN
   FROM create_tweet(tweet_text, session, type, image_url);
   
   INSERT 
-  INTO replies
-  VALUES (DEFAULT, tweet_id, reply_id, now()::timestamp);
+  INTO replies (original_tweet_id, reply_id, created_at)
+  VALUES (tweet_id, reply_id, now()::timestamp);
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -324,10 +326,9 @@ BEGIN
       T2.creator_id = U.id
 
   WHERE R.original_tweet_id = $1
-END; $$
-
   ORDER BY T2.created_at ASC;
   RETURN cursor;
+END; $$ 
 LANGUAGE PLPGSQL;
 
 -- JAVA DONE
@@ -342,8 +343,8 @@ BEGIN
 
   IF FOUND THEN
     INSERT 
-    INTO reports
-    VALUES (DEFAULT, reported_id, userID, now()::timestamp);
+    INTO reports (reported_id, creator_id, created_at)
+    VALUES (reported_id, userID, now()::timestamp);
   ELSE 
     RAISE EXCEPTION 'no such tweet exists';
   END IF;

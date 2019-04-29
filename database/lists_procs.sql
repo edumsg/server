@@ -1,22 +1,24 @@
 -- JAVA / JSON DONE
 CREATE OR REPLACE FUNCTION create_list(name VARCHAR(50), description VARCHAR(140),
                                        session varchar, private BOOLEAN)
-  RETURNS RECORD AS $$
-DECLARE list_id INTEGER;
-        new_list lists%ROWTYPE;
+  RETURNS REFCURSOR AS $$
+DECLARE new_list lists%ROWTYPE;
+        cursor REFCURSOR := 'cur';
         userID INTEGER := get_user_id_from_session($3);
 BEGIN
 
   INSERT 
-  INTO lists
-  VALUES (DEFAULT, name, description, userID, private, now()::TIMESTAMP)
+  INTO lists (name, description, creator_id, private, created_at)
+  VALUES (name, description, userID, private, now()::TIMESTAMP)
   RETURNING * 
   INTO new_list;
 
-  PERFORM subscribe(session, list_id);
-  
-  RETURN new_list;
+  PERFORM subscribe(session, new_list.id);
 
+  OPEN cursor FOR
+    SELECT new_list.*;
+
+  RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -28,9 +30,10 @@ DECLARE list_id INTEGER;
 BEGIN
 
   INSERT 
-  INTO lists
-  VALUES (DEFAULT, name, description, userID, private, now()::TIMESTAMP) 
-  RETURNING id INTO list_id;
+  INTO lists (name, description, creator_id, private, created_at)
+  VALUES (name, description, userID, private, now()::TIMESTAMP) 
+  RETURNING id 
+  INTO list_id;
 
   PERFORM subscribe2(userID, list_id);
 
@@ -91,8 +94,8 @@ BEGIN
 
   IF FOUND THEN
     INSERT 
-    INTO subscriptions
-    VALUES (DEFAULT, userID, list_id, now()::timestamp);
+    INTO subscriptions (subscriber_id, list_id, created_at)
+    VALUES (userID, list_id, now()::timestamp);
   ELSE  
     RAISE EXCEPTION 'no such list exists';
   END IF;
@@ -111,8 +114,8 @@ BEGIN
 
   IF FOUND THEN
     INSERT 
-    INTO subscriptions
-    VALUES (DEFAULT, userID, list_id, now()::timestamp);
+    INTO subscriptions (subscriber_id, list_id, created_at)
+    VALUES (userID, list_id, now()::timestamp);
   ELSE  
     RAISE EXCEPTION 'no such list exists';
   END IF;
@@ -158,8 +161,8 @@ BEGIN
 
   IF FOUND THEN
     INSERT 
-    INTO memberships
-    VALUES(DEFAULT, $1, $2, now()::timestamp);
+    INTO memberships (member_id, list_id, created_at)
+    VALUES($1, $2, now()::timestamp);
   ELSE 
     RAISE EXCEPTION 'no such list exists';
   END IF;
@@ -179,8 +182,8 @@ BEGIN
 
   IF FOUND THEN
     INSERT 
-    INTO memberships
-    VALUES(DEFAULT, $1, $2, now()::timestamp);
+    INTO memberships (member_id, list_id, created_at)
+    VALUES(userID, $2, now()::timestamp);
   ELSE 
     RAISE EXCEPTION 'no such list exists';
   END IF;

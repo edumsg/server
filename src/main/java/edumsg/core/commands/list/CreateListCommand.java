@@ -20,8 +20,10 @@ import edumsg.core.PostgresConnection;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,12 +35,23 @@ public class CreateListCommand extends Command implements Runnable {
 
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
-            dbConn.setAutoCommit(true);
-            Statement query = dbConn.createStatement();
-            query.setPoolable(true);
+            dbConn.setAutoCommit(false);
 
-            set = query.executeQuery(String.format("SELECT * FROM create_list('%s','%s','%s', %s)",
-                    map.get("name"), map.get("description"), map.get("session_id"), map.get("private")));
+            proc = dbConn.prepareCall("{ ? = call create_list(?,?,?,?) }");
+            proc.setPoolable(true);
+
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.setString(2, map.get("name"));
+            proc.setString(3, map.get("description"));
+            proc.setString(4, map.get("session_id"));
+            if ( map.get("private").equals("true")) {
+               proc.setBoolean(5, true);
+            } else {
+                proc.setBoolean(5, false);
+            }
+
+            proc.execute();
+            set = (ResultSet) proc.getObject(1);
 
             while(set.next()){
                 details.put("list_id", set.getInt("id")+"");
@@ -51,11 +64,13 @@ public class CreateListCommand extends Command implements Runnable {
             }
 
             set.close();
+            proc.close();
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
+
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
             } catch (JsonGenerationException e) {
@@ -65,6 +80,9 @@ public class CreateListCommand extends Command implements Runnable {
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
+
+            dbConn.commit();
+
         } catch (PSQLException e) {
             if (e.getMessage().contains("unique constraint")) {
                 if (e.getMessage().contains("(name)")) {
@@ -74,7 +92,7 @@ public class CreateListCommand extends Command implements Runnable {
             if (e.getMessage().contains("value too long")) {
                 CommandsHelp.handleError(map.get("app"), map.get("method"), "Too long input", map.get("correlation_id"), LOGGER);
             }
-            CommandsHelp.handleError(map.get("app"), map.get("method"), "List name already exists", map.get("correlation_id"), LOGGER);
+            CommandsHelp.handleError(map.get("app"), map.get("method"), "An error occurred while creating list", map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (SQLException e) {
             CommandsHelp.handleError(map.get("app"), map.get("method"), "List name already exists", map.get("correlation_id"), LOGGER);

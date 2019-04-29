@@ -38,7 +38,7 @@ public class CreateConversationCommand extends Command implements Runnable {
 
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
-            dbConn.setAutoCommit(true);
+            dbConn.setAutoCommit(false);
 
             proc = dbConn.prepareCall("{? = call create_conversation(?,?,?)}");
 

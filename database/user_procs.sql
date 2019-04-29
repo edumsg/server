@@ -103,15 +103,14 @@ CREATE OR REPLACE FUNCTION create_user(username   VARCHAR(30),
                                        password   VARCHAR(150),
                                        name       VARCHAR(100),
                                        avatar_url VARCHAR(70) DEFAULT 'http://i.imgur.com/LkovBT3.png')
-    RETURNS REFCURSOR AS $$
-DECLARE cursor REFCURSOR := 'cur';
+    RETURNS SETOF users AS $$
 BEGIN
-    OPEN cursor
+    RETURN QUERY
         INSERT 
-        INTO users
-        VALUES (DEFAULT,username, email, password, name, now() :: TIMESTAMP, avatar_url)
+        INTO users (username, email, encrypted_password, name, created_at, avatar_url)
+        VALUES (username, email, password, name, now() :: TIMESTAMP, avatar_url)
         RETURNING *;
-    RETURN cursor;
+    RETURN;
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -602,7 +601,7 @@ BEGIN
     FOR followedUser IN 
         SELECT *
         FROM followships
-        WHERE follower_of_user_id = userID;
+        WHERE follower_of_user_id = userID
     LOOP
 
         -- Fetches followed user tweets & retweets.
