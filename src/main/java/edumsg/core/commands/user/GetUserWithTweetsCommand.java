@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GetUserWithTweetsCommand extends Command implements Runnable {
@@ -36,16 +37,17 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
             details = null; //Cache.returnUser(map.get("username"));
             User user = new User();
 
-
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
+
             proc = dbConn.prepareCall("{? = call get_user_with_tweets(?,?)}");
             proc.setPoolable(true);
-            proc.registerOutParameter(1, Types.OTHER);
-            proc.setString(2, map.get("username"));
-            proc.setString(3,map.get("type"));
-            proc.execute();
 
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.setString(2, map.get("session_id"));
+            proc.setString(3, map.get("type"));
+
+            proc.execute();
             set = (ResultSet) proc.getObject(1);
             ArrayNode tweets = nf.arrayNode();
 
@@ -54,8 +56,8 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
             root.put("status", "ok");
             root.put("code", "200");
 
-
             while (set.next()) {
+
                 Integer id = set.getInt(1);
                 String username = set.getString(2);
                 String email = set.getString(3);
@@ -86,17 +88,19 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
                 user.setBackgroundColor(background_color);
                 user.setProtectedTweets(protected_tweets);
 
-
+                System.out.println(created_at);
 
                 Integer tweet_id = set.getInt(16);
                 String tweet = set.getString(17);
                 Timestamp tweet_created_at = set.getTimestamp(19);
-                String image_url = set.getString(20);
+                String type = set.getString(20);
+                String image_url = set.getString(21);
 
 
                 Tweet t = new Tweet();
                 t.setId(tweet_id);
                 t.setTweetText(tweet);
+                t.setType(type);
                 t.setImageUrl(image_url);
                 t.setCreatedAt(tweet_created_at);
                 t.setCreator(user);
@@ -104,19 +108,14 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
                 tweets.addPOJO(t);
 
                 System.out.println(tweet);
-
             }
-
 
             ValueNode child = nf.pojoNode(user);
             root.set("user", child);
-//            root.set("tweets", tweets);
-
 
             set.close();
             proc.close();
             root.set("tweets", tweets);
-
 
             try {
                 CommandsHelp.submit(map.get("app"),
@@ -131,10 +130,11 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
             }
 
             dbConn.commit();
-        } catch (PSQLException e) {
+
+        }catch (PSQLException e) {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SQLException e) {
+        }catch (SQLException e) {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {

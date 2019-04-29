@@ -50,38 +50,42 @@ public class GetUserTweetsCommand extends Command implements Runnable {
             set = (ResultSet) proc.getObject(1);
 
             ArrayNode tweets = nf.arrayNode();
+            
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
 
             while (set.next()) {
-                Integer id = set.getInt(1);
-                String tweet = set.getString(2);
-                String image_url = set.getString(3);
-                Timestamp created_at = set.getTimestamp(4);
-                Integer creator_id = set.getInt(5);
-                String creator_name = set.getString(6);
-                String creator_username = set.getString(7);
-                String creator_avatar = set.getString(8);
+
+                Integer id = set.getInt("id");
+                String tweet = set.getString("tweet_text");
+                String image_url = set.getString("image_url");
+                Timestamp created_at = set.getTimestamp("creation");
+                Integer creator_id = set.getInt("creator_id");
+                String creator_name = set.getString("name");
+                String creator_username = set.getString("username");
+                String creator_avatar = set.getString("avatar_url");
 
                 Tweet t = new Tweet();
                 t.setId(id);
                 t.setTweetText(tweet);
                 t.setImageUrl(image_url);
                 t.setCreatedAt(created_at);
+
                 User creator = new User();
                 creator.setId(creator_id);
                 creator.setName(creator_name);
                 creator.setAvatarUrl(creator_avatar);
                 creator.setUsername(creator_username);
-                t.setCreator(creator);
 
+                t.setCreator(creator);
                 tweets.addPOJO(t);
                 }
 
-//            set.close();
-//            proc.close();
+            set.close();
+            proc.close();
+
             root.set("tweets", tweets);
             try {
                 CommandsHelp.submit(map.get("app"),

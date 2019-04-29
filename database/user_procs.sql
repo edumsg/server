@@ -344,15 +344,14 @@ BEGIN
         creation,
         timeline.type,
         image_url,
+        creator_id,
         name,
-        timeline.type
         username,
         avatar_url
     FROM (
             -- Gets tweets originally by user.
             ( SELECT
                 T.*,
-                U.id AS "creator_id",
                 U.name,
                 U.username,
                 U.avatar_url,
@@ -369,10 +368,9 @@ BEGIN
             -- Gets tweets retweeted by user.
             ( SELECT
                 T.*,
-                R.retweeter_id AS "creator_id",
-                U.name,
-                U.username,
-                U.avatar_url,
+                C.name,
+                C.username,
+                C.avatar_url,
                 R.created_at AS "creation"
 
             FROM    tweets T 
@@ -384,8 +382,10 @@ BEGIN
                     users U 
                 ON 
                     R.retweeter_id = U.id
-                AND 
-                    T.creator_id = U.id
+                INNER JOIN
+                    users C
+                ON 
+                    C.id = R.creator_id
                     
             WHERE U.id = userID AND T.type = $2) ) AS timeline
 
@@ -408,6 +408,7 @@ BEGIN
         creation,
         timeline.type,
         image_url,
+        creator_id,
         name,
         username,
         avatar_url
@@ -415,7 +416,6 @@ BEGIN
             -- Gets tweets originally by user.
             ( SELECT
                 T.*,
-                U.id AS "creator_id",
                 U.name,
                 U.username,
                 U.avatar_url,
@@ -432,10 +432,9 @@ BEGIN
             -- Gets tweets retweeted by user.
             ( SELECT
                 T.*,
-                R.retweeter_id AS "creator_id",
-                U.name,
-                U.username,
-                U.avatar_url,
+                C.name,
+                C.username,
+                C.avatar_url,
                 R.created_at AS "creation"
 
             FROM    tweets T 
@@ -447,9 +446,10 @@ BEGIN
                     users U 
                 ON 
                     R.retweeter_id = U.id
-                AND 
-                    T.creator_id = U.id
-                    
+                INNER JOIN 
+                    users C
+                ON
+                    R.creator_id = C.id                    
             WHERE U.id = userID AND T.type = $2) ) AS timeline
 
     ORDER BY creation DESC;
@@ -687,10 +687,16 @@ DECLARE cursor REFCURSOR := 'cur';
 BEGIN
 
     OPEN cursor FOR
-    SELECT R.tweet_id
-    FROM retweets R INNER JOIN users U ON R.retweeter_id = U.id
-    WHERE U.id = userID
-    ORDER BY R.created_at DESC;
+        SELECT R.tweet_id
+        
+        FROM    retweets R 
+            INNER JOIN 
+                users U 
+            ON 
+                R.retweeter_id = U.id
+
+        WHERE U.id = userID
+        ORDER BY R.created_at DESC;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;

@@ -20,6 +20,7 @@ public class Tweet {
 	private String tweet_text;
 	private String image_url;
 	private String created_at;
+	private String type;
 	private User creator;
 	private User retweeter;
 	private User favoriter;
@@ -42,6 +43,10 @@ public class Tweet {
 
 	public void setCreatedAt(Timestamp timestamp) {
 		this.created_at = timestamp.toString();
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public void setCreator(User creator) {
