@@ -46,9 +46,10 @@ public class GetUserTweets2Command extends Command implements Runnable {
             while (set.next()) {
                 Integer id = set.getInt(1);
                 String tweet = set.getString(2);
-                Integer creator_id = set.getInt(3);
-                Timestamp created_at = set.getTimestamp(4);
-                String image_url = set.getString(6);
+                Timestamp created_at = set.getTimestamp(3);
+                String type = set.getString(4);
+                String image_url = set.getString(5);
+                Integer creator_id = set.getInt(6);
                 String creator_name = set.getString(7);
                 String creator_username = set.getString(8);
                 String creator_avatar = set.getString(9);
@@ -57,12 +58,15 @@ public class GetUserTweets2Command extends Command implements Runnable {
                 t.setId(id);
                 t.setTweetText(tweet);
                 t.setImageUrl(image_url);
+                t.setType(type);
                 t.setCreatedAt(created_at);
+
                 User creator = new User();
                 creator.setId(creator_id);
                 creator.setName(creator_name);
                 creator.setAvatarUrl(creator_avatar);
                 creator.setUsername(creator_username);
+
                 t.setCreator(creator);
 
                 tweets.addPOJO(t);

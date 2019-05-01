@@ -63,7 +63,13 @@ public abstract class RunnableClasses {
                 case "dm": cache = DMCache.dmCache;
                     break;
             }
+
             String cachedEntry = cache.get(map.get("method") + ":" + map.get("session_id"));
+
+            if (map.get("method").equals("user_tweets")) {
+                cachedEntry = cache.get(map.get("method") + "_" + map.get("type") + ":" + map.get("session_id"));
+            }
+
             if (cachedEntry != null) {
                 System.out.println("RunnableClasses Class :: Cached Entry: " + cachedEntry);
                 JSONObject cachedEntryJson;

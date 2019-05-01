@@ -57,13 +57,13 @@ public class GetConversationCommand extends Command implements Runnable {
                 int sender_id = set.getInt(1);
                 String sender_name = set.getString(2);
                 String sender_username = set.getString(3);
-                int reciever_id = set.getInt(4);
-                String reciever_name = set.getString(5);
-                String receiver_username = set.getString(6);
-                String dm_text = set.getString(7);
-                String image_url = set.getString(8);
-                Timestamp created_at = set.getTimestamp(9);
-                String sender_avatar = set.getString(10);
+                String sender_avatar = set.getString(4);
+                int reciever_id = set.getInt(5);
+                String reciever_name = set.getString(6);
+                String receiver_username = set.getString(7);
+                String dm_text = set.getString(8);
+                String image_url = set.getString(9);
+                Timestamp created_at = set.getTimestamp(10);
                 String receiver_avatar = set.getString(11);
 
                 User sender = new User();

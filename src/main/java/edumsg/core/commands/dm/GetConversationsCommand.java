@@ -97,8 +97,10 @@ public class GetConversationsCommand extends Command implements Runnable {
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
                 JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
+
                 cacheEntry.put("cacheStatus", "valid");
                 TweetsCache.tweetCache.set("get_convs:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
+
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {

@@ -52,7 +52,7 @@ BEGIN
             tweets T
         ON 
             U.id = T.creator_id
-    WHERE U.id = $1;
+    WHERE U.id = userID;
 
     RETURN tweets_count;
 
@@ -803,27 +803,33 @@ LANGUAGE PLPGSQL;
 CREATE OR REPLACE FUNCTION get_mentions(session VARCHAR)
     RETURNS REFCURSOR AS $$
 DECLARE cursor REFCURSOR := 'cur';
+        userID INTEGER := get_user_id_from_session($1);
         user_username VARCHAR;
 BEGIN
+
     SELECT username
     INTO user_username
     FROM users
-    WHERE id = (SELECT user_id
-                FROM sessions
-                WHERE id = $1);
+    WHERE id = userID;
 
     OPEN cursor FOR
-    SELECT
-        T.id,
-        T.tweet_text,
-        T.image_url,
-        T.created_at,
-        U.name,
-        U.username,
-        U.avatar_url
-    FROM tweets T INNER JOIN users U ON T.creator_id = U.id
-    WHERE T.tweet_text LIKE '%@' || user_username || '%'
-    ORDER BY T.created_at DESC;
+        SELECT
+            T.id,
+            T.tweet_text,
+            T.image_url,
+            T.created_at,
+            U.name,
+            U.username,
+            U.avatar_url
+
+        FROM    tweets T 
+            INNER JOIN 
+                users U 
+            ON 
+                T.creator_id = U.id
+        
+        WHERE T.tweet_text LIKE '%@' || user_username || '%'
+        ORDER BY T.created_at DESC;
     RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -833,7 +839,8 @@ CREATE OR REPLACE FUNCTION report_user(reported_id INTEGER, session VARCHAR)
     RETURNS VOID AS $$
 DECLARE userID INTEGER := get_user_id_from_session($2);
 BEGIN
-    INSERT INTO reports (reported_id, creator_id, created_at, type)
+    INSERT 
+    INTO reports (reported_id, creator_id, created_at, type)
     VALUES (reported_id, userID, now()::TIMESTAMP, 'users');
 END; $$
 LANGUAGE PLPGSQL;
@@ -847,6 +854,7 @@ BEGIN
     INTO is_private
     FROM users U
     WHERE U.id = $1;
+
     RETURN is_private;
 END; $$
 LANGUAGE PLPGSQL;
@@ -857,11 +865,12 @@ DECLARE cursor REFCURSOR := 'cur';
         userID INTEGER := get_user_id_from_username($1);
 
 BEGIN
-    INSERT INTO sessions AS S (id, user_id, session_start, created_at)
+    INSERT 
+    INTO sessions AS S (id, user_id, session_start, created_at)
     VALUES ($2, userID, now() :: TIMESTAMP, now() :: TIMESTAMP)
     ON CONFLICT (user_id)
-        DO UPDATE SET session_start = now() :: TIMESTAMP, id = $2, session_end = NULL
-            WHERE S.user_id = userID;
+    DO  UPDATE SET session_start = now() :: TIMESTAMP, id = $2, session_end = NULL
+        WHERE S.user_id = userID;
 
     OPEN cursor FOR
         SELECT *
@@ -911,19 +920,12 @@ CREATE OR REPLACE FUNCTION is_following(session VARCHAR, user_name VARCHAR)
     RETURNS BOOLEAN AS $$
 DECLARE isFollowing BOOLEAN := FALSE;
         userID       INTEGER := get_user_id_from_session($1);
-        followerID   INTEGER;
+        followerID   INTEGER := get_user_id_from_username($2);
 BEGIN
-
-    -- Finds the id of follower using username.
-    SELECT U.id
-    INTO followerID
-    FROM users U
-    WHERE U.username = $2;
-
     SELECT confirmed
     INTO isFollowing
     FROM followships
-    WHERE user_id = userID AND follower_of_user_id = followerID;
+    WHERE user_id = userID AND follower_of_user_id = followerID AND F.confirmed = TRUE;
     
     IF isFollowing = true THEN
         RETURN TRUE;
@@ -938,14 +940,8 @@ CREATE OR REPLACE FUNCTION is_following_user(session VARCHAR, username VARCHAR)
     RETURNS BOOLEAN AS $$
 DECLARE isFollowing BOOLEAN:= FALSE;
         userID INTEGER := get_user_id_from_session($1);
-        followedUserID INTEGER;
+        followedUserID INTEGER := get_user_id_from_username($2);
 BEGIN
-
-    -- Finds the id of follower using username.
-    SELECT U.id
-    INTO followedUserID
-    FROM users U
-    WHERE U.username = $2;
 
     SELECT F.confirmed
     INTO isFollowing

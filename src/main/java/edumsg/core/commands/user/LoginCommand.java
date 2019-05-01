@@ -41,14 +41,17 @@ public class LoginCommand extends Command {
         try {
             String sessionID = URLEncoder.encode(new UID().toString(), "UTF-8");
             String cleaned_session = sessionID.replace("%", "\\%");
+
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
+
             proc = dbConn.prepareCall("{? = call get_password_info(?)}");
             proc.setPoolable(true);
+
             proc.registerOutParameter(1, Types.VARCHAR);
             proc.setString(2, map.get("username"));
-            proc.execute();
 
+            proc.execute();
             String enc_password = proc.getString(1);
 
             if (enc_password == null) {
@@ -64,23 +67,16 @@ public class LoginCommand extends Command {
 
             if (authenticated) {
                 User user = new User();
-                Statement query = dbConn.createStatement();
-
-//                query = dbConn.createStatement();
-//                query.setPoolable(true);
-//                set = query.executeQuery(String.format("SELECT * FROM login('%s','%s')"
-//                        , map.get("username")
-//                        , cleaned_session));
-
 
                 proc = dbConn.prepareCall("{? = call login(?,?)}");
                 proc.setPoolable(true);
+
                 proc.registerOutParameter(1, Types.OTHER);
                 proc.setString(2, map.get("username"));
                 proc.setString(3, cleaned_session);
+
                 proc.execute();
                 set = (ResultSet) proc.getObject(1);
-
 
                 root.put("app", map.get("app"));
                 root.put("method", map.get("method"));
@@ -140,6 +136,7 @@ public class LoginCommand extends Command {
 
 
                 proc.close();
+                set.close();
                 dbConn.commit();
 
                 user.setSessionID(cleaned_session);

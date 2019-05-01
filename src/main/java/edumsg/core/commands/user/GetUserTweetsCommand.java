@@ -50,7 +50,7 @@ public class GetUserTweetsCommand extends Command implements Runnable {
             set = (ResultSet) proc.getObject(1);
 
             ArrayNode tweets = nf.arrayNode();
-            
+
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
@@ -92,8 +92,10 @@ public class GetUserTweetsCommand extends Command implements Runnable {
                         mapper.writeValueAsString(root),
                         map.get("correlation_id"), LOGGER);
                 JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
+
                 cacheEntry.put("cacheStatus", "valid");
-                UserCache.userCache.set("user_tweets:" + map.get("session_id"), cacheEntry.toString());
+                UserCache.userCache.set("user_tweets_" + map.get("type") + ":" + map.get("session_id"), cacheEntry.toString());
+
             } catch (JsonGenerationException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {

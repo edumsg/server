@@ -19,6 +19,7 @@ import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
 import edumsg.redis.Cache;
 import edumsg.redis.UserCache;
+import org.apache.log4j.ConsoleAppender;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
@@ -50,6 +51,8 @@ public class CreateConversationCommand extends Command implements Runnable {
 
             proc.execute();
             boolean sent = proc.getBoolean(1);
+
+            System.out.println(sent);
 
             if (sent) {
                 root.put("app", map.get("app"));
@@ -85,6 +88,8 @@ public class CreateConversationCommand extends Command implements Runnable {
             } else {
                 CommandsHelp.handleError(map.get("app"), map.get("method"), "Username Invalid or Conversation already exists", map.get("correlation_id"), LOGGER);
             }
+
+            dbConn.commit();
 
         } catch (PSQLException e) {
             System.out.println("Create Conv :: PSQL Exception");
