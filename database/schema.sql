@@ -30,7 +30,10 @@ CREATE TABLE tweets(
   creator_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   created_at timestamp NOT NULL,
   type VARCHAR (20) CHECK (type IN ('rt','nw','va','dbt')) DEFAULT 'rt',
-  image_url varchar(100)
+  image_url varchar(100),
+  is_retweeted BOOLEAN DEFAULT FALSE,
+  is_favorited BOOLEAN DEFAULT FALSE,
+  has_replies BOOLEAN DEFAULT FALSE
 );
 
 -- DROP INDEX IF EXISTS tweet_id_index;

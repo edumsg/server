@@ -63,12 +63,13 @@ public class CreateListMembersCommand extends Command implements Runnable {
 
             proc.execute();
 
-
-
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
+
+            proc.close();
+
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
             } catch (JsonGenerationException e) {

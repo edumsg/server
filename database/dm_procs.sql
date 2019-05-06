@@ -30,7 +30,7 @@ BEGIN
 
         RETURN TRUE;
     ELSE
-        RETURN FALSE;
+        RAISE EXCEPTION 'You can''t send a message to a user not following you';
     END IF;
 END; $$
 LANGUAGE PLPGSQL;
@@ -48,9 +48,11 @@ BEGIN
     -- Checks if userID was considered sender or receiver in previous conversation.
     SELECT 
     INTO receiverID
-         CASE WHEN user_id = userID
-         THEN user2_id
-         ELSE user_id END
+         CASE 
+            WHEN user_id = userID
+            THEN user2_id
+            ELSE user_id 
+         END
     FROM conversations
     WHERE id = $2;
 
@@ -168,7 +170,6 @@ BEGIN
 END; $$
 LANGUAGE PLPGSQL;
 
--- No need for it can use create_dm directly instead.
 CREATE OR REPLACE FUNCTION create_conversation(session VARCHAR, username2 VARCHAR, dm_text VARCHAR(140))
     RETURNS BOOLEAN AS $$
 DECLARE userID  INTEGER := get_user_id_from_session($1);

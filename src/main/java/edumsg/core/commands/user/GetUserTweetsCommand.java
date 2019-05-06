@@ -67,11 +67,18 @@ public class GetUserTweetsCommand extends Command implements Runnable {
                 String creator_username = set.getString("username");
                 String creator_avatar = set.getString("avatar_url");
 
+                Boolean is_retweeted = set.getBoolean("is_retweeted");
+                Boolean is_favorited = set.getBoolean("is_favorited");
+                Boolean has_replies = set.getBoolean("has_replies");
+
                 Tweet t = new Tweet();
                 t.setId(id);
                 t.setTweetText(tweet);
                 t.setImageUrl(image_url);
                 t.setCreatedAt(created_at);
+//                t.setIsRetweeted(is_retweeted);
+//                t.setIsFavorited(is_favorited);
+//                t.setHasReplies(has_replies);
 
                 User creator = new User();
                 creator.setId(creator_id);

@@ -90,9 +90,11 @@ public class GetListFeedsCommand extends Command implements Runnable {
             root.set("list_feeds", tweets);
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+
                 JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
                 cacheEntry.put("cacheStatus", "valid");
                 ListCache.listCache.set("get_list_feeds:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
+
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {

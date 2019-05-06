@@ -77,12 +77,12 @@ public class NewTweetCommand extends Command implements Runnable {
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
 
-                String cacheEntry = UserCache.userCache.get("user_tweets:" + map.get("session_id"));
+                String cacheEntry = UserCache.userCache.get("user_tweets_" + map.get("type") + ":" + map.get("session_id"));
                 System.out.println(cacheEntry);
                 if (cacheEntry != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry);
                     cacheEntryJson.put("cacheStatus", "invalid");
-                    UserCache.userCache.set("user_tweets:" + map.get("session_id"), cacheEntryJson.toString());
+                    UserCache.userCache.set("user_tweets_" + map.get("type") + ":" + map.get("session_id"), cacheEntryJson.toString());
                 }
                 String cacheEntry1 = UserCache.userCache.get("timeline:" + map.get("session_id"));
                 if (cacheEntry1 != null) {

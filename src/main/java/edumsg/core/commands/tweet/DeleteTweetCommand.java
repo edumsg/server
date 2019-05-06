@@ -18,6 +18,7 @@ import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
 import edumsg.redis.EduMsgRedis;
+import edumsg.redis.UserCache;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
@@ -50,11 +51,18 @@ public class DeleteTweetCommand extends Command implements Runnable {
                 CommandsHelp.submit(map.get("app"),
                         mapper.writeValueAsString(root),
                         map.get("correlation_id"), LOGGER);
+
+                String userTweetsCache = UserCache.userCache.get("user_tweets_" + map.getOrDefault("type","") + ":" + map.get("session_id"));
+                if( userTweetsCache != null ) {
+                    JSONObject cacheEntryJson = new JSONObject(userTweetsCache);
+                    cacheEntryJson.put("cacheStatus", "invalid");
+                    UserCache.userCache.set("user_tweets_" + map.get("type") + ":" + map.get("session_id"),cacheEntryJson.toString());
+                }
+
                 String cacheEntry = EduMsgRedis.redisCache.get("timeline");
                 if (cacheEntry != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry);
                     cacheEntryJson.put("cacheStatus", "invalid");
-                    System.out.println("invalidated");
                     EduMsgRedis.redisCache.set("timeline", cacheEntryJson.toString());
                 }
                 String cacheEntry1 = EduMsgRedis.redisCache.get("get_feeds");

@@ -61,11 +61,11 @@ public class CreateConversationCommand extends Command implements Runnable {
                 root.put("code", "200");
                 try {
                     CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+
                     String cacheEntry = UserCache.userCache.get("get_conv:" + map.get("session_id"));
                     if (cacheEntry != null) {
                         JSONObject cacheEntryJson = new JSONObject(cacheEntry);
                         cacheEntryJson.put("cacheStatus", "invalid");
-//                    System.out.println("invalidated");
                         UserCache.userCache.set("get_conv:" + map.get("session_id"), cacheEntryJson.toString());
                     }
                     String cacheEntry1 = UserCache.userCache.get("get_convs:" + map.get("session_id"));
@@ -95,7 +95,11 @@ public class CreateConversationCommand extends Command implements Runnable {
             System.out.println("Create Conv :: PSQL Exception");
             if (e.getMessage().contains("value too long")) {
                 CommandsHelp.handleError(map.get("app"), map.get("method"), "DM length cannot exceed 140 character", map.get("correlation_id"), LOGGER);
-            } else {
+            }
+            else if (e.getMessage().contains("following you")) {
+                CommandsHelp.handleError(map.get("app"), map.get("method"), "User must be following you first", map.get("correlation_id"), LOGGER);
+            }
+            else {
                 CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             }
 

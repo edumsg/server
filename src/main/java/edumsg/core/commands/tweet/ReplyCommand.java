@@ -52,7 +52,7 @@ public class ReplyCommand extends Command implements Runnable
             root.put("code", "200");
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
-                String cacheEntry = UserCache.userCache.get("user_tweets:" + map.get("session_id"));
+                String cacheEntry = UserCache.userCache.get("user_tweets" + map.get("type") + ":" + map.get("session_id"));
                 if (cacheEntry != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry);
                     cacheEntryJson.put("cacheStatus", "invalid");

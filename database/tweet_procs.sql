@@ -106,8 +106,8 @@ CREATE OR REPLACE FUNCTION favorite(tweet_id INTEGER, session VARCHAR)
 DECLARE userID INTEGER := get_user_id_from_session($2);
 BEGIN
 
-  PERFORM id
-  FROM tweets
+  UPDATE tweets
+  SET is_favorited = TRUE
   WHERE id = $1;
 
   IF FOUND THEN
@@ -128,9 +128,17 @@ CREATE OR REPLACE FUNCTION unfavorite(tweet_id INTEGER, session VARCHAR)
 DECLARE userID INTEGER := get_user_id_from_session($2);
 BEGIN
 
-  DELETE 
-  FROM favorites F
-  WHERE F.tweet_id = $1 AND F.user_id = userID;
+  UPDATE tweets
+  SET is_favorited = FALSE
+  WHERE id = $1;
+
+  IF FOUND THEN
+    DELETE 
+    FROM favorites F
+    WHERE F.tweet_id = $1 AND F.user_id = userID;
+  ELSE
+    RAISE EXCEPTION 'no such tweet exists';
+  END IF;
 
   RETURN get_favorites_count(tweet_id);
 END; $$
@@ -166,10 +174,11 @@ DECLARE creatorID INTEGER;
         userID INTEGER := get_user_id_from_session($2);
 BEGIN
 
-  SELECT T.creator_id
-  INTO creatorID
-  FROM tweets T
-  WHERE T.id = $1;
+  UPDATE tweets
+  SET is_retweeted = TRUE
+  WHERE id = $1
+  RETURNING creator_id
+  INTO creatorID;
 
   IF FOUND THEN
     IF creatorID <> userID THEN
@@ -190,13 +199,23 @@ LANGUAGE PLPGSQL;
 CREATE OR REPLACE FUNCTION unretweet(tweet_id INTEGER, session VARCHAR)
   RETURNS INTEGER AS $$
 DECLARE userID INTEGER := get_user_id_from_session($2);
+        retweetsCount INTEGER;
 BEGIN
 
   DELETE 
   FROM retweets R
   WHERE R.tweet_id = $1 AND R.retweeter_id = userID;
 
-  RETURN get_retweets_count(tweet_id);
+  retweetsCount := get_retweets_count(tweet_id);
+
+  IF retweetsCount = 0 THEN
+    UPDATE tweets
+    SET is_retweeted = FALSE
+    WHERE id = $1;
+  END IF;
+
+  RETURN retweetsCount;
+
 END; $$
 LANGUAGE PLPGSQL;
 
@@ -234,13 +253,22 @@ CREATE OR REPLACE FUNCTION reply( tweet_id  INTEGER, tweet_text VARCHAR(140),
 DECLARE reply_id INTEGER;
 BEGIN
 
-  SELECT id
-  INTO reply_id
-  FROM create_tweet(tweet_text, session, type, image_url);
+  UPDATE tweets
+  SET has_replies = TRUE
+  WHERE id = $1;
+
+  IF FOUND THEN
+    INSERT 
+    INTO tweets (tweet_text, creator_id, created_at,type, image_url)
+    VALUES (tweet_text, userID, now()::timestamp, type, image_url)
+    RETURNING id
+    INTO reply_id;
+    
+    INSERT 
+    INTO replies (original_tweet_id, reply_id, created_at)
+    VALUES (tweet_id, reply_id, now()::timestamp);
+  END IF;
   
-  INSERT 
-  INTO replies (original_tweet_id, reply_id, created_at)
-  VALUES (tweet_id, reply_id, now()::timestamp);
 END; $$
 LANGUAGE PLPGSQL;
 

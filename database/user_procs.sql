@@ -347,7 +347,10 @@ BEGIN
         creator_id,
         name,
         username,
-        avatar_url
+        avatar_url,
+        is_retweeted,
+        is_favorited,
+        has_replies
     FROM (
             -- Gets tweets originally by user.
             ( SELECT

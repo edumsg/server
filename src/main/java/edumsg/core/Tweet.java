@@ -28,6 +28,7 @@ public class Tweet {
 	private Integer favorites;
 	private boolean is_retweeted;
 	private boolean is_favorited;
+	private boolean has_replies;
 
 	public void setId(Integer id) {
 		this.id = id;
@@ -75,5 +76,9 @@ public class Tweet {
 
 	public void setIsFavorited(boolean isFavorited) {
 		this.is_favorited = isFavorited;
+	}
+
+	public void setHasReplies(boolean hasReplies) {
+		this.has_replies = hasReplies;
 	}
 }
