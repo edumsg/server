@@ -251,6 +251,7 @@ CREATE OR REPLACE FUNCTION reply( tweet_id  INTEGER, tweet_text VARCHAR(140),
                                   session VARCHAR, type VARCHAR, image_url VARCHAR(100) DEFAULT NULL)
   RETURNS VOID AS $$
 DECLARE reply_id INTEGER;
+        userID INTEGER = get_user_id_from_session($3);
 BEGIN
 
   UPDATE tweets

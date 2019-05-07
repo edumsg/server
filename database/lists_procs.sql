@@ -89,8 +89,7 @@ BEGIN
 
   PERFORM id
   FROM lists
-  WHERE id = $2
-  LIMIT 1;
+  WHERE id = $2;
 
   IF FOUND THEN
     INSERT 
@@ -109,8 +108,7 @@ BEGIN
 
   PERFORM id
   FROM lists
-  WHERE id = $2
-  LIMIT 1;
+  WHERE id = $2;
 
   IF FOUND THEN
     INSERT 
@@ -156,8 +154,7 @@ BEGIN
 
   PERFORM id
   FROM lists
-  WHERE id = $2
-  LIMIT 1;
+  WHERE id = $2;
 
   IF FOUND THEN
     INSERT 
@@ -177,8 +174,7 @@ BEGIN
 
   PERFORM id
   FROM lists
-  WHERE id = $2
-  LIMIT 1;
+  WHERE id = $2;
 
   IF FOUND THEN
     INSERT 
@@ -261,8 +257,7 @@ BEGIN
       ON
           U.id = M.member_id
 
-    WHERE L.id = $1
-    LIMIT 1;
+    WHERE L.id = $1;
   RETURN cursor;
 END; $$
 LANGUAGE PLPGSQL;
@@ -353,8 +348,7 @@ BEGIN
   RETURN QUERY
   SELECT * 
   FROM lists 
-  WHERE id = $1
-  LIMIT 1;
+  WHERE id = $1;
 END; $$
 LANGUAGE PLPGSQL;
 

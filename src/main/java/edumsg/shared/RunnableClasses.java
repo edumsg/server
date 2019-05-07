@@ -66,7 +66,8 @@ public abstract class RunnableClasses {
 
             String cachedEntry = cache.get(map.get("method") + ":" + map.get("session_id"));
 
-            if (map.get("method").equals("user_tweets")) {
+            // We need to cache tweet and timeline based on their type.
+            if (map.get("method").equals("user_tweets") || map.get("method").equals("timeline") ) {
                 cachedEntry = cache.get(map.get("method") + "_" + map.get("type") + ":" + map.get("session_id"));
             }
 
