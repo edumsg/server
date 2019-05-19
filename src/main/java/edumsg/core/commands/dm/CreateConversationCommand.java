@@ -91,21 +91,12 @@ public class CreateConversationCommand extends Command implements Runnable {
 
             dbConn.commit();
 
-        } catch (PSQLException e) {
-            System.out.println("Create Conv :: PSQL Exception");
-            if (e.getMessage().contains("value too long")) {
-                CommandsHelp.handleError(map.get("app"), map.get("method"), "DM length cannot exceed 140 character", map.get("correlation_id"), LOGGER);
-            }
-            else if (e.getMessage().contains("following you")) {
-                CommandsHelp.handleError(map.get("app"), map.get("method"), "User must be following you first", map.get("correlation_id"), LOGGER);
-            }
-            else {
-                CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            }
+        } catch (Exception e) {
+            String app = map.get("app");
+            String method = map.get("method");
+            String errMsg = CommandsHelp.getErrorMessage(app, method, e);
 
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            CommandsHelp.handleError(app, method, errMsg, map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);

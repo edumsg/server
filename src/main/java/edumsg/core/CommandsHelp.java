@@ -19,8 +19,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Producer;
 import edumsg.shared.MyObjectMapper;
+import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.logging.Logger;
 
 public class CommandsHelp {
@@ -53,4 +55,104 @@ public class CommandsHelp {
                 + ".OUTQUEUE"));
         p.send(json, correlationID, logger);
     }
+
+    public static String getErrorMessage(String app, String method, Throwable t) {
+        // Default Error Message response
+        String errMsg = t.getMessage();
+
+        // Frequently Occurring Error Messages
+        String valueTooLong = "value too long";
+        String uniqueConstraint = "unique constraint";
+
+        if (t instanceof PSQLException) {
+            if ( app.equals("dm") ) {
+                if (errMsg.contains(valueTooLong)) return "DM length cannot exceed 140 character";
+                switch (method) {
+                    case "create_conversation":
+                        if (errMsg.contains("following you")) return "User must be following you first";
+
+                    case "delete_conversation":
+                        if (errMsg.contains("cannot delete")) return "You are not part of this conversation";
+
+                    default: return errMsg;
+                }
+            }
+
+            if ( app.equals("list") ) {
+                if (errMsg.contains("no such list exists")) return " This list is no longer available";
+                switch (method) {
+                    case "add_member":
+                        if (errMsg.contains(uniqueConstraint)) return "Membership already exists";
+
+                    case "update_list":
+                    case "subscribe":
+                    case "get_list":
+                    case "create_list_with_members":
+                    case "create_list":
+                        if (errMsg.contains(uniqueConstraint) && errMsg.contains("(name)") ) return "List name already exists";
+                        if (errMsg.contains(valueTooLong)) return "List name is too long";
+
+                    case "delete_conversation":
+                        if (errMsg.contains("cannot delete")) return "You can only delete your own lists";
+
+                    case "unsubscribe":
+                        if (errMsg.contains("cannot unsubscribe")) return "You cannot unsubscribe from your own list";
+
+                    default: return errMsg;
+                }
+            }
+
+            if ( app.equals("tweet") ) {
+                switch (method) {
+                    case "delete_tweet":
+                        if (errMsg.contains("only the tweet's owner")) return "Only the tweet's owner can delete this tweet";
+
+                    case "favorite":
+                        if (errMsg.contains(uniqueConstraint)) return "You already favourite this tweet";
+
+                    case "reply":
+                    case"tweet":
+                        if (errMsg.contains(valueTooLong)) return "Tweet exceeds 140 character";
+
+                    case "report_tweet":
+                        if (errMsg.contains(uniqueConstraint)) return "You already reported this tweet";
+
+                    case "retweet":
+                        if (errMsg.contains(uniqueConstraint)) return "You already retweeted this tweet";
+
+                    default: return errMsg;
+                }
+            }
+
+            if ( app.equals("user") ) {
+                switch (method) {
+                    case "update_user":
+                    case "register":
+                        if (errMsg.contains(uniqueConstraint)) {
+                            if (errMsg.contains("(username)")) return "Username already exists";
+                            if (errMsg.contains("(email)")) return "Email already exists";
+                        }
+                    case "report_user":
+                        if (errMsg.contains(uniqueConstraint)) return "You already reported this user";
+
+
+                    default: return errMsg;
+                }
+            }
+
+        }
+
+        if(t instanceof SQLException) {
+            if( app.equals("list") ) {
+                switch (method) {
+                    case "get_list":
+                    case "create_list": return "List name already exists";
+                    default: return  errMsg;
+                }
+            }
+        }
+
+        return errMsg;
+    }
+
 }

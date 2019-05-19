@@ -33,16 +33,20 @@ public class DeleteDmCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
+
             proc = dbConn.prepareCall("{call delete_dm(?,?)}");
             proc.setPoolable(true);
+
             proc.setString(1,map.get("session_id"));
             proc.setInt(2, Integer.parseInt(map.get("dm_id")));
+
             proc.execute();
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
+
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
             } catch (JsonGenerationException e) {
@@ -53,11 +57,13 @@ public class DeleteDmCommand extends Command implements Runnable {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
 
-        } catch (PSQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+        } catch (Exception e) {
+            String app = map.get("app");
+            String method = map.get("method");
+            String errMsg = CommandsHelp.getErrorMessage(app,method,e);
+
+            CommandsHelp.handleError(map.get("app"), map.get("method"), errMsg, map.get("correlation_id"), LOGGER);
+
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);

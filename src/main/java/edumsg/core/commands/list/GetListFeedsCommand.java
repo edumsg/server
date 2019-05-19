@@ -39,11 +39,15 @@ public class GetListFeedsCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
+
             proc = dbConn.prepareCall("{? = call get_list_feeds(?,?)}");
             proc.setPoolable(true);
+
             proc.registerOutParameter(1, Types.OTHER);
+
             proc.setInt(2, Integer.parseInt(map.get("list_id")));
             proc.setString(3,map.get("type"));
+
             proc.execute();
 
             set = (ResultSet) proc.getObject(1);
@@ -104,12 +108,15 @@ public class GetListFeedsCommand extends Command implements Runnable {
             }
 
             dbConn.commit();
-        } catch (PSQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+        } catch ( Exception e ) {
+
+            String app = map.get("app");
+            String method = map.get("method");
+            String errMsg = CommandsHelp.getErrorMessage(app, method, e);
+
+            CommandsHelp.handleError(app, method, errMsg, map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn);
         }

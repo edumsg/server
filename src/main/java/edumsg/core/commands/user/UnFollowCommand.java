@@ -96,11 +96,17 @@ public class UnFollowCommand extends Command implements Runnable {
 //            catch (JSONException e) {
 //                e.printStackTrace();
 //            }
-        } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+        } catch ( Exception e ) {
+
+            String app = map.get("app");
+            String method = map.get("method");
+            String errMsg = CommandsHelp.getErrorMessage(app, method, e);
+
+            CommandsHelp.handleError(app, method, errMsg, map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn,null);
+            PostgresConnection.disconnect(set, proc, dbConn, null);
         }
     }
 }

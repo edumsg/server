@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UpdateUserCommand extends Command implements Runnable {
@@ -115,22 +116,15 @@ public class UpdateUserCommand extends Command implements Runnable {
 //                e.printStackTrace();
 //            }
 
-        } catch (PSQLException e) {
-            if (e.getMessage().contains("unique constraint")) {
-                if (e.getMessage().contains("(username)"))
-                    CommandsHelp.handleError(app, method, "Username already exists", correlationID, LOGGER);
-                if (e.getMessage().contains("(email)"))
-                    CommandsHelp.handleError(app, method, "Email already exists", correlationID, LOGGER);
-            } else {
-                CommandsHelp.handleError(app, method, e.getMessage(), correlationID, LOGGER);
-            }
+        } catch ( Exception e ) {
 
-            //Logger.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SQLException e) {
-            CommandsHelp.handleError(app, method, e.getMessage(), correlationID, LOGGER);
-            //Logger.log(Level.SEVERE, e.getMessage(), e);
+            String errMsg = CommandsHelp.getErrorMessage(app, method, e);
+
+            CommandsHelp.handleError(app, method, errMsg, map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn,null);
+            PostgresConnection.disconnect(set, proc, dbConn, null);
         }
     }
 }

@@ -52,17 +52,15 @@ public class ReportTweetCommand extends Command implements Runnable {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
 
-        } catch (PSQLException e) {
-            if (e.getMessage().contains("unique constraint")) {
-                CommandsHelp.handleError(map.get("app"), map.get("method"), "You already reported this tweet", map.get("correlation_id"), LOGGER);
-            } else {
-                CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            }
+        } catch ( Exception e ) {
 
+            String app = map.get("app");
+            String method = map.get("method");
+            String errMsg = CommandsHelp.getErrorMessage(app, method, e);
+
+            CommandsHelp.handleError(app, method, errMsg, map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }

@@ -90,16 +90,13 @@ public class CreateDmCommand extends Command implements Runnable {
                 CommandsHelp.handleError(map.get("app"), map.get("method"), "You can not dm a user who is not following you", map.get("correlation_id"), LOGGER);
             }
 
-        } catch (PSQLException e) {
-            if (e.getMessage().contains("value too long")) {
-                CommandsHelp.handleError(map.get("app"), map.get("method"), "DM length cannot exceed 140 character", map.get("correlation_id"), LOGGER);
-            } else {
-                CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            }
+        } catch (Exception e) {
+            String app = map.get("app");
+            String method = map.get("method");
+            String errMsg = CommandsHelp.getErrorMessage(app,method,e);
 
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            CommandsHelp.handleError(map.get("app"), map.get("method"), errMsg, map.get("correlation_id"), LOGGER);
+
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);

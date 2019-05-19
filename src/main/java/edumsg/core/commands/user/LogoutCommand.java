@@ -20,6 +20,7 @@ import edumsg.core.PostgresConnection;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class LogoutCommand extends Command implements Runnable {
@@ -58,8 +59,17 @@ public class LogoutCommand extends Command implements Runnable {
 
             dbConn.commit();
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch ( Exception e ) {
+
+            String app = map.get("app");
+            String method = map.get("method");
+            String errMsg = CommandsHelp.getErrorMessage(app, method, e);
+
+            CommandsHelp.handleError(app, method, errMsg, map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
+        } finally {
+            PostgresConnection.disconnect(set, proc, dbConn, null);
         }
     }
 

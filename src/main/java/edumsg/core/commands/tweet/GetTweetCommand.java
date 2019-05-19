@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.HashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GetTweetCommand extends Command implements Runnable {
@@ -115,12 +116,15 @@ public class GetTweetCommand extends Command implements Runnable {
 //                creator.setUsername(creator_username);
                 t.setCreator(creator);
             }
-        } catch (PSQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            //Logger.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            //Logger.log(Level.SEVERE, e.getMessage(), e);
+        } catch ( Exception e ) {
+
+            String app = map.get("app");
+            String method = map.get("method");
+            String errMsg = CommandsHelp.getErrorMessage(app, method, e);
+
+            CommandsHelp.handleError(app, method, errMsg, map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn);
         }

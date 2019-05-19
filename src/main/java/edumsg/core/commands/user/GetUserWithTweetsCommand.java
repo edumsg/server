@@ -131,12 +131,15 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
 
             dbConn.commit();
 
-        }catch (PSQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            //Logger.log(Level.SEVERE, e.getMessage(), e);
-        }catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            //Logger.log(Level.SEVERE, e.getMessage(), e);
+        } catch ( Exception e ) {
+
+            String app = map.get("app");
+            String method = map.get("method");
+            String errMsg = CommandsHelp.getErrorMessage(app, method, e);
+
+            CommandsHelp.handleError(app, method, errMsg, map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn, null);
         }

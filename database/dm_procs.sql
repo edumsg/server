@@ -213,7 +213,7 @@ BEGIN
     WHERE id = conv_id;
 
     IF userID <> senderID AND userID <> receiverID THEN
-        RAISE EXCEPTION 'Cannot Delete A Conversation You Aren''t A Part Of';
+        RAISE EXCEPTION 'cannot delete a conversation uou are not a part of';
     ELSE
         DELETE FROM conversations
         WHERE id = $2;

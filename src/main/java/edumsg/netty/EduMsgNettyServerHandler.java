@@ -79,31 +79,27 @@ public class EduMsgNettyServerHandler extends
         }
     }
 
-    private synchronized void writeResponse(HttpObject currentObj, final ChannelHandlerContext ctx) throws JMSException,
-            NumberFormatException, IOException, InterruptedException, JSONException, ExecutionException {
+    private synchronized void writeResponse(HttpObject currentObj, final ChannelHandlerContext ctx) throws
+            NumberFormatException, InterruptedException, JSONException, ExecutionException {
 
         JSONObject requestJson = new JSONObject(requestBody);
         NettyNotifier notifier = new NettyNotifier(this, requestJson.getString("queue"));
-//        notifier.start();
+
         System.out.println("Request Body: " + requestBody);
+
         sendMessageToActiveMQ(requestBody, requestJson.getString("queue"));
 
         System.out.println("waited");
-        String oldResponseBody = responseBody;
         Future future = executorService.submit(notifier);
         this.responseBody = (String) future.get();
-//        System.out.println("handler: " + this.toString() + "\nnotifier: " + notifier.toString());
-//        synchronized (this) {
-//            wait();
-//        }
-//        notifier.join();
-//        if (responseBody == null)
-//            throw new JMSException("Error getting response body");
+
         System.out.println("notified");
         System.out.println("netty" + getResponseBody());
         System.out.println("-----------");
+
         JSONObject json = new JSONObject(getResponseBody());
         HttpResponseStatus status = null;
+
         if (!json.has("message"))
             status = new HttpResponseStatus(Integer.parseInt((String) json
                     .get("code")),
@@ -125,8 +121,6 @@ public class EduMsgNettyServerHandler extends
         }
 
         ctx.writeAndFlush(response);
-//        channelReadComplete(ctx);
-//        notifyAll();
     }
 
     private void sendMessageToActiveMQ(String jsonBody, String queue) {

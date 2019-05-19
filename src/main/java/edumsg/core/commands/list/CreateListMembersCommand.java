@@ -79,20 +79,15 @@ public class CreateListMembersCommand extends Command implements Runnable {
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
-        } catch (PSQLException e) {
-            if (e.getMessage().contains("unique constraint")) {
-                if (e.getMessage().contains("(name)")) {
-                    CommandsHelp.handleError(map.get("app"), map.get("method"), "List name already exists", map.get("correlation_id"), LOGGER);
-                }
-            }
-            if (e.getMessage().contains("value too long")) {
-                CommandsHelp.handleError(map.get("app"), map.get("method"), "Too long input", map.get("correlation_id"), LOGGER);
-            }
-            CommandsHelp.handleError(map.get("app"), map.get("method"), "List name already exists", map.get("correlation_id"), LOGGER);
+        } catch ( Exception e ) {
+
+            String app = map.get("app");
+            String method = map.get("method");
+            String errMsg = CommandsHelp.getErrorMessage(app, method, e);
+
+            CommandsHelp.handleError(app, method, errMsg, map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), "List name already exists", map.get("correlation_id"), LOGGER);
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }

@@ -55,16 +55,15 @@ public class DeleteListCommand extends Command implements Runnable {
              }
 
 
-        } catch (PSQLException e) {
-            if (e.getMessage().contains("Cannot Delete A List You Didn't Create"))
-                CommandsHelp.handleError(map.get("app"), map.get("method"), "Cannot Delete A List You Didn't Create", map.get("correlation_id"), LOGGER);
-            else {
-                CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            }
-            //LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            //LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch ( Exception e ) {
+
+            String app = map.get("app");
+            String method = map.get("method");
+            String errMsg = CommandsHelp.getErrorMessage(app, method, e);
+
+            CommandsHelp.handleError(app, method, errMsg, map.get("correlation_id"), LOGGER);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }

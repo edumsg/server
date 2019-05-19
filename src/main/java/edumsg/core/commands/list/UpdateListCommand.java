@@ -112,20 +112,13 @@ public class UpdateListCommand extends Command implements Runnable {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
 
-        } catch (PSQLException e) {
-            if (e.getMessage().contains("unique constraint")) {
-                if (e.getMessage().contains("(name)")) {
-                    CommandsHelp.handleError(app, method, "List name already exists", correlationID, LOGGER);
-                }
-            }
-            if (e.getMessage().contains("value too long")) {
-                CommandsHelp.handleError(app, method, "Too long input", correlationID, LOGGER);
-            }
-            CommandsHelp.handleError(app, method, "List name already exists", correlationID, LOGGER);
+        } catch ( Exception e ) {
+
+            String errMsg = CommandsHelp.getErrorMessage(app, method, e);
+
+            CommandsHelp.handleError(app, method, errMsg, map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SQLException e) {
-            CommandsHelp.handleError(app, method, e.getMessage(), correlationID, LOGGER);
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }

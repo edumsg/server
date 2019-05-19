@@ -44,15 +44,18 @@ public class CreateDm2Command extends Command implements Runnable {
             }
             proc.setPoolable(true);
             proc.registerOutParameter(1, Types.BOOLEAN);
+
             proc.setString(2, map.get("session_id"));
             proc.setInt(3, Integer.parseInt(map.get("conv_id")));
             proc.setString(4, map.get("dm_text"));
+
             if (map.containsKey("image_url"))
                 proc.setString(5, map.get("image_url"));
+
             proc.execute();
 
             boolean sent = proc.getBoolean(1);
-            System.out.println("Result = "+map.get("conv_id"));
+
             if (sent) {
                 root.put("app", map.get("app"));
                 root.put("method", map.get("method"));
@@ -60,20 +63,6 @@ public class CreateDm2Command extends Command implements Runnable {
                 root.put("code", "200");
                 try {
                     CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
-//                    String cacheEntry = Cache.userCache.get("get_conv");
-//                    if (cacheEntry != null) {
-//                        JSONObject cacheEntryJson = new JSONObject(cacheEntry);
-//                        cacheEntryJson.put("cacheStatus", "invalid");
-////                    System.out.println("invalidated");
-//                        Cache.userCache.set("get_conv", cacheEntryJson.toString());
-//                    }
-//                    String cacheEntry1 = Cache.userCache.get("get_convs");
-//                    if (cacheEntry1 != null) {
-//                        JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
-//                        cacheEntryJson.put("cacheStatus", "invalid");
-////                    System.out.println("invalidated");
-//                        Cache.userCache.set("get_convs", cacheEntryJson.toString());
-//                    }
                 } catch (JsonGenerationException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 } catch (JsonMappingException e) {
@@ -81,23 +70,17 @@ public class CreateDm2Command extends Command implements Runnable {
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
-//                catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
             } else {
                 CommandsHelp.handleError(map.get("app"), map.get("method"), "You can not dm a user who is not following you", map.get("correlation_id"), LOGGER);
             }
 
-        } catch (PSQLException e) {
-            if (e.getMessage().contains("value too long")) {
-                CommandsHelp.handleError(map.get("app"), map.get("method"), "DM length cannot exceed 140 character", map.get("correlation_id"), LOGGER);
-            } else {
-                CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
-            }
+        } catch (Exception e) {
+            String app = map.get("app");
+            String method = map.get("method");
+            String errMsg = CommandsHelp.getErrorMessage(app,method,e);
 
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
+            CommandsHelp.handleError(map.get("app"), map.get("method"), errMsg, map.get("correlation_id"), LOGGER);
+
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
