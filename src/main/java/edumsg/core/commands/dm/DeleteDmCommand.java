@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
+import edumsg.redis.UserCache;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -49,11 +50,17 @@ public class DeleteDmCommand extends Command implements Runnable {
 
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+
+                String sessionID = map.get("session_id");
+
+                String getConvCacheEntry = UserCache.userCache.get("get_conv:" + map.get("session_id"));
+                String getConvsCacheEntry = UserCache.userCache.get("get_convs:" + map.get("session_id"));
+
+                CommandsHelp.invalidateCacheEntry(UserCache.userCache,getConvCacheEntry,"get_conv",sessionID);
+                CommandsHelp.invalidateCacheEntry(UserCache.userCache,getConvsCacheEntry,"get_convs",sessionID);
+
+
             } catch (JsonGenerationException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
 

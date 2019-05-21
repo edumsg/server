@@ -50,15 +50,17 @@ public class CreateListMembersCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
+
             proc = dbConn.prepareCall("{call create_list_with_members(?,?,?,?,?)}");
-            proc.setPoolable(true);proc.registerOutParameter(1, Types.OTHER);
+            proc.setPoolable(true);
+
+            proc.registerOutParameter(1, Types.OTHER);
             proc.setString(1, map.get("name"));
             proc.setString(2, map.get("description").trim());
             proc.setString(3, map.get("session_id"));
             proc.setBoolean(4, Boolean.parseBoolean(map.get("private")));
+
             Array array = dbConn.createArrayOf("varchar",getMembersNames(map.get("members")) );
-            System.out.println("Members Array: " + array);
-            System.out.println("Description Array: " + map.get("description"));
             proc.setArray(5, array);
 
             proc.execute();
@@ -70,15 +72,8 @@ public class CreateListMembersCommand extends Command implements Runnable {
 
             proc.close();
 
-            try {
-                CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
-            } catch (JsonGenerationException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+
         } catch ( Exception e ) {
 
             String app = map.get("app");

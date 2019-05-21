@@ -36,10 +36,7 @@ public class MyProfileCommand extends Command implements Runnable {
     public void execute() {
 
         try {
-            details = null; //Cache.returnUser(map.get("username"));
             User user = new User();
-
-            if (details == null) {
 
                 dbConn = PostgresConnection.getDataSource().getConnection();
                 dbConn.setAutoCommit(false);
@@ -101,24 +98,14 @@ public class MyProfileCommand extends Command implements Runnable {
                 set.close();
                 proc.close();
 
-            }
 
             ValueNode child = nf.pojoNode(user);
             root.set("user", child);
 
-            try {
-                CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
-            } catch (JsonGenerationException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            }
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
 
             dbConn.commit();
+
         } catch ( Exception e ) {
 
             String app = map.get("app");

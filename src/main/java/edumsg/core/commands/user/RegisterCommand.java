@@ -37,8 +37,10 @@ public class RegisterCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
+
             String password = BCrypt.hashpw(map.get("password"), BCrypt.gensalt());
             query = dbConn.createStatement();
+
             query.setPoolable(true);
 
             if (map.containsKey("avatar_url")) {
@@ -64,30 +66,26 @@ public class RegisterCommand extends Command implements Runnable {
             root.put("code", "200");
 
         while(set.next()) {
-            System.out.println("entered");
             details.put("username", map.get("username"));
             details.put("email", map.get("email"));
             details.put("name", map.get("name"));
-            details.put("created_at", set.getTimestamp("created_at")+"");
-
-            //Cache.cacheUser(set.getInt("id")+"", details);
-            //Cache.mapUsernameID(map.get("username"), set.getInt("id")+"");
+            details.put("created_at", set.getTimestamp("created_at") + "");
         }
 
             set.close();
             query.close();
 
-
             try {
-                CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
+
+                CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
                 String cacheEntry = EduMsgRedis.redisCache.get("get_users");
+
                 if (cacheEntry != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry);
                     cacheEntryJson.put("cacheStatus", "invalid");
                     EduMsgRedis.redisCache.set("get_users", cacheEntryJson.toString());
                 }
+
             } catch (JsonGenerationException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {

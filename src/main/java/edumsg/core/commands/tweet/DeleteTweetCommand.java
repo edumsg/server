@@ -36,53 +36,34 @@ public class DeleteTweetCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
+
             proc = dbConn.prepareCall("{call delete_tweet(?,?)}");
             proc.setPoolable(true);
+
             proc.setString(1,map.get("session_id"));
             proc.setInt(2, Integer.parseInt(map.get("tweet_id")));
-            proc.execute();
 
-            //Cache.deleteTweet(map.get("tweet_id"));
+            proc.execute();
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
-            try {
-                CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
 
-                String userTweetsCache = UserCache.userCache.get("user_tweets_" + map.getOrDefault("type","") + ":" + map.get("session_id"));
-                if( userTweetsCache != null ) {
-                    JSONObject cacheEntryJson = new JSONObject(userTweetsCache);
-                    cacheEntryJson.put("cacheStatus", "invalid");
-                    UserCache.userCache.set("user_tweets_" + map.get("type") + ":" + map.get("session_id"),cacheEntryJson.toString());
-                }
+            proc.close();
 
-                String cacheEntry = EduMsgRedis.redisCache.get("timeline");
-                if (cacheEntry != null) {
-                    JSONObject cacheEntryJson = new JSONObject(cacheEntry);
-                    cacheEntryJson.put("cacheStatus", "invalid");
-                    EduMsgRedis.redisCache.set("timeline", cacheEntryJson.toString());
-                }
-                String cacheEntry1 = EduMsgRedis.redisCache.get("get_feeds");
-                if (cacheEntry1 != null) {
-                    JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
-                    cacheEntryJson.put("cacheStatus", "invalid");
-                    System.out.println("invalidated");
-                    EduMsgRedis.redisCache.set("get_feeds", cacheEntryJson.toString());
-                }
-            } catch (JsonGenerationException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+
+            String sessionID = map.get("sessionID");
+            String type = map.getOrDefault("type","rt");
+
+            String userTweetsCacheEntry = UserCache.userCache.get("user_tweets_" + type + ":" + sessionID);
+            String timelineCacheEntry = EduMsgRedis.redisCache.get("timeline");
+            String getFeedsCacheEntry = EduMsgRedis.redisCache.get("get_feeds");
+
+            CommandsHelp.invalidateCacheEntry(UserCache.userCache,userTweetsCacheEntry,"user_tweets_", sessionID, type);
+            CommandsHelp.invalidateCacheEntry(EduMsgRedis.redisCache,timelineCacheEntry,"timeline",sessionID);
+            CommandsHelp.invalidateCacheEntry(EduMsgRedis.redisCache,getFeedsCacheEntry,"get_feeds",sessionID);
 
         } catch ( Exception e ) {
 

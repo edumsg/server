@@ -32,14 +32,15 @@ public class GetEarliestRepliesCommand extends Command implements Runnable
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
+
             proc = dbConn.prepareCall("{? = call get_earliest_replies(?,?)}");
             proc.setPoolable(true);
+
             proc.registerOutParameter(1, Types.OTHER);
             proc.setInt(2, Integer.parseInt(map.get("tweet_id")));
             proc.setString(3, map.get("session_id"));
-//            map.get("session_id").replaceAll("\\p{C}", "");
-            proc.execute();
 
+            proc.execute();
             set = (ResultSet) proc.getObject(1);
 
             ArrayNode tweets = nf.arrayNode();
@@ -59,6 +60,7 @@ public class GetEarliestRepliesCommand extends Command implements Runnable
                 Integer isFavorited = set.getInt(8);
                 Integer isRetweeted = set.getInt(9);
                 Timestamp createdAt = set.getTimestamp(10);
+
                 User creator = new User();
                 creator.setId(creatorId);
                 creator.setUsername(username);
@@ -78,24 +80,20 @@ public class GetEarliestRepliesCommand extends Command implements Runnable
             }
 
             root.set("earliest_replies", tweets);
-            try {
-                CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
 
-                JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
-                cacheEntry.put("cacheStatus", "valid");
+            proc.close();
+            set.close();
 
-                TweetsCache.tweetCache.set("get_earliest_replies:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
-            } catch (JsonGenerationException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+
+            String sessionID = map.get("session_id");
+
+            String getEarliestRepliesCacheEntry = TweetsCache.tweetCache.get("get_earliest_replies:" + sessionID);
+
+            CommandsHelp.validateCacheEntry(TweetsCache.tweetCache, getEarliestRepliesCacheEntry,"get_earliest_replies", sessionID);
 
             dbConn.commit();
+
         } catch ( Exception e ) {
 
             String app = map.get("app");

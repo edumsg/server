@@ -82,45 +82,50 @@ public class EduMsgNettyServerHandler extends
     private synchronized void writeResponse(HttpObject currentObj, final ChannelHandlerContext ctx) throws
             NumberFormatException, InterruptedException, JSONException, ExecutionException {
 
-        JSONObject requestJson = new JSONObject(requestBody);
-        NettyNotifier notifier = new NettyNotifier(this, requestJson.getString("queue"));
+        try {
 
-        System.out.println("Request Body: " + requestBody);
+            System.out.println("Request Body: " + requestBody);
 
-        sendMessageToActiveMQ(requestBody, requestJson.getString("queue"));
+            JSONObject requestJson = new JSONObject(requestBody);
+            NettyNotifier notifier = new NettyNotifier(this, requestJson.getString("queue"));
+            
+            sendMessageToActiveMQ(requestBody, requestJson.getString("queue"));
 
-        System.out.println("waited");
-        Future future = executorService.submit(notifier);
-        this.responseBody = (String) future.get();
+            System.out.println("waited");
+            Future future = executorService.submit(notifier);
+            this.responseBody = (String) future.get();
 
-        System.out.println("notified");
-        System.out.println("netty" + getResponseBody());
-        System.out.println("-----------");
+            System.out.println("notified");
+            System.out.println("netty" + getResponseBody());
+            System.out.println("-----------");
 
-        JSONObject json = new JSONObject(getResponseBody());
-        HttpResponseStatus status = null;
+            JSONObject json = new JSONObject(getResponseBody());
+            HttpResponseStatus status = null;
 
-        if (!json.has("message"))
-            status = new HttpResponseStatus(Integer.parseInt((String) json
-                    .get("code")),
-                    Integer.parseInt((String) json.get("code")) == 200 ? "Ok"
-                            : "Bad Request");
-        else
-            status = new HttpResponseStatus(Integer.parseInt((String) json
-                    .get("code")), (String) json.get("message"));
+            if (!json.has("message"))
+                status = new HttpResponseStatus(Integer.parseInt((String) json
+                        .get("code")),
+                        Integer.parseInt((String) json.get("code")) == 200 ? "Ok"
+                                : "Bad Request");
+            else
+                status = new HttpResponseStatus(Integer.parseInt((String) json
+                        .get("code")), (String) json.get("message"));
 
-        boolean keepAlive = HttpHeaders.isKeepAlive(request);
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
-                status, Unpooled.copiedBuffer(responseBody, CharsetUtil.UTF_8));
+            boolean keepAlive = HttpHeaders.isKeepAlive(request);
+            FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
+                    status, Unpooled.copiedBuffer(responseBody, CharsetUtil.UTF_8));
 
-        response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
-        if (keepAlive) {
-            response.headers().set(CONTENT_LENGTH,
-                    response.content().readableBytes());
-            response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+            response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
+            if (keepAlive) {
+                response.headers().set(CONTENT_LENGTH,
+                        response.content().readableBytes());
+                response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+            }
+
+            ctx.writeAndFlush(response);
+        } catch (JSONException e) {
+            System.out.println("Body Caused Error: " + requestBody);
         }
-
-        ctx.writeAndFlush(response);
     }
 
     private void sendMessageToActiveMQ(String jsonBody, String queue) {

@@ -38,10 +38,13 @@ public class GetListMembersCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
+
             proc = dbConn.prepareCall("{? = call get_list_members(?)}");
             proc.setPoolable(true);
+
             proc.registerOutParameter(1, Types.OTHER);
             proc.setInt(2, Integer.parseInt(map.get("list_id")));
+
             proc.execute();
 
             set = (ResultSet) proc.getObject(1);
@@ -64,18 +67,13 @@ public class GetListMembersCommand extends Command implements Runnable {
 
                 usersArray.addPOJO(user);
             }
+
+            proc.close();
             set.close();
 
             root.set("members", usersArray);
-            try {
-                CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
-            } catch (JsonGenerationException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
+
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
 
             dbConn.commit();
         } catch ( Exception e ) {

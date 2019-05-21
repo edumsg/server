@@ -33,9 +33,12 @@ public class LogoutCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
+
             proc = dbConn.prepareCall("{call logout(?)}");
             proc.setPoolable(true);
+
             proc.setString(1, map.get("session_id"));
+
             proc.execute();
 
             root.put("app", map.get("app"));
@@ -45,17 +48,7 @@ public class LogoutCommand extends Command implements Runnable {
 
             proc.close();
 
-            try {
-                CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
-            } catch (JsonGenerationException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            }
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
 
             dbConn.commit();
 

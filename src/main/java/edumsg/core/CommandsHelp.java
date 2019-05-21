@@ -18,8 +18,11 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Producer;
+import edumsg.redis.UserCache;
 import edumsg.shared.MyObjectMapper;
+import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
+import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -155,4 +158,35 @@ public class CommandsHelp {
         return errMsg;
     }
 
+    public static void invalidateCacheEntry (Jedis cache, String cachedEntry, String columnName, String sessionID) {
+        if (cachedEntry != null) {
+            JSONObject cacheEntryJson = new JSONObject(cachedEntry);
+            cacheEntryJson.put("cacheStatus", "invalid");
+            cache.set(columnName + ":" + sessionID, cacheEntryJson.toString());
+        }
+    }
+
+    public static void validateCacheEntry (Jedis cache, String cachedEntry, String columnName, String sessionID) {
+        if (cachedEntry != null) {
+            JSONObject cacheEntryJson = new JSONObject(cachedEntry);
+            cacheEntryJson.put("cacheStatus", "valid");
+            cache.set(columnName + ":" + sessionID, cacheEntryJson.toString());
+        }
+    }
+
+    public static void invalidateCacheEntry (Jedis cache, String cachedEntry, String columnName, String sessionID, String type) {
+        if (cachedEntry != null) {
+            JSONObject cacheEntryJson = new JSONObject(cachedEntry);
+            cacheEntryJson.put("cacheStatus", "invalid");
+            cache.set(columnName + type + ":" + sessionID, cacheEntryJson.toString());
+        }
+    }
+
+    public static void validateCacheEntry (Jedis cache, String cachedEntry, String columnName, String sessionID, String type) {
+        if (cachedEntry != null) {
+            JSONObject cacheEntryJson = new JSONObject(cachedEntry);
+            cacheEntryJson.put("cacheStatus", "valid");
+            cache.set(columnName + type + ":" + sessionID, cacheEntryJson.toString());
+        }
+    }
 }

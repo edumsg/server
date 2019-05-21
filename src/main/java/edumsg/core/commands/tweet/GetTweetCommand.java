@@ -32,90 +32,65 @@ public class GetTweetCommand extends Command implements Runnable {
 
     @Override
     public void execute() {
-
         try {
-            Tweet t = new Tweet();
-            User creator = new User();
-            details = null; //Cache.returnTweet(map.get("tweet_id"));
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(false);
 
-            if(details == null) {
+            proc = dbConn.prepareCall("{? = call get_tweet(?)}");
+            proc.setPoolable(true);
 
-                dbConn = PostgresConnection.getDataSource().getConnection();
-                dbConn.setAutoCommit(false);
-                proc = dbConn.prepareCall("{? = call get_tweet(?)}");
-                proc.setPoolable(true);
-                proc.registerOutParameter(1, Types.OTHER);
-                proc.setInt(2, Integer.parseInt(map.get("tweet_id")));
-                proc.execute();
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.setInt(2, Integer.parseInt(map.get("tweet_id")));
 
-                set = (ResultSet) proc.getObject(1);
+            proc.execute();
 
-                root.put("app", map.get("app"));
-                root.put("method", map.get("method"));
-                root.put("status", "ok");
-                root.put("code", "200");
+            set = (ResultSet) proc.getObject(1);
 
-                if (set.next()) {
-                    details =  new HashMap<>();
-                    Integer id = set.getInt(1);
-                    String tweet = set.getString(2);
-                    String image_url = set.getString(5);
-                    Timestamp created_at = set.getTimestamp(4);
-                    String creator_username = set.getString(6);
-                    String creator_name = set.getString(7);
-                    String creator_avatar = set.getString(8);
-                    int retweets = set.getInt(9);
-                    int favorites = set.getInt(10);
+            root.put("app", map.get("app"));
+            root.put("method", map.get("method"));
+            root.put("status", "ok");
+            root.put("code", "200");
 
-                    t.setId(id);
-                    t.setTweetText(tweet);
-                    t.setImageUrl(image_url);
-                    t.setCreatedAt(created_at);
-                    t.setRetweets(retweets);
-                    t.setFavorites(favorites);
-                    creator.setName(creator_name);
-                    creator.setAvatarUrl(creator_avatar);
-                    creator.setUsername(creator_username);
-                    t.setCreator(creator);
+            if ( set.next() ) {
+                details = new HashMap<>();
+                Integer id = set.getInt(1);
+                String tweet = set.getString(2);
+                String image_url = set.getString(5);
+                Timestamp created_at = set.getTimestamp(4);
+                String creator_username = set.getString(6);
+                String creator_name = set.getString(7);
+                String creator_avatar = set.getString(8);
+                Integer retweets = set.getInt(9);
+                Integer favorites = set.getInt(10);
 
-//                    details.put("tweet_text",tweet);
-//                    details.put("creator_id",Cache.returnUserID(creator_username));
-//                    details.put("creator_at",created_at.toString());
-//                    details.put("image_url",image_url);
-                    //Cache.cacheTweet(id+"",details);
+                Tweet t = new Tweet();
+                User creator = new User();
 
+                t.setId(id);
+                t.setTweetText(tweet);
+                t.setImageUrl(image_url);
+                t.setCreatedAt(created_at);
+                t.setRetweets(retweets);
+                t.setFavorites(favorites);
 
-                }
-                set.close();
+                creator.setName(creator_name);
+                creator.setAvatarUrl(creator_avatar);
+                creator.setUsername(creator_username);
+
+                t.setCreator(creator);
 
                 ValueNode child = nf.pojoNode(t);
                 root.set("tweet", child);
-                try {
-                    CommandsHelp.submit(map.get("app"),
-                            mapper.writeValueAsString(root),
-                            map.get("correlation_id"), LOGGER);
-                } catch (JsonGenerationException e) {
-                    //Logger.log(Level.SEVERE, e.getMessage(), e);
-                } catch (JsonMappingException e) {
-                    //Logger.log(Level.SEVERE, e.getMessage(), e);
-                } catch (IOException e) {
-                    //Logger.log(Level.SEVERE, e.getMessage(), e);
-                }
 
-                dbConn.commit();
-
-            } else {
-                t.setId(Integer.parseInt(details.get("id")));
-                t.setTweetText(details.get("tweet_text"));
-                t.setImageUrl(details.get("image_url"));
-                t.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
-                t.setRetweets(Integer.parseInt(details.get("retweets")));
-                t.setFavorites(Integer.parseInt(details.get("favorites")));
-//                creator.setName(creator_name);
-//                creator.setAvatarUrl(creator_avatar);
-//                creator.setUsername(creator_username);
-                t.setCreator(creator);
             }
+
+            proc.close();
+            set.close();
+
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+
+            dbConn.commit();
+
         } catch ( Exception e ) {
 
             String app = map.get("app");

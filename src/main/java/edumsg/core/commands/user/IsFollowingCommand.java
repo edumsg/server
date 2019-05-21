@@ -35,11 +35,14 @@ public class IsFollowingCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
+
             proc = dbConn.prepareCall("{? = call is_following(?,?)}");
             proc.setPoolable(true);
+
             proc.registerOutParameter(1, Types.BOOLEAN);
             proc.setString(2, map.get("session_id"));
             proc.setString(3, map.get("username"));
+
             proc.execute();
 
             boolean is_following = proc.getBoolean(1);
@@ -49,21 +52,13 @@ public class IsFollowingCommand extends Command implements Runnable {
             root.put("status", "ok");
             root.put("code", "200");
             root.put("following", is_following);
+
             proc.close();
 
-            try {
-                CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
-            } catch (JsonGenerationException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
 
             dbConn.commit();
+
         } catch ( Exception e ) {
 
             String app = map.get("app");

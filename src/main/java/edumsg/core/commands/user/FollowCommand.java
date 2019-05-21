@@ -38,70 +38,49 @@ public class FollowCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
+
             proc = dbConn.prepareCall("{call follow(?,?)}");
             proc.setPoolable(true);
+
             proc.setString(1, map.get("session_id"));
             proc.setInt(2, Integer.parseInt(map.get("followee_id")));
-            proc.execute();
 
-            //Cache.cacheFollowing(map.get("follower_id"),map.get("user_id"));
-            //Cache.cacheFollowers(map.get("user_id"),map.get("follower_id"));
+            proc.execute();
 
             root.put("app", map.get("app"));
             root.put("method", map.get("method"));
             root.put("status", "ok");
             root.put("code", "200");
+
             proc.close();
 
-            try {
-                CommandsHelp.submit(map.get("app"),
-                mapper.writeValueAsString(root),
-                map.get("correlation_id"), LOGGER);
-                String cacheEntry = UserCache.userCache.get("user_tweets:" + map.get("session_id"));
-                if (cacheEntry != null) {
-                    JSONObject cacheEntryJson = new JSONObject(cacheEntry);
-                    cacheEntryJson.put("cacheStatus", "invalid");
-//                    System.out.println("invalidated");
-                    UserCache.userCache.set("user_tweets:" + map.get("session_id"), cacheEntryJson.toString());
-                }
-                String cacheEntry1 = UserCache.userCache.get("timeline:" + map.get("session_id"));
-                if (cacheEntry1 != null) {
-                    JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
-                    cacheEntryJson.put("cacheStatus", "invalid");
-//                    System.out.println("invalidated");
-                    UserCache.userCache.set("timeline:" + map.get("session_id"), cacheEntryJson.toString());
-                }
-                String cacheEntry2 = UserCache.userCache.get("followers:" + map.get("session_id"));
-                if (cacheEntry2 != null) {
-                    JSONObject cacheEntryJson = new JSONObject(cacheEntry2);
-                    cacheEntryJson.put("cacheStatus", "invalid");
-//                    System.out.println("invalidated");
-                    UserCache.userCache.set("followers:" + map.get("session_id"), cacheEntryJson.toString());
-                }
-                String cacheEntry3 = UserCache.userCache.get("following:" + map.get("session_id"));
-                if (cacheEntry3 != null) {
-                    JSONObject cacheEntryJson = new JSONObject(cacheEntry3);
-                    cacheEntryJson.put("cacheStatus", "invalid");
-//                    System.out.println("invalidated");
-                    UserCache.userCache.set("following:" + map.get("session_id"), cacheEntryJson.toString());
-                }
-                String cacheEntry4 =   ListCache.listCache.get("get_list_feeds:" + map.get("session_id"));
-                if (cacheEntry4 != null) {
-                    JSONObject cacheEntryJson = new JSONObject(cacheEntry4);
-                    cacheEntryJson.put("cacheStatus", "invalid");
-//                    System.out.println("invalidated");
-                    ListCache.listCache.set("get_list_feeds:" + map.get("session_id"), cacheEntryJson.toString());
-                }
-            } catch (JsonGenerationException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            // Submitting Response
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+
+            // Caching Data
+            String sessionID = map.get("session_id");
+
+            String [] types = {"rt","nw","va","dbt"};
+            int i = 0;
+
+            while (i < types.length) {
+
+                String userTweetsCacheEntry = UserCache.userCache.get("user_tweets_" + types[i] + ":" + sessionID);
+                String timelineCacheEntry = UserCache.userCache.get("timeline_" + types[i] + ":" + sessionID);
+
+                CommandsHelp.invalidateCacheEntry(UserCache.userCache,userTweetsCacheEntry,"user_tweets_",sessionID,types[i]);
+                CommandsHelp.invalidateCacheEntry(UserCache.userCache,timelineCacheEntry,"timeline_",sessionID,types[i]);
+
+                i++;
             }
-//            catch (JSONException e) {
-//                e.printStackTrace();
-//            }
+
+            String followersCacheEntry = UserCache.userCache.get("followers:" + sessionID);
+            String followingCacheEntry = UserCache.userCache.get("following:" + sessionID);
+            String getListFeedsCacheEntry =   ListCache.listCache.get("get_list_feeds:" + sessionID);
+
+            CommandsHelp.invalidateCacheEntry(UserCache.userCache,followersCacheEntry,"followers",sessionID);
+            CommandsHelp.invalidateCacheEntry(UserCache.userCache,followingCacheEntry,"following",sessionID);
+            CommandsHelp.invalidateCacheEntry(UserCache.userCache,getListFeedsCacheEntry,"get_list_feeds",sessionID);
 
         } catch ( Exception e ) {
 

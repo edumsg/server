@@ -70,7 +70,7 @@ BEGIN
     DELETE FROM tweets T
     WHERE T.id = tweet_id;
   ELSE
-    RAISE EXCEPTION 'Only The Tweet''s Owner Can Delete This Tweet.';  
+    RAISE EXCEPTION 'only the tweet''s owner can delete this tweet.';  
   END IF;
 END; $$
 LANGUAGE PLPGSQL;

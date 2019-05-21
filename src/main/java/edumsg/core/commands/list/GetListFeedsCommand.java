@@ -66,48 +66,47 @@ public class GetListFeedsCommand extends Command implements Runnable {
                 String creator_name = set.getString(5);
                 String creator_username = set.getString(6);
                 String creator_avatar = set.getString(7);
-                String retweeter = set.getString(8);
-                Integer creator_id = set.getInt(9);
-                Integer retweeter_id = set.getInt(10);
+                String retweeter_name = set.getString(8);
+                String retweeter_username = set.getString(9);
+                Timestamp creation = set.getTimestamp(10);
 
                 Tweet t = new Tweet();
                 t.setId(id);
                 t.setTweetText(tweet);
                 t.setImageUrl(image_url);
                 t.setCreatedAt(created_at);
+
                 User creator = new User();
-                creator.setId(creator_id);
                 creator.setName(creator_name);
                 creator.setAvatarUrl(creator_avatar);
                 creator.setUsername(creator_username);
+
                 t.setCreator(creator);
-                if (!creator_name.equals(retweeter)) {
+                if (!creator_name.equals(retweeter_name)) {
                     User r = new User();
-                    r.setId(retweeter_id);
-                    r.setName(retweeter);
+                    r.setUsername(retweeter_username);
+                    r.setName(retweeter_name);
                     t.setRetweeter(r);
                 }
 
                 tweets.addPOJO(t);
             }
 
+            proc.close();
+            set.close();
+
             root.set("list_feeds", tweets);
-            try {
-                CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
 
-                JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
-                cacheEntry.put("cacheStatus", "valid");
-                ListCache.listCache.set("get_list_feeds:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
-
-            } catch (JsonGenerationException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
 
             dbConn.commit();
+
+            String sessionID = map.get("session_id");
+            String listFeedCacheEntry = ListCache.listCache.get("get_list_feeds:" + sessionID );
+
+            CommandsHelp.validateCacheEntry(ListCache.listCache,listFeedCacheEntry,"get_list_feeds",sessionID);
+
+
         } catch ( Exception e ) {
 
             String app = map.get("app");

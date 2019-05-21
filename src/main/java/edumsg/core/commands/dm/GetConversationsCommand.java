@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 import edumsg.core.*;
 import edumsg.redis.Cache;
 import edumsg.redis.TweetsCache;
+import edumsg.redis.UserCache;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
@@ -41,10 +42,13 @@ public class GetConversationsCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
+
             proc = dbConn.prepareCall("{? = call get_conversations(?)}");
             proc.setPoolable(true);
+
             proc.registerOutParameter(1, Types.OTHER);
             proc.setString(2, map.get("session_id"));
+
             proc.execute();
 
             set = (ResultSet) proc.getObject(1);
@@ -92,20 +96,20 @@ public class GetConversationsCommand extends Command implements Runnable {
                 convs.add(conv);
             }
 
+            proc.close();
+            set.close();
+
             ValueNode child = nf.pojoNode(convs);
             root.set("convs", child);
+
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
-                JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
 
-                cacheEntry.put("cacheStatus", "valid");
-                TweetsCache.tweetCache.set("get_convs:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
+                String getConvsCacheEntry = TweetsCache.tweetCache.get("get_conv:" + map.get("session_id"));
+
+                CommandsHelp.validateCacheEntry(TweetsCache.tweetCache,getConvsCacheEntry,"get_convs",map.get("session_id"));
 
             } catch (JsonGenerationException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
 

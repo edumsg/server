@@ -95,25 +95,17 @@ public class GetUserTweetsCommand extends Command implements Runnable {
             proc.close();
 
             root.set("tweets", tweets);
-            try {
-                CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
-                JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
 
-                cacheEntry.put("cacheStatus", "valid");
-                UserCache.userCache.set("user_tweets_" + map.get("type") + ":" + map.get("session_id"), cacheEntry.toString());
+            // Submitting Response
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
 
-            } catch (JsonGenerationException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            // Caching Data
+            String sessionID = map.get("session_id");
+            String type = map.getOrDefault("type","rt");
+
+            String userTweetsCacheEntry = UserCache.userCache.get("user_tweets_" + type + ":" + sessionID);
+
+            CommandsHelp.validateCacheEntry(UserCache.userCache, userTweetsCacheEntry,"user_tweets_", sessionID, type);
 
             dbConn.commit();
 

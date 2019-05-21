@@ -33,10 +33,12 @@ public class MarkReadCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
-            proc = dbConn.prepareCall("{call mark_read(?)}");
 
+            proc = dbConn.prepareCall("{call mark_read(?)}");
             proc.setPoolable(true);
+
             proc.setInt(1, Integer.parseInt(map.get("conv_id")));
+
             proc.execute();
 
             root.put("app", map.get("app"));
@@ -46,10 +48,6 @@ public class MarkReadCommand extends Command implements Runnable {
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
             } catch (JsonGenerationException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
 

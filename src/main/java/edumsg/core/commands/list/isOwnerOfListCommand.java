@@ -33,10 +33,13 @@ public class isOwnerOfListCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
+
             proc = dbConn.prepareCall("{? = call is_owner_of_list(?,?)}");
             proc.setPoolable(true);
+
             proc.setString(2, map.get("session_id"));
             proc.setInt(3, Integer.parseInt(map.get("list_id")));
+
             proc.execute();
 
             boolean isOwner = proc.getBoolean(1);
@@ -46,15 +49,9 @@ public class isOwnerOfListCommand extends Command implements Runnable {
             root.put("status", "ok");
             root.put("code", "200");
             root.put("isOwner", isOwner);
-            try {
-                CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
-            } catch (JsonGenerationException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
+
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+
         } catch ( Exception e ) {
 
             String app = map.get("app");

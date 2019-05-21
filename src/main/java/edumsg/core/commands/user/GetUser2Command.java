@@ -93,20 +93,10 @@ public class GetUser2Command extends Command implements Runnable {
 
             }
 
-            set.close();
             proc.close();
+            set.close();
 
-            try {
-                CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
-            } catch (JsonGenerationException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            }
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
 
             dbConn.commit();
 

@@ -38,11 +38,14 @@ public class FavoriteCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
+
             proc = dbConn.prepareCall("{? = call favorite(?,?)}");
             proc.setPoolable(true);
+
             proc.registerOutParameter(1, Types.INTEGER);
             proc.setInt(2, Integer.parseInt(map.get("tweet_id")));
             proc.setString(3, map.get("session_id"));
+
             proc.execute();
 
             int favorites = proc.getInt(1);
@@ -52,54 +55,25 @@ public class FavoriteCommand extends Command implements Runnable {
             root.put("status", "ok");
             root.put("code", "200");
             root.put("favorites", favorites);
-            try {
-                CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
-                String cacheEntry = UserCache.userCache.get("user_tweets" + map.get("type") + ":" + map.get("session_id"));
-                if (cacheEntry != null) {
-                    JSONObject cacheEntryJson = new JSONObject(cacheEntry);
-                    cacheEntryJson.put("cacheStatus", "invalid");
-//                    System.out.println("invalidated");
-                    UserCache.userCache.set("user_tweets:" + map.get("session_id"), cacheEntryJson.toString());
-                }
-                String cacheEntry1 = UserCache.userCache.get("timeline:" + map.get("session_id"));
-                if (cacheEntry1 != null) {
-                    JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
-                    cacheEntryJson.put("cacheStatus", "invalid");
-//                    System.out.println("invalidated");
-                    UserCache.userCache.set("timeline:" + map.get("session_id"), cacheEntryJson.toString());
-                }
-                String cacheEntry2 = TweetsCache.tweetCache.get("get_earliest_replies:" + map.get("session_id"));
-                if (cacheEntry2 != null) {
-                    JSONObject cacheEntryJson = new JSONObject(cacheEntry2);
-                    cacheEntryJson.put("cacheStatus", "invalid");
-//                    System.out.println("invalidated");
-                    TweetsCache.tweetCache.set("get_earliest_replies:" + map.get("session_id"), cacheEntryJson.toString());
-                }
-                String cacheEntry3 = TweetsCache.tweetCache.get("get_replies:" + map.get("session_id"));
-                if (cacheEntry3 != null) {
-                    JSONObject cacheEntryJson = new JSONObject(cacheEntry3);
-                    cacheEntryJson.put("cacheStatus", "invalid");
-//                    System.out.println("invalidated");
-                    TweetsCache.tweetCache.set("get_replies:" + map.get("session_id"), cacheEntryJson.toString());
-                }
-                String cacheEntry4 =   ListCache.listCache.get("get_list_feeds:" + map.get("session_id"));
-                if (cacheEntry4 != null) {
-                    JSONObject cacheEntryJson = new JSONObject(cacheEntry4);
-                    cacheEntryJson.put("cacheStatus", "invalid");
-//                    System.out.println("invalidated");
-                    ListCache.listCache.set("get_list_feeds:" + map.get("session_id"), cacheEntryJson.toString());
-                }
-            } catch (JsonGenerationException e) {
-                //LOGGER.log(Level.OFF, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                //LOGGER.log(Level.OFF, e.getMessage(), e);
-            } catch (IOException e) {
-                //LOGGER.log(Level.OFF, e.getMessage(), e);
-            }
-//            catch (JSONException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
+
+            proc.close();
+
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+
+            String sessionID = map.get("session_id");
+            String type = map.getOrDefault("type","rt");
+
+            String userTweetsCacheEntry = UserCache.userCache.get("user_tweets_" + type + ":" + sessionID);
+            String timelineCacheEntry = UserCache.userCache.get("timeline:" + sessionID);
+            String getEarliestRepliesCacheEntry = TweetsCache.tweetCache.get("get_earliest_replies:" + sessionID);
+            String getRepliesCacheEntry = TweetsCache.tweetCache.get("get_replies:" + sessionID);
+            String getListFeedsCacheEntry = ListCache.listCache.get("get_list_feeds:" + sessionID);
+
+            CommandsHelp.invalidateCacheEntry(UserCache.userCache, userTweetsCacheEntry,"user_tweets_", sessionID,type);
+            CommandsHelp.invalidateCacheEntry(UserCache.userCache, timelineCacheEntry,"timeline", sessionID);
+            CommandsHelp.invalidateCacheEntry(TweetsCache.tweetCache, getEarliestRepliesCacheEntry,"get_earliest_replies", sessionID);
+            CommandsHelp.invalidateCacheEntry(TweetsCache.tweetCache, getRepliesCacheEntry, "get_replies", sessionID);
+            CommandsHelp.invalidateCacheEntry(ListCache.listCache, getListFeedsCacheEntry, "get_list_feeds", sessionID);
 
         } catch ( Exception e ) {
 

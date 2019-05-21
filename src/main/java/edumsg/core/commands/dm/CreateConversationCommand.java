@@ -62,29 +62,17 @@ public class CreateConversationCommand extends Command implements Runnable {
                 try {
                     CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
 
-                    String cacheEntry = UserCache.userCache.get("get_conv:" + map.get("session_id"));
-                    if (cacheEntry != null) {
-                        JSONObject cacheEntryJson = new JSONObject(cacheEntry);
-                        cacheEntryJson.put("cacheStatus", "invalid");
-                        UserCache.userCache.set("get_conv:" + map.get("session_id"), cacheEntryJson.toString());
-                    }
-                    String cacheEntry1 = UserCache.userCache.get("get_convs:" + map.get("session_id"));
-                    if (cacheEntry1 != null) {
-                        JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
-                        cacheEntryJson.put("cacheStatus", "invalid");
-//                    System.out.println("invalidated");
-                        UserCache.userCache.set("get_convs:" + map.get("session_id"), cacheEntryJson.toString());
-                    }
+                    String sessionID = map.get("session_id");
+
+                    String getConvCacheEntry = UserCache.userCache.get("get_conv:" + map.get("session_id"));
+                    String getConvsCacheEntry = UserCache.userCache.get("get_convs:" + map.get("session_id"));
+
+                    CommandsHelp.invalidateCacheEntry(UserCache.userCache,getConvCacheEntry,"get_conv",sessionID);
+                    CommandsHelp.invalidateCacheEntry(UserCache.userCache,getConvsCacheEntry,"get_convs",sessionID);
+
                 } catch (JsonGenerationException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                } catch (JsonMappingException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
-//                catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
             } else {
                 CommandsHelp.handleError(map.get("app"), map.get("method"), "Username Invalid or Conversation already exists", map.get("correlation_id"), LOGGER);
             }

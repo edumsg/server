@@ -36,17 +36,20 @@ public class GetListCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
+
             Statement query = dbConn.createStatement();
             query.setPoolable(true);
+
             set = query.executeQuery(String.format("SELECT * FROM get_list(%s)",map.get("list_id")));
+
             List l = new List();
             while(set.next()){
                 l.setName(set.getString("name"));
                 l.setDescription(set.getString("description"));
-
             }
 
             ValueNode list = nf.pojoNode(l);
+
             set.close();
 
             root.put("app", map.get("app"));
@@ -54,15 +57,9 @@ public class GetListCommand extends Command implements Runnable {
             root.put("status", "ok");
             root.put("code", "200");
             root.set("list", list);
-            try {
-                CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
-            } catch (JsonGenerationException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
+
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+
         } catch ( Exception e ) {
 
             String app = map.get("app");

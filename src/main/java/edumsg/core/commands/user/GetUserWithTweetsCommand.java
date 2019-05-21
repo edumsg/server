@@ -34,7 +34,6 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
     public void execute() {
 
         try {
-            details = null; //Cache.returnUser(map.get("username"));
             User user = new User();
 
             dbConn = PostgresConnection.getDataSource().getConnection();
@@ -113,21 +112,12 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
             ValueNode child = nf.pojoNode(user);
             root.set("user", child);
 
-            set.close();
             proc.close();
+            set.close();
+
             root.set("tweets", tweets);
 
-            try {
-                CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
-            } catch (JsonGenerationException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            }
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
 
             dbConn.commit();
 

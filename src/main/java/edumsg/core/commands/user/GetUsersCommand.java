@@ -40,12 +40,14 @@ public class GetUsersCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
+
             proc = dbConn.prepareCall("{? = call get_users(?)}");
             proc.setPoolable(true);
+
             proc.registerOutParameter(1, Types.OTHER);
             proc.setString(2, map.get("user_substring"));
-            proc.execute();
 
+            proc.execute();
             set = (ResultSet) proc.getObject(1);
 
             ArrayNode usersArray = nf.arrayNode();
@@ -68,27 +70,23 @@ public class GetUsersCommand extends Command implements Runnable {
 
                 usersArray.addPOJO(user);
             }
-            set.close();
+
             proc.close();
+            set.close();
+
             root.set("users", usersArray);
-            try {
-                CommandsHelp.submit(map.get("app"),mapper.writeValueAsString(root),map.get("correlation_id"), LOGGER);
-                JSONObject cacheEntry = new JSONObject();
-                cacheEntry.put("cacheStatus", "valid");
-                cacheEntry.put("response", new JSONObject(mapper.writeValueAsString(root)));
-                EduMsgRedis.redisCache.set("get_users", cacheEntry.toString());
-            } catch (JsonGenerationException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+
+            // Submitting Response
+            CommandsHelp.submit(map.get("app"),mapper.writeValueAsString(root),map.get("correlation_id"), LOGGER);
+
+            // Caching Data
+            JSONObject cacheEntry = new JSONObject();
+            cacheEntry.put("cacheStatus", "valid");
+            cacheEntry.put("response", new JSONObject(mapper.writeValueAsString(root)));
+            EduMsgRedis.redisCache.set("get_users", cacheEntry.toString());
 
             dbConn.commit();
+
         } catch ( Exception e ) {
 
             String app = map.get("app");

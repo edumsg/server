@@ -56,7 +56,6 @@ public class CommandsMap {
         cmdMap.put("user_tweets2", GetUserTweets2Command.class);
         cmdMap.put("get_favorites", GetFavoritesCommand.class);
         cmdMap.put("timeline", GetTimelineCommand.class);
-        cmdMap.put("timeline_with_type", GetTimelineWithTypeCommand.class); // Still to be used instead of timeline.
         cmdMap.put("get_subscribed_lists", GetSubscribedListsCommand.class);
         cmdMap.put("get_list_memberships", GetListMembershipsCommand.class);
         cmdMap.put("login", LoginCommand.class);

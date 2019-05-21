@@ -37,90 +37,64 @@ public class GetUserCommand extends Command implements Runnable {
     public void execute() {
 
         try {
-            details = null; //Cache.returnUser(map.get("username"));
-            User user = new User();
+            dbConn = PostgresConnection.getDataSource().getConnection();
+            dbConn.setAutoCommit(false);
 
-            if (details == null) {
+            proc = dbConn.prepareCall("{? = call get_user(?)}");
+            proc.setPoolable(true);
 
-                dbConn = PostgresConnection.getDataSource().getConnection();
-                dbConn.setAutoCommit(false);
-                proc = dbConn.prepareCall("{? = call get_user(?)}");
-                proc.setPoolable(true);
-                proc.registerOutParameter(1, Types.OTHER);
-                proc.setInt(2, Integer.parseInt(map.get("user_id")));
-                proc.execute();
+            proc.registerOutParameter(1, Types.OTHER);
+            proc.setInt(2, Integer.parseInt(map.get("user_id")));
 
-                set = (ResultSet) proc.getObject(1);
+            proc.execute();
+            set = (ResultSet) proc.getObject(1);
 
-                root.put("app", map.get("app"));
-                root.put("method", map.get("method"));
-                root.put("status", "ok");
-                root.put("code", "200");
+            root.put("app", map.get("app"));
+            root.put("method", map.get("method"));
+            root.put("status", "ok");
+            root.put("code", "200");
 
-                if (set.next()) {
-                    Integer id = set.getInt(1);
-                    String username = set.getString(2);
-                    String email = set.getString(3);
-                    String name = set.getString(5);
-                    String language = set.getString(6);
-                    String country = set.getString(7);
-                    String bio = set.getString(8);
-                    String website = set.getString(9);
-                    Timestamp created_at = set.getTimestamp(10);
-                    String avatar_url = set.getString(11);
-                    Boolean overlay = set.getBoolean(12);
-                    String link_color = set.getString(13);
-                    String background_color = set.getString(14);
-                    Boolean protected_tweets = set.getBoolean(15);
+            if (set.next()) {
+                Integer id = set.getInt(1);
+                String username = set.getString(2);
+                String email = set.getString(3);
+                String name = set.getString(5);
+                String language = set.getString(6);
+                String country = set.getString(7);
+                String bio = set.getString(8);
+                String website = set.getString(9);
+                Timestamp created_at = set.getTimestamp(10);
+                String avatar_url = set.getString(11);
+                Boolean overlay = set.getBoolean(12);
+                String link_color = set.getString(13);
+                String background_color = set.getString(14);
+                Boolean protected_tweets = set.getBoolean(15);
 
-                    user.setId(id);
-                    user.setUsername(username);
-                    user.setEmail(email);
-                    user.setName(name);
-                    user.setLanguage(language);
-                    user.setCountry(country);
-                    user.setBio(bio);
-                    user.setWebsite(website);
-                    user.setCreatedAt(created_at);
-                    user.setAvatarUrl(avatar_url);
-                    user.setOverlay(overlay);
-                    user.setLinkColor(link_color);
-                    user.setBackgroundColor(background_color);
-                    user.setProtectedTweets(protected_tweets);
+                User user = new User();
 
-                }
-                set.close();
-                proc.close();
+                user.setId(id);
+                user.setUsername(username);
+                user.setEmail(email);
+                user.setName(name);
+                user.setLanguage(language);
+                user.setCountry(country);
+                user.setBio(bio);
+                user.setWebsite(website);
+                user.setCreatedAt(created_at);
+                user.setAvatarUrl(avatar_url);
+                user.setOverlay(overlay);
+                user.setLinkColor(link_color);
+                user.setBackgroundColor(background_color);
+                user.setProtectedTweets(protected_tweets);
 
-            } else {
-                user.setId(Integer.parseInt(details.get("id")));
-                user.setUsername(details.get("username"));
-                user.setEmail(details.get("email"));
-                user.setName(details.get("name"));
-                user.setLanguage(details.get("language"));
-                user.setCountry(details.get("country"));
-                user.setBio(details.get("bio"));
-                user.setWebsite(details.get("website"));
-                user.setCreatedAt(Timestamp.valueOf(details.get("created_at")));
-                user.setAvatarUrl(details.get("avatar_url"));
-                user.setOverlay(Boolean.parseBoolean(details.get("overlay")));
-                user.setLinkColor(details.get("link_color"));
-                user.setBackgroundColor(details.get("background_color"));
-                user.setProtectedTweets(Boolean.parseBoolean(details.get("protected_tweets")));
+                ValueNode child = nf.pojoNode(user);
+                root.set("user", child);
             }
-            ValueNode child = nf.pojoNode(user);
-            root.set("user", child);
-            try {
-                CommandsHelp.submit(map.get("app"),
-                mapper.writeValueAsString(root),
-                map.get("correlation_id"), LOGGER);
-            } catch (JsonGenerationException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            }
+
+            proc.close();
+            set.close();
+
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
 
             dbConn.commit();
 

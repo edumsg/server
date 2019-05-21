@@ -65,10 +65,6 @@ public class CreateDm2Command extends Command implements Runnable {
                     CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
                 } catch (JsonGenerationException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                } catch (JsonMappingException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             } else {
                 CommandsHelp.handleError(map.get("app"), map.get("method"), "You can not dm a user who is not following you", map.get("correlation_id"), LOGGER);

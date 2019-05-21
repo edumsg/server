@@ -39,13 +39,15 @@ public class GetTimelineCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
+
             proc = dbConn.prepareCall("{? = call get_feeds(?,?)}");
             proc.setPoolable(true);
+
             proc.registerOutParameter(1, Types.OTHER);
             proc.setString(2, map.get("session_id"));
             proc.setString(3,map.get("type"));
-            proc.execute();
 
+            proc.execute();
             set = (ResultSet) proc.getObject(1);
 
             ArrayNode tweets = nf.arrayNode();
@@ -87,29 +89,25 @@ public class GetTimelineCommand extends Command implements Runnable {
 
                 tweets.addPOJO(t);
             }
-            set.close();
-            proc.close();
-            root.set("feeds", tweets);
-            try {
-                CommandsHelp.submit(map.get("app"),
-                mapper.writeValueAsString(root),
-                map.get("correlation_id"), LOGGER);
-                JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
 
-                cacheEntry.put("cacheStatus", "valid");
-                UserCache.userCache.set("timeline:" + map.get("session_id"), cacheEntry.toString());
-            } catch (JsonGenerationException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            proc.close();
+            set.close();
+
+            root.set("feeds", tweets);
+
+            // Submitting Response
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+
+            // Caching Data
+            String sessionID = map.get("session_id");
+            String type = map.getOrDefault("type","rt");
+
+            String timelineCacheEntry = UserCache.userCache.get("timeline_" + type + ":" + sessionID);
+
+            CommandsHelp.validateCacheEntry(UserCache.userCache,timelineCacheEntry,"timeline_",sessionID,type);
 
             dbConn.commit();
+
         } catch ( Exception e ) {
 
             String app = map.get("app");

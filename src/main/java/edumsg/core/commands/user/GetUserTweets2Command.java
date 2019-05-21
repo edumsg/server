@@ -29,13 +29,15 @@ public class GetUserTweets2Command extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(false);
+
             proc = dbConn.prepareCall("{? = call get_tweets2(?,?)}");
             proc.setPoolable(true);
+
             proc.registerOutParameter(1, Types.OTHER);
             proc.setString(2, map.get("username"));
             proc.setString(3,map.get("type"));
-            proc.execute();
 
+            proc.execute();
             set = (ResultSet) proc.getObject(1);
 
             ArrayNode tweets = nf.arrayNode();
@@ -73,28 +75,23 @@ public class GetUserTweets2Command extends Command implements Runnable {
                 tweets.addPOJO(t);
             }
 
-//            set.close();
-//            proc.close();
+            proc.close();
+            set.close();
             root.set("tweets", tweets);
-            try {
-                CommandsHelp.submit(map.get("app"),
-                        mapper.writeValueAsString(root),
-                        map.get("correlation_id"), LOGGER);
-                JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
-                cacheEntry.put("cacheStatus", "valid");
-                UserCache.userCache.set("user_tweets:" + map.get("session_id"), cacheEntry.toString());
-            } catch (JsonGenerationException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JsonMappingException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (IOException e) {
-                //Logger.log(Level.SEVERE, e.getMessage(), e);
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+
+            // Submitting Response
+            CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
+
+            // Caching Data
+            String sessionID = map.get("session_id");
+            String type = map.getOrDefault("type","rt");
+
+            String userTweetsCacheEntry = UserCache.userCache.get("user_tweets_" + type + ":" + sessionID);
+
+            CommandsHelp.validateCacheEntry(UserCache.userCache, userTweetsCacheEntry,"user_tweets_", sessionID, type);
 
             dbConn.commit();
+
         } catch ( Exception e ) {
 
             String app = map.get("app");
