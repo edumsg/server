@@ -103,7 +103,7 @@ public class GetUserTweetsCommand extends Command implements Runnable {
             String sessionID = map.get("session_id");
             String type = map.getOrDefault("type","rt");
 
-            String userTweetsCacheEntry = UserCache.userCache.get("user_tweets_" + type + ":" + sessionID);
+            JSONObject userTweetsCacheEntry = new JSONObject(mapper.writeValueAsString(root));
 
             CommandsHelp.validateCacheEntry(UserCache.userCache, userTweetsCacheEntry,"user_tweets_", sessionID, type);
 

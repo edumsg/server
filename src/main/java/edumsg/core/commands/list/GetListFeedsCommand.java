@@ -102,7 +102,7 @@ public class GetListFeedsCommand extends Command implements Runnable {
             dbConn.commit();
 
             String sessionID = map.get("session_id");
-            String listFeedCacheEntry = ListCache.listCache.get("get_list_feeds:" + sessionID );
+            JSONObject listFeedCacheEntry = new JSONObject(mapper.writeValueAsString(root));
 
             CommandsHelp.validateCacheEntry(ListCache.listCache,listFeedCacheEntry,"get_list_feeds",sessionID);
 

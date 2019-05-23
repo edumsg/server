@@ -36,9 +36,6 @@ CREATE TABLE tweets(
 DROP INDEX IF EXISTS tweet_type_index;
 CREATE INDEX IF NOT EXISTS tweet_type_index ON tweets(lower(type));
 
--- CLUSTER tweets USING tweet_type_index;
-
-
 
 DROP TABLE IF EXISTS reports CASCADE;
 
@@ -128,8 +125,8 @@ DROP TABLE IF EXISTS direct_messages CASCADE;
 
 CREATE TABLE direct_messages(
   id serial PRIMARY KEY NOT NULL,
-  sender_id integer REFERENCES users(id),
-  reciever_id integer REFERENCES users(id),
+  sender_id integer REFERENCES users(id) ON DELETE CASCADE,
+  reciever_id integer REFERENCES users(id) ON DELETE CASCADE,
   dm_text varchar(140) NOT NULL CHECK (char_length(dm_text) <= 140),
   image_url varchar(100),
   read boolean DEFAULT '0', -- read 1 and unread 0
@@ -150,10 +147,9 @@ DROP TABLE IF EXISTS sessions CASCADE;
 
 CREATE TABLE sessions (
     id VARCHAR(35) PRIMARY KEY NOT NULL,
-    user_id integer UNIQUE NOT NULL,
+    user_id integer UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     session_start TIMESTAMP NOT NULL,
     session_end TIMESTAMP,
     created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP,
-    FOREIGN KEY(user_id) REFERENCES users(id)
+    updated_at TIMESTAMP
 );

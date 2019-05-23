@@ -101,7 +101,8 @@ public class GetConversationCommand extends Command implements Runnable {
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
 
-                String getConvCacheEntry = DMCache.dmCache.get("get_conv:" + map.get("session_id"));
+                JSONObject getConvCacheEntry = new JSONObject(mapper.writeValueAsString(root));
+
                 CommandsHelp.validateCacheEntry(DMCache.dmCache,getConvCacheEntry,"get_conv",map.get("session_id"));
 
             } catch (JsonGenerationException e) {

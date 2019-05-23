@@ -88,7 +88,7 @@ public class GetEarliestRepliesCommand extends Command implements Runnable
 
             String sessionID = map.get("session_id");
 
-            String getEarliestRepliesCacheEntry = TweetsCache.tweetCache.get("get_earliest_replies:" + sessionID);
+            JSONObject getEarliestRepliesCacheEntry = new JSONObject(mapper.writeValueAsString(root));
 
             CommandsHelp.validateCacheEntry(TweetsCache.tweetCache, getEarliestRepliesCacheEntry,"get_earliest_replies", sessionID);
 

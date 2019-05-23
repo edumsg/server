@@ -102,7 +102,7 @@ public class GetTimelineCommand extends Command implements Runnable {
             String sessionID = map.get("session_id");
             String type = map.getOrDefault("type","rt");
 
-            String timelineCacheEntry = UserCache.userCache.get("timeline_" + type + ":" + sessionID);
+            JSONObject timelineCacheEntry = new JSONObject(mapper.writeValueAsString(root));
 
             CommandsHelp.validateCacheEntry(UserCache.userCache,timelineCacheEntry,"timeline_",sessionID,type);
 

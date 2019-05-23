@@ -82,7 +82,7 @@ public class GetRepliesCommand extends Command implements Runnable
 
             String sessionID = map.get("session_id");
 
-            String getRepliesCacheEntry = TweetsCache.tweetCache.get("get_replies:" + sessionID);
+            JSONObject getRepliesCacheEntry = new JSONObject(mapper.writeValueAsString(root));
 
             CommandsHelp.validateCacheEntry(TweetsCache.tweetCache, getRepliesCacheEntry,"get_replies", sessionID);
 

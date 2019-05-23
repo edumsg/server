@@ -36,21 +36,6 @@ public abstract class RunnableClasses {
         }
 
         if (map != null && map.get("session_id") != null) {
-//            if (map.get("method").equals("login"))
-//            {
-//                if (!Cache.userCache.exists("username"))
-//                    Cache.userCache.set("username", map.get("username"));
-//                else
-//                {
-//                    if (!Cache.userCache.get("username").equals(map.get("username")))
-//                    {
-//                        Cache.userCache.flushAll();
-//                        Cache.tweetCache.flushAll();
-//                        ListCache.listCache.flushAll();
-//                        Cache.dmCache.flushAll();
-//                    }
-//                }
-//            }
             Jedis cache = null;
             switch (subclass.toLowerCase())
             {
@@ -68,7 +53,9 @@ public abstract class RunnableClasses {
 
             // We need to cache tweet and timeline based on their type.
             if (map.get("method").equals("user_tweets") || map.get("method").equals("timeline") ) {
+                System.err.println("Special Method:" + map.get("method"));
                 cachedEntry = cache.get(map.get("method") + "_" + map.get("type") + ":" + map.get("session_id"));
+                System.out.println(cachedEntry);
             }
 
             if (cachedEntry != null) {

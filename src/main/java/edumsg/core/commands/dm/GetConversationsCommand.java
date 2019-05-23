@@ -105,7 +105,7 @@ public class GetConversationsCommand extends Command implements Runnable {
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
 
-                String getConvsCacheEntry = TweetsCache.tweetCache.get("get_conv:" + map.get("session_id"));
+                JSONObject getConvsCacheEntry = new JSONObject(mapper.writeValueAsString(root));
 
                 CommandsHelp.validateCacheEntry(TweetsCache.tweetCache,getConvsCacheEntry,"get_convs",map.get("session_id"));
 

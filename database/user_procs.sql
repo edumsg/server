@@ -29,7 +29,7 @@ BEGIN
     SELECT user_id
     INTO userID
     FROM sessions
-    WHERE id = $1;
+    WHERE id = $1 AND session_end <> NULL;
 
     IF NOT FOUND THEN
         RAISE EXCEPTION 'no such session exists';

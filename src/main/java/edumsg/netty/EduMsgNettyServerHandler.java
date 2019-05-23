@@ -82,8 +82,6 @@ public class EduMsgNettyServerHandler extends
     private synchronized void writeResponse(HttpObject currentObj, final ChannelHandlerContext ctx) throws
             NumberFormatException, InterruptedException, JSONException, ExecutionException {
 
-        try {
-
             System.out.println("Request Body: " + requestBody);
 
             JSONObject requestJson = new JSONObject(requestBody);
@@ -123,9 +121,7 @@ public class EduMsgNettyServerHandler extends
             }
 
             ctx.writeAndFlush(response);
-        } catch (JSONException e) {
-            System.out.println("Body Caused Error: " + requestBody);
-        }
+
     }
 
     private void sendMessageToActiveMQ(String jsonBody, String queue) {

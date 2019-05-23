@@ -166,11 +166,10 @@ public class CommandsHelp {
         }
     }
 
-    public static void validateCacheEntry (Jedis cache, String cachedEntry, String columnName, String sessionID) {
-        if (cachedEntry != null) {
-            JSONObject cacheEntryJson = new JSONObject(cachedEntry);
-            cacheEntryJson.put("cacheStatus", "valid");
-            cache.set(columnName + ":" + sessionID, cacheEntryJson.toString());
+    public static void validateCacheEntry (Jedis cache, JSONObject cachedEntryJson, String columnName, String sessionID) {
+        if (cachedEntryJson != null) {
+            cachedEntryJson.put("cacheStatus", "valid");
+            cache.set(columnName + ":" + sessionID, cachedEntryJson.toString());
         }
     }
 
@@ -182,11 +181,10 @@ public class CommandsHelp {
         }
     }
 
-    public static void validateCacheEntry (Jedis cache, String cachedEntry, String columnName, String sessionID, String type) {
-        if (cachedEntry != null) {
-            JSONObject cacheEntryJson = new JSONObject(cachedEntry);
-            cacheEntryJson.put("cacheStatus", "valid");
-            cache.set(columnName + type + ":" + sessionID, cacheEntryJson.toString());
+    public static void validateCacheEntry (Jedis cache, JSONObject cachedEntryJson, String columnName, String sessionID, String type) {
+        if (cachedEntryJson != null) {
+            cachedEntryJson.put("cacheStatus", "valid");
+            cache.set(columnName + type + ":" + sessionID, cachedEntryJson.toString());
         }
     }
 }

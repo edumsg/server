@@ -43,6 +43,7 @@ public class NettyNotifier implements Callable<String> {
             consumer = new Consumer(activeMQConfig, serverHandler.getCorrelationId());
 
             Message message = consumer.getConsumer().receive();
+
             String msgTxt = ((TextMessage) message).getText();
 
             System.out.println("message " + msgTxt);
