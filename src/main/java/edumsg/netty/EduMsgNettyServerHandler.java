@@ -54,10 +54,6 @@ public class EduMsgNettyServerHandler extends
             throws Exception {
         if (correlationId == 0L)
             correlationId = System.currentTimeMillis();
-        //System.out.println("Correlation ID (HANDLER): " + correlationId);
-
-//        System.out.println("CH:" + ctx.channel().toString());
-
         if (msg instanceof HttpRequest) {
             HttpRequest request = this.request = (HttpRequest) msg;
             if (HttpHeaders.is100ContinueExpected(request)) {
@@ -68,13 +64,10 @@ public class EduMsgNettyServerHandler extends
         if (msg instanceof HttpContent) {
             HttpContent httpContent = (HttpContent) msg;
             ByteBuf content = httpContent.content();
-//            System.out.println("req " + content.toString(CharsetUtil.UTF_8));
             setRequestBody(content.toString(CharsetUtil.UTF_8));
         }
         if (msg instanceof LastHttpContent) {
             LastHttpContent trailer = (LastHttpContent) msg;
-//            ByteBuf content = trailer.content();
-//            System.out.println("ss " + content.toString(CharsetUtil.UTF_8));
             writeResponse(trailer, ctx);
         }
     }
@@ -92,6 +85,10 @@ public class EduMsgNettyServerHandler extends
             System.out.println("waited");
             Future future = executorService.submit(notifier);
             this.responseBody = (String) future.get();
+
+            if( this.responseBody == null ) {
+                System.out.println("Null Response Method: " + requestJson.getString("method"));
+            }
 
             System.out.println("notified");
             System.out.println("netty" + getResponseBody());

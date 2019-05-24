@@ -58,11 +58,11 @@ public class DeleteTweetCommand extends Command implements Runnable {
             String type = map.getOrDefault("type","rt");
 
             String userTweetsCacheEntry = UserCache.userCache.get("user_tweets_" + type + ":" + sessionID);
-            String timelineCacheEntry = EduMsgRedis.redisCache.get("timeline");
+            String timelineCacheEntry = UserCache.userCache.get("timeline_" + type + ":" + sessionID);
             String getFeedsCacheEntry = EduMsgRedis.redisCache.get("get_feeds");
 
             CommandsHelp.invalidateCacheEntry(UserCache.userCache,userTweetsCacheEntry,"user_tweets_", sessionID, type);
-            CommandsHelp.invalidateCacheEntry(EduMsgRedis.redisCache,timelineCacheEntry,"timeline",sessionID);
+            CommandsHelp.invalidateCacheEntry(UserCache.userCache,timelineCacheEntry,"timeline_",sessionID,type);
             CommandsHelp.invalidateCacheEntry(EduMsgRedis.redisCache,getFeedsCacheEntry,"get_feeds",sessionID);
 
         } catch ( Exception e ) {

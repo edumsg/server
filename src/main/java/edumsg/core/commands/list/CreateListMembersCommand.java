@@ -30,7 +30,6 @@ public class CreateListMembersCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(CreateListCommand.class.getName());
 
     private String[] getMembersNames( String members ) {
-        members.trim();
         members = members.substring(1,members.length() - 1);
         if ( members.length() > 0 ) {
             String newMembers[] = members.split(",");
