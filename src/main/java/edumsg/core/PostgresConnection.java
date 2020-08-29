@@ -33,22 +33,22 @@ import java.util.stream.Stream;
 public class PostgresConnection {
     private static final Logger LOGGER = Logger
             .getLogger(PostgresConnection.class.getName());
-    private static String DB_USERNAME;   //your db username
-    private static String DB_PASSWORD; //your db password
-    private static String DB_PORT;
-    private static String DB_HOST;
-    private static String DB_NAME;
-    private static final String DB_INIT_CONNECTIONS = "10";
-    private static final String DB_MAX_CONNECTIONS = "15";
-    private static String DB_URL;
-    private static PoolingDriver dbDriver;
+    private String DB_USERNAME;   //your db username
+    private String DB_PASSWORD; //your db password
+    private String DB_PORT;
+    private String DB_HOST;
+    private String DB_NAME;
+    private String DB_INIT_CONNECTIONS = "10";
+    private String DB_MAX_CONNECTIONS = "15";
+    private String DB_URL;
+    private PoolingDriver dbDriver;
     private static PoolingDataSource<PoolableConnection> dataSource;
 
-    public static void shutdownDriver() throws SQLException {
+    public void shutdownDriver() throws SQLException {
         dbDriver.closePool(DB_NAME);
     }
 
-    public static void printDriverStats() throws SQLException {
+    public void printDriverStats() throws SQLException {
         ObjectPool<? extends Connection> connectionPool = dbDriver
                 .getConnectionPool(DB_NAME);
 
@@ -116,7 +116,7 @@ public class PostgresConnection {
 
     }
 
-    public static void initSource() {
+    public void initSource() {
         try {
             try {
                 Class.forName("org.postgresql.Driver");
@@ -126,7 +126,7 @@ public class PostgresConnection {
             }
 
             try {
-                URI dbUri = new URI(System.getenv("DATABASE_URL"));
+                URI dbUri = new URI(System.getenv("postgres:1234@localhost:5432//data1"));
                 DB_USERNAME = dbUri.getUserInfo().split(":")[0];
                 DB_PASSWORD = dbUri.getUserInfo().split(":")[1];
                 DB_NAME = dbUri.getPath().replace("/", "");
@@ -143,7 +143,7 @@ public class PostgresConnection {
 
 
             Properties props = new Properties();
-          //  System.out.println(DB_USERNAME);
+            //  System.out.println(DB_USERNAME);
             props.setProperty("user", DB_USERNAME);
             props.setProperty("password", DB_PASSWORD);
             props.setProperty("initialSize", DB_INIT_CONNECTIONS);
@@ -174,39 +174,47 @@ public class PostgresConnection {
         }
     }
 
-    public static void setDBUser(String name) {
+    public  void setDBUser(String name) {
         DB_USERNAME = name;
     }
 
-    public static void setDBPassword(String pass) {
+    public void setDBPassword(String pass) {
         DB_PASSWORD = pass;
     }
 
-    public static void setDBPort(String port) {
+    public void setDBPort(String port) {
         DB_PORT = port;
     }
 
-    public static void setDBHost(String host) {
+    public void setDBHost(String host) {
         DB_HOST = host;
     }
 
-    public static void setDBURL(String url) {
+    public void setDBURL(String url) {
         DB_URL = url;
     }
 
-    public static void setDBName(String name) {
+    public void setDBName(String name) {
         DB_NAME = name;
     }
 
-    private static boolean formatURL() {
+    public void setDbInitConnections (String initConnections){ DB_INIT_CONNECTIONS = initConnections;}
+
+    public void setDbMaxConnections (String maxConnections ){DB_MAX_CONNECTIONS =maxConnections;  }
+
+    public String getDbInitConnections() { return DB_INIT_CONNECTIONS;}
+
+    public String getDbMaxConnections(){return DB_MAX_CONNECTIONS;}
+
+    private boolean formatURL() {
         setDBURL("jdbc:postgresql://" + DB_HOST + ":" + DB_PORT + "/" + DB_NAME);
-        System.out.println(DB_URL);
-        Pattern pattern = Pattern.compile("^\\w+:\\w+:\\/{2}\\w+:\\d+\\/\\w+(?:\\W|\\w)*$");
+        System.out.println("database url..."+DB_URL);
+        Pattern pattern = Pattern.compile("^\\w+:\\w+:\\/{2}\\d+.\\d+.\\d+.\\d+:\\d+\\/\\w+(?:\\W|\\w)*$");
         Matcher matcher = pattern.matcher(DB_URL);
         return matcher.matches();
     }
 
-    public static void readConfFile() throws Exception {
+    public void readConfFile() throws Exception {
         String file = System.getProperty("user.dir") + "/Postgres.conf";
         java.util.List<String> lines = new ArrayList<String>();
         //extract string between square brackets and compile regex for faster performance
@@ -220,9 +228,9 @@ public class PostgresConnection {
         for (int i = 0; i < lines.size(); i++) {
             if (lines.get(i).contains("user")) {
                 matcher = pattern.matcher(lines.get(i));
-                if(matcher.find())
-                    setDBUser(matcher.group(1));
-                 else
+                if(matcher.find()){
+                    setDBUser(matcher.group(1));}
+                else
                     throw  e = new Exception("empty user in Postgres.conf");
             }
             if (lines.get(i).contains("database")) {
@@ -253,7 +261,7 @@ public class PostgresConnection {
             }
         }
         if (!formatURL()) {
-             e = new Exception("Wrong Format in Postgres.conf");
+            e = new Exception("Wrong Format in Postgres.conf");
             throw e;
         }
     }

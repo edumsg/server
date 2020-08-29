@@ -11,25 +11,46 @@ IN THE SOFTWARE.
 */
 package edumsg.activemq;
 
+import edumsg.shared.DMMain;
+import edumsg.shared.ListMain;
+import edumsg.shared.TweetMain;
+import edumsg.shared.UserMain;
+
 import javax.jms.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Consumer {
+public class Consumer  {
     Logger lgr = Logger.getLogger(Consumer.class.getName());
     ActiveMQConfig config;
     Connection conn;
     MessageConsumer consumer;
     Session session;
+    Queue queue;
     private long correlationId;
 
-    public Consumer(ActiveMQConfig config) {
+
+    public Consumer(ActiveMQConfig config ,  String key) {
         this.config = config;
         try {
             conn = config.connect();
             session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Destination destination = session.createQueue(config.getQueueName());
-            consumer = session.createConsumer(destination);
+            queue = session.createQueue(config.getQueueName());
+            consumer = session.createConsumer(queue);
+            switch (key){
+                case "USER" :
+                    consumer.setMessageListener(new UserMain());
+                    break;
+                case "TWEET" :
+                    consumer.setMessageListener(new TweetMain());
+                    break;
+                case "DM" :
+                    consumer.setMessageListener(new DMMain());
+                    break;
+                case "LIST" : consumer.setMessageListener(new ListMain());
+                    break;
+            }
+            conn.start();
         } catch (JMSException e) {
             lgr.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -41,30 +62,26 @@ public class Consumer {
         try {
             conn = config.connect();
             session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Destination destination = session.createQueue(config.getQueueName());
-            consumer = session.createConsumer(destination, "JMSCorrelationID='" + correlationId + "'");
+            Queue queue = session.createQueue(config.getQueueName());
+            consumer = session.createConsumer(queue);
+            conn.start();
         } catch (JMSException e) {
             lgr.log(Level.SEVERE, e.getMessage(), e);
         }
 	}
+    public Consumer(ActiveMQConfig config) {
+        this.config = config;
+        try {
+            conn = config.connect();
+            session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Queue queue = session.createQueue(config.getQueueName());
+            consumer = session.createConsumer(queue);
+            conn.start();
+        } catch (JMSException e) {
+            lgr.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
 
-//	public MessageConsumer connect() {
-//        MessageConsumer consumer = null;
-//        try {
-//            conn = config.connect();
-//            Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-//
-//            Destination destination = session.createQueue(config.getQueueName());
-//            consumer = session.createConsumer(destination);
-//        } catch (JMSException e) {
-//            lgr.log(Level.SEVERE, e.getMessage(), e);
-//        }
-//        return consumer;
-//	}
-//
-//	public void disconnect() throws JMSException {
-//		config.disconnect(conn);
-//	}
 
     public Message receive() {
         if (consumer != null) {
@@ -80,14 +97,17 @@ public class Consumer {
 
                 Destination destination = session.createQueue(config.getQueueName());
                 consumer = session.createConsumer(destination);
-                return consumer.receive();
+                return consumer.receive(1);
             } catch (JMSException e) {
                 lgr.log(Level.SEVERE, e.getMessage(), e);
             }
         }
         return null;
     }
-
+    public  void reconnect () throws JMSException {
+        Queue queue = session.createQueue(config.getQueueName());
+        consumer = session.createConsumer(queue, "JMSCorrelationID='" + correlationId + "'");
+    }
     public Connection getConn() {
         return conn;
     }
@@ -98,5 +118,9 @@ public class Consumer {
 
     public Session getSession() {
         return session;
+    }
+
+    public Queue getQueue() {
+        return queue;
     }
 }

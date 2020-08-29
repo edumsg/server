@@ -12,8 +12,8 @@ IN THE SOFTWARE.
 
 package edumsg.activemq;
 
-import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.broker.Broker;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -21,7 +21,6 @@ import javax.jms.JMSException;
 
 public class ActiveMQConfig {
     private String url = getPort();
-//    private String url = ActiveMQConnection.DEFAULT_BROKER_URL;
     private Connection connection;
     private String queueName;
 
@@ -40,18 +39,19 @@ public class ActiveMQConfig {
             e.printStackTrace();
             System.err.println("No ActiveMq Env Set");
         }
-        System.out.println("ActiveMQConfig Class :: PORT = " + PORT);
         return "failover://tcp://localhost:" + PORT;
     }
 
     public Connection connect() throws JMSException {
-        System.err.println("ActiveMQConfig Class :: Broker URL: " + url);
+        System.err.println("ActiveMQConfig Class ::" + queueName);
         if (connection == null) {
             ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
             connection = connectionFactory.createConnection();
-            connection.start();
         }
         return connection;
+    }
+    public void start() throws JMSException {
+        connection.start();
     }
 
     public void disconnect(Connection connection) throws JMSException {

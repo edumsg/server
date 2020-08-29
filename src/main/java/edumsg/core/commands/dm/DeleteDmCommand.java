@@ -26,9 +26,10 @@ import java.util.logging.Logger;
 
 public class DeleteDmCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(DeleteDmCommand.class.getName());
+    private static double classVersion = 1.0;
 
     @Override
-    public void execute() {
+    public void execute() throws Exception {
 
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
@@ -50,6 +51,8 @@ public class DeleteDmCommand extends Command implements Runnable {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
         } catch (PSQLException e) {
@@ -61,5 +64,9 @@ public class DeleteDmCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }

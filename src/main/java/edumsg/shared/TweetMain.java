@@ -12,81 +12,92 @@ IN THE SOFTWARE.
 
 package edumsg.shared;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Consumer;
+import edumsg.activemq.subscriber;
 import edumsg.concurrent.WorkerPool;
 import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
+import edumsg.core.config;
+import edumsg.logger.MyLogger;
 import edumsg.redis.TweetsCache;
+import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.command.ActiveMQDestination;
 
 import javax.jms.*;
-import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class TweetMain extends RunnableClasses{
+public class TweetMain extends RunnableClasses  implements MessageListener{
     private static final Logger LOGGER = Logger.getLogger(TweetMain.class.getName());
+    private static PostgresConnection db = new PostgresConnection();
     private static WorkerPool pool = new WorkerPool();
+    private static edumsg.logger.MyLogger MyLogger = new MyLogger();
+    private static int cur_instance;
+    private static Consumer consumer;
+    private static Consumer cons_ctrl;
     private static boolean run = true;
 
-    public static void main(String[] args) throws IOException {
-        PostgresConnection.initSource();
+    public TweetMain(){
+    }
+
+    public static void main(String[] args) throws Exception {
+        db.initSource();
         CommandsMap.instantiate();
         TweetsCache.tweetBgSave();
-        Consumer c = null;
-        try {
-            c = new Consumer(new ActiveMQConfig("TWEET.INQUEUE"));
+        MyLogger.initialize(LOGGER,"C:\\Users\\OS\\Desktop\\Edumsg-comp\\logs");
+        cur_instance = config.getInstance_num();
 
-            while (run) {
-                Message msg = c.receive();
-                if (msg == null)
-                {
-                    throw new JMSException("Error receiving message from ActiveMQ");
-                }
-                if (msg instanceof TextMessage) {
-                    String msgTxt = ((TextMessage) msg).getText();
-                    handleMsg(msgTxt, msg.getJMSCorrelationID(),"tweet",LOGGER,pool);
-                }
-            }
-        }
-        catch (JMSException e)
-        {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-        finally {
-            if (c != null) {
-                MessageConsumer mc;
-                if ((mc = c.getConsumer()) != null) {
-                    try {
-                        mc.close();
-                    } catch (JMSException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    }
-                }
-                Session s;
-                if ((s = c.getSession()) != null) {
-                    try {
-                        s.close();
-                    } catch (JMSException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    }
-                }
-                Connection conn;
-                if ((conn = c.getConn()) != null) {
-                    try {
-                        conn.close();
-                    } catch (JMSException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    }
-                }
-            }
-        }
+            consumer = new Consumer(new ActiveMQConfig("TWEET_" + cur_instance + ".INQUEUE"), "TWEET");
+            cons_ctrl = new Consumer(new ActiveMQConfig("TWEET_" + cur_instance + "_CONTROLLER.INQUEUE"), "TWEET");
+            new subscriber(new ActiveMQConfig("TWEET"), "TWEET");
+
     }
 
-    public static void shutdown() {
+    public static void stop() throws JMSException {
+        // to stop the app from listening to new messages we close the consumer and delete the queue
+        consumer.getConsumer().close();
+        Connection conn = consumer.getConn();
+        ((ActiveMQConnection) conn).destroyDestination((ActiveMQDestination) consumer.getQueue());
         run = false;
     }
+    public static void start() {
+        // restart the app by create new queue
+        consumer = new Consumer(new ActiveMQConfig("TWEET_"+cur_instance+".INQUEUE") ,"TWEET");
+        run = true;
+
+    }
+    public static void exit() throws JMSException, JsonProcessingException, InterruptedException {
+        // send the response first then we close activemq conn before we peacefully exit the app
+        controllerResponse.controllerSubmit("TWEET", cur_instance,"tweet app shutdown successfully","shut down", null, LOGGER);
+        cons_ctrl.getConsumer().close();
+        Connection conn = cons_ctrl.getConn();
+        ((ActiveMQConnection) conn).destroyDestination((ActiveMQDestination) cons_ctrl.getQueue());
+        cons_ctrl.getConn().close();
+        System.exit(0);
+    }
 
 
+    @Override
+    public void onMessage(Message message) {
+        try {
+            String msgTxt = ((TextMessage) message).getText();
+            if(message.getJMSDestination().toString().contains("topic")) {
+                updateClass.init(msgTxt);
+            }
+            else {
+                if (message.getJMSDestination().toString().contains("CONTROLLER")) {
+                    handleControllerMsg(msgTxt, message.getJMSCorrelationID(), "tweet", LOGGER, pool, db,MyLogger, cur_instance);
+                } else {
+                    handleMsg(msgTxt, message.getJMSCorrelationID(), "tweet", LOGGER, pool, cur_instance);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean isRun() {
+        return run;
+    }
 }

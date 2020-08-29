@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 
 public class NewTweetCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(NewTweetCommand.class.getName());
+    private static double classVersion = 1.0;
 
     @Override
     public void execute() {
@@ -133,5 +134,9 @@ public class NewTweetCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }

@@ -20,9 +20,12 @@ import javax.jms.Message;
 import javax.jms.TextMessage;
 import java.util.concurrent.Callable;
 
+
+
 public class NettyNotifier implements Callable<String> {
 
     private EduMsgNettyServerHandler serverHandler;
+
     private String responseBody;
     private String queueName;
     private static ActiveMQConfig activeMQConfig;
@@ -34,72 +37,26 @@ public class NettyNotifier implements Callable<String> {
         this.setQueueName(queueName);
     }
 
+
     @Override
     public String call() {
         try {
-//            if (activeMQConfig == null || !activeMQConfig.getQueueName().contains(getQueueName()))
-//            {
-                activeMQConfig = new ActiveMQConfig(getQueueName()
-                        .toUpperCase() + ".OUTQUEUE");
-                consumer = new Consumer(activeMQConfig, serverHandler.getCorrelationId());
-//            }
-//            consumer.getConn().start();
+
+
+                    activeMQConfig = new ActiveMQConfig(getQueueName()
+                            .toUpperCase() + ".OUTQUEUE");
+                    consumer = new Consumer(activeMQConfig, serverHandler.getCorrelationId());
+
             Message message = consumer.getConsumer().receive();
             String msgTxt = ((TextMessage) message).getText();
-            System.out.println("message " + msgTxt);
+            setResponseBody(msgTxt);
 
-//            synchronized (serverHandler.responseBody)
-//            {
-                setResponseBody(msgTxt);
-//                serverHandler.setResponseBody(msgTxt);
-//            }
+
             consumer.getConsumer().close();
             consumer.getSession().close();
             consumer.getConn().close();
             return msgTxt;
-//            c.getConsumer().setMessageListener(new MessageListener() {
-//                @Override
-//                public void onMessage(Message message) {
-//                    try {
-//                        String msgTxt = ((TextMessage) message).getText();
-////                        JSONObject responseMap = new JSONObject(msgTxt);
-////                        Jedis cache = null;
-////                        switch (responseMap.getString("app"))
-////                        {
-////                            case "user": cache = Cache.userCache;
-////                                break;
-////                            case "tweet": cache = Cache.tweetCache;
-////                                break;
-////                            case "list": cache = ListCache.listCache;
-////                                break;
-////                            case "dm": cache = Cache.dmCache;
-////                                break;
-////                        }
-////                        String method = responseMap.getString("method");
-////                        if (!cache.exists(method)
-////                                && (method.startsWith("get") || method.equals("user_tweets")
-////                                || method.equals("timeline"))) {
-////                            responseMap.put("cacheStatus", "valid");
-////                            cache.set(responseMap.getString("method"), responseMap.toString());
-////                        }
-////                        msgTxt = responseMap.toString();
-////                        sleep(1000);  //Why sleep?
-//                        synchronized (serverHandler) {
-//                            setResponseBody(msgTxt);
-//                            serverHandler.setResponseBody(msgTxt);
-//                            serverHandler.notifyAll();
-//                            System.out.println("netty notified by notifier");
-//                        }
-////                        System.out.println("thread response " + getResponseBody());
-//                    } catch (JMSException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    }
-////                    catch (JSONException e) {
-////                        e.printStackTrace();
-////                    }
-//                }
-//            });
+
         } catch (JMSException e) {
             // TODO Auto-generated catch block
 

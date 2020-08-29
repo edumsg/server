@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 
 public class DeleteTweetCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(DeleteTweetCommand.class.getName());
+    private static double classVersion = 1.0;
 
     @Override
     public void execute() {
@@ -83,5 +84,9 @@ public class DeleteTweetCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }

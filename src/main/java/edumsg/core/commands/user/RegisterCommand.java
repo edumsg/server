@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 
 public class RegisterCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(RegisterCommand.class.getName());
+    private static double classVersion = 1.0;
 
     @Override
     public void execute() {
@@ -36,10 +37,12 @@ public class RegisterCommand extends Command implements Runnable {
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
+            System.out.println("db " + dbConn);
             String password = BCrypt.hashpw(map.get("password"), BCrypt.gensalt());
             query = dbConn.createStatement();
             query.setPoolable(true);
-
+            System.out.println("query " + query);
+           System.out.println("map" + map);
             if (map.containsKey("avatar_url")) {
                 set = query.executeQuery(String.format(
                         "SELECT * FROM create_user('%s','%s','%s','%s','%s')"
@@ -55,6 +58,7 @@ public class RegisterCommand extends Command implements Runnable {
                         , map.get("email")
                         , password
                         , map.get("name")));
+                System.out.println("wsl hnaa3");
             }
 
             root.put("app", map.get("app"));
@@ -116,5 +120,9 @@ public class RegisterCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, null, dbConn, query);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }

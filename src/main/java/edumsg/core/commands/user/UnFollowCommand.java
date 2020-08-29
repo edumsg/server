@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 
 public class UnFollowCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(UnFollowCommand.class.getName());
+    private static double classVersion = 1.0;
 
     @Override
     public void execute() {
@@ -102,5 +103,9 @@ public class UnFollowCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn,null);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }

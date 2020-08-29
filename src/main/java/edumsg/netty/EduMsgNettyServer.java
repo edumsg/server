@@ -12,7 +12,13 @@ IN THE SOFTWARE.
 
 package edumsg.netty;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import edumsg.activemq.ActiveMQConfig;
+import edumsg.activemq.Producer;
+import edumsg.core.config;
 import edumsg.redis.EduMsgRedis;
+import edumsg.shared.MyObjectMapper;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
@@ -57,6 +63,7 @@ public class EduMsgNettyServer {
                     .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new EduMsgNettyServerInitializer(sslCtx));
 //            b.option(ChannelOption.SO_KEEPALIVE, true);
+//           System.out.println(PORT);
             Channel ch = b.bind(PORT).sync().channel();
 
             System.err.println("Server is listening on "
@@ -65,6 +72,7 @@ public class EduMsgNettyServer {
             ch.closeFuture().sync();
         }
         catch (Exception e) {
+            e.printStackTrace();
             System.err.println("Server is not running");
         }
         finally {
@@ -84,13 +92,11 @@ public class EduMsgNettyServer {
     }
 
     public static void getHostDetails () {
-        InetAddress ip;
-        String hostname;
+        InetAddress localHost;
         try {
-            ip = InetAddress.getLocalHost();
-            hostname = ip.getHostName();
-            System.err.println("Your current IP address : " + ip);
-            System.err.println("Your current Hostname : " + hostname);
+            localHost = InetAddress.getLocalHost();
+            System.err.println("Your current IP address : " + localHost.getHostAddress());
+            System.err.println("Your current Hostname : " + localHost.getHostName());
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }

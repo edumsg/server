@@ -34,10 +34,7 @@ public abstract class Command implements Runnable {
     protected ObjectNode root = nf.objectNode();
     protected Map<String, String> details = new HashMap<String, String>();
 
-
-
-
-    public abstract void execute();
+    public abstract void execute() throws Exception;
 
     public void setMap(HashMap<String, String> map) {
         this.map=map;
@@ -45,6 +42,10 @@ public abstract class Command implements Runnable {
 
     @Override
     public void run() {
-        execute();
+        try {
+            execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

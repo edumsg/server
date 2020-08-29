@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 public class SubscribeCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(SubscribeCommand.class.getName());
+    private static double classVersion = 1.0;
 
     @Override
     public void execute() {
@@ -66,5 +67,9 @@ public class SubscribeCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn,null);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }

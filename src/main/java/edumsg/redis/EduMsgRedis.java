@@ -14,29 +14,40 @@ package edumsg.redis;
 
 import redis.clients.jedis.Jedis;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
 public class EduMsgRedis {
-    public static Jedis redisCache = getConnection();
+    public static Jedis redisCache;
+
+    static {
+        try {
+            redisCache = getConnection();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
 
 
-    private static Jedis getConnection() {
+    private static Jedis getConnection() throws UnknownHostException {
         URI redisURI;
+        InetAddress localHost = InetAddress.getLocalHost();
         Jedis jedis = null;
         try {
             redisURI = new URI(System.getenv("REDIS_URL"));
-            System.out.println("Redis URI 1 :" + redisURI);
+            System.out.println("Redis URI :" + redisURI);
             jedis = new Jedis(redisURI);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         } catch ( NullPointerException e ) {
             System.out.println("Redis URI : local-6379");
-            jedis = new Jedis("localhost", 6379);
+            jedis = new Jedis(localHost.getHostAddress(), 6379);
         }
         return jedis;
     }
