@@ -39,7 +39,7 @@ public class EduMsgNettyServerHandler extends
     private HttpRequest request;
     private String requestBody;
     private String correlationId;
-    volatile String responseBody;
+    private String responseBody;
     Logger log = Logger.getLogger(EduMsgNettyServer.class.getName());
     ExecutorService executorService = Executors.newCachedThreadPool();
     private int cur_instance;
@@ -61,15 +61,14 @@ public class EduMsgNettyServerHandler extends
             if (HttpHeaders.is100ContinueExpected(request)) {
                 send100Continue(ctx);
             }
-
         }
+
         if (msg instanceof HttpContent) {
             HttpContent httpContent = (HttpContent) msg;
             ByteBuf content = httpContent.content();
             requestBody = requestBody + content.toString(CharsetUtil.UTF_8) ;
-
-
         }
+
         if (msg instanceof LastHttpContent) {
             LastHttpContent trailer = (LastHttpContent) msg;
             writeResponse(trailer, ctx);
@@ -81,18 +80,19 @@ public class EduMsgNettyServerHandler extends
 
 
         JSONObject requestJson = new JSONObject(requestBody);
-        if(requestJson.toString().contains("queue")){
+        // get the name of intended queue where we will direct this request
         String Queue = requestJson.getString("queue")+"_"+cur_instance;
         NettyNotifier notifier = new NettyNotifier(this, Queue);
         System.out.println("Request Body: " + requestBody);
         sendMessageToActiveMQ(requestBody, Queue);
 
         System.out.println("waiting...");
+        // assign a thread to handle this request from the executors pool
         Future future = executorService.submit(notifier);
         this.responseBody = (String) future.get();
 
         System.out.println("res..."+ getResponseBody());
-        System.out.println("-----------");
+        // process to send the response back through its channel
         JSONObject json = new JSONObject(getResponseBody());
         HttpResponseStatus status = null;
         if (!json.has("message"))
@@ -107,7 +107,7 @@ public class EduMsgNettyServerHandler extends
 
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
                 status, Unpooled.copiedBuffer(responseBody,CharsetUtil.UTF_8));
-
+        // set some info at the headers of the responses to be used in the load balancer
         response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
         response.headers().setInt("App_Num",cur_instance);
         response.headers().set("App_Type", requestJson.getString("queue"));
@@ -117,11 +117,9 @@ public class EduMsgNettyServerHandler extends
                     response.content().readableBytes());
             response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
         }
-
         ctx.writeAndFlush(response);
+    }
 
-    }
-    }
 
     private void sendMessageToActiveMQ(String jsonBody, String queue) {
         Producer p = new Producer(new ActiveMQConfig(queue.toUpperCase() + ".INQUEUE"));

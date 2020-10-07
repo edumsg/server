@@ -13,9 +13,6 @@ IN THE SOFTWARE.
 package edumsg.shared;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Consumer;
 import edumsg.activemq.subscriber;
@@ -27,6 +24,7 @@ import edumsg.logger.MyLogger;
 import edumsg.redis.UserCache;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.command.ActiveMQDestination;
+
 import javax.jms.*;
 import java.util.logging.Logger;
 
@@ -49,29 +47,31 @@ public class UserMain extends RunnableClasses implements MessageListener{
         db.initSource();
         CommandsMap.instantiate();
         UserCache.userBgSave();
-        MyLogger.initialize(LOGGER,"C:\\Users\\OS\\Desktop\\Edumsg-comp\\logs");
+        // set the initial logger path for the micro-service in the local disk
+        MyLogger.initialize(LOGGER,"C:\\Users\\OS\\Desktop\\bachelor\\Edumsg-comp\\logs");
         cur_instance = config.getInstance_num();
 
+        // assign the consumers for all queues and topics that will serve the user application
         consumer = new Consumer(new ActiveMQConfig("USER_"+cur_instance+".INQUEUE") ,"USER");
         cons_ctrl = new Consumer(new ActiveMQConfig("USER_" + cur_instance + "_CONTROLLER.INQUEUE"), "USER");
         new subscriber(new ActiveMQConfig("USER"), "USER");
-
     }
 
     public static void stop() throws JMSException {
-        // to stop the app from listening to new messages we close the consumer and delete the queue
+        // to stop the app from listening to new messages we disconnect the consumer and delete the queue
         consumer.getConsumer().close();
         Connection conn = consumer.getConn();
         ((ActiveMQConnection) conn).destroyDestination((ActiveMQDestination) consumer.getQueue());
        run = false;
     }
+
     public static void start() {
         // restart the app by create new queue
         consumer = new Consumer(new ActiveMQConfig("USER_"+cur_instance+".INQUEUE") ,"USER");
         run = true;
-
     }
-    public static void exit() throws JMSException, JsonProcessingException, InterruptedException {
+
+    public static void exit() throws JMSException, JsonProcessingException {
         // send the response first then we close activemq conn before we peacefully exit the app
         controllerResponse.controllerSubmit("USER", cur_instance,"user app shutdown successfully","shut down", null, LOGGER);
         cons_ctrl.getConsumer().close();
@@ -81,21 +81,21 @@ public class UserMain extends RunnableClasses implements MessageListener{
         System.exit(0);
     }
 
-
+    // once any one of the queues or topics for the user app receive a msg this method will be called.
     @Override
     public void onMessage(Message message) {
-
         try {
             String msgTxt = ((TextMessage) message).getText();
-
-            // the destination queue of message decide the behaviour of the user application to handle this msg
+            // the destination queue of a message decide the behaviour of the user application to handle this msg
             if(message.getJMSDestination().toString().contains("topic")) {
                 // messages coming through topic determine update command
-                updateClass.init(msgTxt);
+                updateClass.setup(msgTxt);
             }else {
                 if (message.getJMSDestination().toString().contains("CONTROLLER")) {
+                    // msg coming from the controller queues
                     handleControllerMsg(msgTxt, message.getJMSCorrelationID(), "user", LOGGER, pool, db,MyLogger,cur_instance);
                 } else {
+                    // msg coming from the end-user queues
                     handleMsg(msgTxt, message.getJMSCorrelationID(), "user", LOGGER, pool, cur_instance);
                 }
             }

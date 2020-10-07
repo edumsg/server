@@ -20,13 +20,13 @@ import javax.jms.Message;
 import javax.jms.TextMessage;
 import java.util.concurrent.Callable;
 
+import static java.lang.Long.parseLong;
+
 
 public class notifier implements Callable<String> {
 
     private EduMsgControllerHandler controllerHandler;
     private String queueName;
-    private static ActiveMQConfig activeMQConfig;
-    private static Consumer consumer;
 
 
     public notifier(EduMsgControllerHandler controllerHandler,
@@ -39,10 +39,10 @@ public class notifier implements Callable<String> {
     public String call() {
         try {
 
-                activeMQConfig = new ActiveMQConfig(getQueueName()
-                        .toUpperCase() + "_CONTROLLER.OUTQUEUE");
-                consumer = new Consumer(activeMQConfig, controllerHandler.getCorrelationId());
-
+            ActiveMQConfig activeMQConfig = new ActiveMQConfig(getQueueName()
+                    .toUpperCase() + "_CONTROLLER.OUTQUEUE");
+            Consumer consumer = new Consumer(activeMQConfig, parseLong(controllerHandler.getCorrelationId()));
+            // wait until the response sent from the micro-services
             Message message = consumer.getConsumer().receive();
             String msgTxt = ((TextMessage) message).getText();
             consumer.getConsumer().close();
@@ -52,7 +52,6 @@ public class notifier implements Callable<String> {
 
         } catch (JMSException e) {
             // TODO Auto-generated catch block
-
             e.printStackTrace();
             return null;
         }

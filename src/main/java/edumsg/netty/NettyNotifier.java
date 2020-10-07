@@ -28,8 +28,6 @@ public class NettyNotifier implements Callable<String> {
 
     private String responseBody;
     private String queueName;
-    private static ActiveMQConfig activeMQConfig;
-    private static Consumer consumer;
 
     public NettyNotifier(EduMsgNettyServerHandler serverHandler,
                          String queueName) {
@@ -41,17 +39,13 @@ public class NettyNotifier implements Callable<String> {
     @Override
     public String call() {
         try {
-
-
-                    activeMQConfig = new ActiveMQConfig(getQueueName()
-                            .toUpperCase() + ".OUTQUEUE");
-                    consumer = new Consumer(activeMQConfig, serverHandler.getCorrelationId());
-
+            ActiveMQConfig activeMQConfig = new ActiveMQConfig(getQueueName()
+                    .toUpperCase() + ".OUTQUEUE");
+            Consumer consumer = new Consumer(activeMQConfig, serverHandler.getCorrelationId());
+            // wait until the response sent from the micro-services
             Message message = consumer.getConsumer().receive();
             String msgTxt = ((TextMessage) message).getText();
             setResponseBody(msgTxt);
-
-
             consumer.getConsumer().close();
             consumer.getSession().close();
             consumer.getConn().close();
@@ -59,7 +53,6 @@ public class NettyNotifier implements Callable<String> {
 
         } catch (JMSException e) {
             // TODO Auto-generated catch block
-
             e.printStackTrace();
             return null;
         }

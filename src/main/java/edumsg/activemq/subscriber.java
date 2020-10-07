@@ -12,6 +12,7 @@ public class subscriber {
     Connection conn;
     MessageConsumer consumer;
     Session session;
+    // the constructor for crating a subscriber when we use a topic over the middle-ware connection
     public subscriber(ActiveMQConfig config , String key) {
         this.config = config;
         try {

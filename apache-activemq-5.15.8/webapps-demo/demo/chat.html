@@ -136,7 +136,7 @@
     communication pipeline to the JMS server. This pipeline uses a long-poll
     connection to the server. All JMS communication will be received down this
     pipe, and when the JMS server has no traffic to send, this pipeline will
-    patiently wait until there is new traffic or until it times out. If a
+    patiently notifier until there is new traffic or until it times out. If a
     timeout does occur, the connection will reconnect to the server for another
     round. (Of course you will want/need to use a server that supports
     continuations in order for this to scale beyond a few hundred clients.)

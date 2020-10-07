@@ -19,29 +19,37 @@ package edumsg.loadBalancer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpObject;
 import io.netty.util.CharsetUtil;
-
+import java.util.HashMap;
 import static java.lang.System.currentTimeMillis;
 
 
 public class HttpSnoopClientHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     private static String response;
+    private static HashMap<String, notifier> notifiers = new HashMap<>();
+    private notifier notifier;
+    private String reqId;
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
+    public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
 
         if (msg instanceof DefaultHttpResponse) {
 
             // clear the previous response
             response = "";
+            reqId = ((DefaultHttpResponse) msg).headers().get("id");
             Calculation.reveive_time((DefaultHttpResponse) msg , currentTimeMillis());
+            // after receiving a response decrement the number of incomplete (concurrent) requests for a specific server instance
             String remoteAdress = ctx.channel().remoteAddress().toString().split(":")[0].substring(1);
-            System.out.println(remoteAdress);
+            //System.out.println(remoteAdress);
             HttpSnoopClient.decrement(remoteAdress);
         }
-
+        // in case of very long sequence of bytes in the response the response will be divided between HttpContent buffer & DefaultLastHttpContent buffer
         if (msg instanceof HttpContent && !(msg instanceof DefaultLastHttpContent)) {
             HttpContent httpContent = (HttpContent) msg;
             ByteBuf content = httpContent.content();
@@ -53,11 +61,12 @@ public class HttpSnoopClientHandler extends SimpleChannelInboundHandler<HttpObje
             DefaultLastHttpContent HttpLastContent = (DefaultLastHttpContent)msg;
             ByteBuf lastContent = HttpLastContent.content();
             response =response + lastContent.toString(CharsetUtil.UTF_8);
-            // release the thread that wait for the response to done
-            wait.latch.countDown();
+            // release the thread that wait for the response to be completed
+            notifier = notifiers.get(reqId);
+            notifier.setResponse(response);
+            notifier.getLatch().countDown();
         }
 
-        wait.setResponse(response);
 
     }
 
@@ -74,6 +83,9 @@ public class HttpSnoopClientHandler extends SimpleChannelInboundHandler<HttpObje
 
     public static String getRes() {
         return response;
+    }
+    public static void add_notifier (String reqId , notifier notifier){
+        notifiers.put(reqId, notifier);
     }
 
 }

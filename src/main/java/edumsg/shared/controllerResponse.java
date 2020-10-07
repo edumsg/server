@@ -11,14 +11,13 @@ import edumsg.core.PostgresConnection;
 import edumsg.logger.MyLogger;
 
 import javax.jms.JMSException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Logger;
 
 
 public class controllerResponse {
-
+    // check that the command applied successfully and format the response to be sent to the controller
     public static void checkCommand(String cmd , String parameters , String app_type , WorkerPool pool , PostgresConnection db , MyLogger MyLogger,
-                                    String correlationID , int cur_instance , Logger LOGGER) throws JMSException, JsonProcessingException, IllegalAccessException, NoSuchMethodException, ClassNotFoundException, InvocationTargetException, InterruptedException {
+                                    String correlationID , int cur_instance , Logger LOGGER) throws JMSException, JsonProcessingException {
         double version;
         String response = null;
         String error = null;
@@ -33,8 +32,7 @@ public class controllerResponse {
                 }
                 break;
             case "maxDBConnections":
-                String max = parameters;
-                if(max.equals(db.getDbMaxConnections())){
+                if(parameters.equals(db.getDbMaxConnections())){
                     response = " {Max DB Connections Updated Successfully}";
                 }
                 else{
@@ -42,8 +40,7 @@ public class controllerResponse {
                 }
                 break;
             case "initDBConnections":
-                String init = parameters;
-                if(init.equals(db.getDbInitConnections())){
+                if(parameters.equals(db.getDbInitConnections())){
                     response = " {initial DB Connections Updated Successfully}";
                 }
                 else{
@@ -52,6 +49,7 @@ public class controllerResponse {
                 break;
             case"getVersion":
                 try {
+                    // get the class version number from the class version exists in the commands map
                     String command_key = CommandsMap.map("class edumsg.core.commands." + app_type.toLowerCase() + "." + parameters);
                     version = (double) CommandsMap.getClass(command_key).getMethod("getClassVersion").invoke(null);
                     response = "{command version :" + version + "}";
@@ -59,7 +57,7 @@ public class controllerResponse {
                     error = e.getMessage();
                 }
             break;
-            case"log_path":
+            case"logPath":
                 if(MyLogger.getLog_path().equals(parameters)){
                     response = " {log file path Updated Successfully}";
                 }
@@ -131,6 +129,7 @@ public class controllerResponse {
         } else
             controllerHandleError(app_type,cur_instance,cmd,error,correlationID,LOGGER);
     }
+    // format and send a response in case of an error arise
     public static void controllerHandleError(String app,int cur_instance , String method, String errorMsg,
                                              String correlationID, Logger logger) throws JsonProcessingException {
         JsonNodeFactory nf = JsonNodeFactory.instance;
@@ -147,7 +146,7 @@ public class controllerResponse {
         p.send(mapper.writeValueAsString(node), correlationID, logger);
     }
 
-
+    // send the response of command execution process to the controller
     public static void controllerSubmit(String app,int cur_instance, String response,String cmd, String correlationID,
                                         Logger logger) throws JsonProcessingException {
         JsonNodeFactory nf = JsonNodeFactory.instance;

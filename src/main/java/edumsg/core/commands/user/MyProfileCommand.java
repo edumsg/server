@@ -31,17 +31,12 @@ import java.util.logging.Logger;
 
 public class MyProfileCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
-    private static double classVersion = 1.0;
-
-public static void print(){
-System.out.println("update 4............");
-}
+    private static double classVersion = 1.7;
 
     @Override
     public void execute() {
 
         try {
-System.out.println("update 4............");
             details = null; //Cache.returnUser(map.get("username"));
             User user = new User();
 

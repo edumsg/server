@@ -20,34 +20,34 @@ import javax.jms.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Consumer  {
+public class Consumer {
     Logger lgr = Logger.getLogger(Consumer.class.getName());
     ActiveMQConfig config;
     Connection conn;
     MessageConsumer consumer;
     Session session;
     Queue queue;
-    private long correlationId;
 
-
-    public Consumer(ActiveMQConfig config ,  String key) {
+    public Consumer(ActiveMQConfig config, String key) {
         this.config = config;
         try {
             conn = config.connect();
             session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
             queue = session.createQueue(config.getQueueName());
             consumer = session.createConsumer(queue);
-            switch (key){
-                case "USER" :
+            // after crating a consumer for each micro-service, we assign a message listener for it
+            switch (key) {
+                case "USER":
                     consumer.setMessageListener(new UserMain());
                     break;
-                case "TWEET" :
+                case "TWEET":
                     consumer.setMessageListener(new TweetMain());
                     break;
-                case "DM" :
+                case "DM":
                     consumer.setMessageListener(new DMMain());
                     break;
-                case "LIST" : consumer.setMessageListener(new ListMain());
+                case "LIST":
+                    consumer.setMessageListener(new ListMain());
                     break;
             }
             conn.start();
@@ -56,19 +56,19 @@ public class Consumer  {
         }
     }
 
-
-	public Consumer(ActiveMQConfig config, long correlationId) {
-		this.config = config;
+    public Consumer(ActiveMQConfig config, Long correlationId) {
+        this.config = config;
         try {
             conn = config.connect();
             session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
             Queue queue = session.createQueue(config.getQueueName());
-            consumer = session.createConsumer(queue);
+            consumer = session.createConsumer(queue, "JMSCorrelationID='" + correlationId + "'");
             conn.start();
         } catch (JMSException e) {
             lgr.log(Level.SEVERE, e.getMessage(), e);
         }
-	}
+    }
+
     public Consumer(ActiveMQConfig config) {
         this.config = config;
         try {
@@ -104,10 +104,7 @@ public class Consumer  {
         }
         return null;
     }
-    public  void reconnect () throws JMSException {
-        Queue queue = session.createQueue(config.getQueueName());
-        consumer = session.createConsumer(queue, "JMSCorrelationID='" + correlationId + "'");
-    }
+
     public Connection getConn() {
         return conn;
     }

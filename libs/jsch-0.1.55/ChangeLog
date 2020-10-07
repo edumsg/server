@@ -310,7 +310,7 @@ Changes since version 0.1.44:
 	  https://bugs.eclipse.org/bugs/show_bug.cgi?id=359184         FIXED
 - bugfix: KeyPair.load can not handle private keys cyphered with AES.  FIXED
 - change: to improve sftp-put performance, send multiple packet at one time.
-- change: wait/notify will be used instead of sleep loop
+- change: notifier/notify will be used instead of sleep loop
           in establishing channel connections.
 - change: increasing local window size for sftp get.
 - change: updating copyright messages; 2010 -> 2011

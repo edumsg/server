@@ -25,12 +25,8 @@ import java.util.logging.Logger;
 import static edumsg.shared.controllerResponse.controllerHandleError;
 
 public abstract class RunnableClasses {
-    private String maxDBConnections;
-    private String initDBConnections;
 
-
-    protected static void handleMsg(String msg, String correlationID, String subclass, Logger LOGGER, WorkerPool pool , int cur_instance)
-            throws IOException, JMSException {
+    protected static void handleMsg(String msg, String correlationID, String subclass, Logger LOGGER, WorkerPool pool , int cur_instance) {
         JsonMapper json = new JsonMapper(msg);
         HashMap<String, String> map = null;
         try {
@@ -126,7 +122,7 @@ public abstract class RunnableClasses {
                 case"getVersion":
                     // this command has special handling method
                     break;
-                case"log_path":
+                case"logPath":
                     MyLogger.setLog_path(parameters);
                     break;
                 case"start":
@@ -180,11 +176,11 @@ public abstract class RunnableClasses {
                 default:
                     throw new JMSException("Wrong Command");
             }
-            // check that the command applied successfully and format the response to the controller
+            // check that the command applied successfully and format the response to be sent to the controller
             controllerResponse.checkCommand(cmd,parameters,queue,pool,db,MyLogger,correlationID , cur_instance , LOGGER);
 
         }catch(Exception e) {
-            // in case an error arise send to the controller server details about the error
+            // in case an error arise send to to the controller server details about this error
             controllerHandleError(queue,cur_instance,cmd,e.getMessage(),correlationID,LOGGER);
         }
 

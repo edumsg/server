@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 
 public class FollowCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(FollowCommand.class.getName());
-    private static double classVersion = 1.0;
+    private static double classVersion = 2.7;
 
 
     @Override

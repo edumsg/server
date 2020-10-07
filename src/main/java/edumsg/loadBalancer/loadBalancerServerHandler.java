@@ -20,11 +20,12 @@ import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.logging.Logger;
 
 import static io.netty.handler.codec.http.HttpHeaders.Names.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
@@ -36,9 +37,9 @@ public class loadBalancerServerHandler extends
     private HttpRequest request;
     private String requestBody;
     private String responseBody;
-    private static ByteBuf ByteBuf ;
+    private ByteBuf ByteBuf ;
+    private String id;
 
-    Logger log = Logger.getLogger(loadBalancerServerHandler.class.getName());
     ExecutorService executorService = Executors.newCachedThreadPool();
 
     public void channelReadComplete(ChannelHandlerContext ctx) { ctx.flush(); }
@@ -49,6 +50,8 @@ public class loadBalancerServerHandler extends
 
         if (msg instanceof HttpRequest) {
             HttpRequest request = this.request = (HttpRequest) msg;
+            // assign Id for the request to be used through its route in the back-end layers
+            id = UUID.randomUUID().toString();
             if (HttpHeaders.is100ContinueExpected(request)) {
                 send100Continue(ctx);
             }
@@ -58,6 +61,7 @@ public class loadBalancerServerHandler extends
             HttpContent httpContent = (HttpContent) msg;
             ByteBuf content = httpContent.content();
             this.ByteBuf = content;
+            System.out.println(content.toString(CharsetUtil.UTF_8));
         }
         if (msg instanceof LastHttpContent) {
             DefaultLastHttpContent httpContent = (DefaultLastHttpContent) msg;
@@ -69,14 +73,13 @@ public class loadBalancerServerHandler extends
     private synchronized void writeResponse(ByteBuf ByteBuf, final ChannelHandlerContext ctx) throws
             NumberFormatException, InterruptedException, JSONException, ExecutionException {
 
-        wait wait = new wait(this);
-
-        System.out.println("waiting for response...");
-        Future future = executorService.submit(wait);
+        // assign a thread to submit the request to netty client to be send to the main server and waiting for the response
+        notifier notifier = new notifier(this);
+        Future future = executorService.submit(notifier);
         this.responseBody = (String) future.get();
-        System.out.println("-----------");
+        System.out.println(responseBody);
         JSONObject json = new JSONObject(responseBody);
-        HttpResponseStatus status = null;
+        HttpResponseStatus status;
         if (!json.has("message"))
             status = new HttpResponseStatus(Integer.parseInt((String) json
                     .get("code")),
@@ -128,7 +131,11 @@ public class loadBalancerServerHandler extends
         this.requestBody = requestBody;
     }
 
-    public static io.netty.buffer.ByteBuf getByteBuf() {
+    public io.netty.buffer.ByteBuf getByteBuf() {
         return ByteBuf;
+    }
+
+    public String getId() {
+        return id;
     }
 }

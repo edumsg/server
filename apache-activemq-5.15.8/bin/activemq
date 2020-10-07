@@ -521,7 +521,7 @@ invoke_kill(){
 #
 # Note: This function uses globally defined variables
 # - $ACTIVEMQ_PIDFILE         : the name of the pid file
-# - $ACTIVEMQ_KILL_MAXSECONDS : the number of seconds to wait for termination of broker after sending
+# - $ACTIVEMQ_KILL_MAXSECONDS : the number of seconds to notifier for termination of broker after sending
 #                              shutdown signal by jmx interface
 
 invoke_stop(){

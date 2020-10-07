@@ -14,7 +14,7 @@ public class config {
     public static String instance_host;
     public static String instance_pass;
 
-
+    // configuration file to get the info related to each micro-service before running it
     public static void initialize() throws Exception {
         String file = System.getProperty("user.dir") + "/config.conf";
         java.util.List<String> lines = new ArrayList<String>();

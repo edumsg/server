@@ -82,7 +82,7 @@
                                     name, e.g. MyDestination
                           durable - A boolean to specify that you want to
                                     create a durable topic?
-                              max - The maximum number of messages to wait
+                              max - The maximum number of messages to notifier
                                     for before shutting down
                          clientId - A string to use as the client id
                        transacted - A boolean to specify that you want to use
@@ -93,7 +93,7 @@
                          ack-mode - The type of message acknowledgement to use;
                                     see the Javadocs for javax.jms.Session for
                                     more information
-                 receive-time-out - An integer to specify the time to wait for
+                 receive-time-out - An integer to specify the time to notifier for
                                     message consumption
                   parallelThreads - The number of parallel threads
                             batch - Batch size for transactions and client acknowledgment (default 10)
@@ -112,7 +112,7 @@
                                  e.g. MyDestination
                        durable - A boolean to specify that you want to change the DeliveryMode of
                                  the produced messages ('PERSISTENT':'true' or 'NON-PERSISTENT':'false')
-                           max - The maximum number of messages to wait for
+                           max - The maximum number of messages to notifier for
                                  before shutting down
                      sleepTime - The time to sleep between message consumptions
                     transacted - A boolean to specify that you want to use

@@ -24,8 +24,6 @@ public class EduMsgController {
     public static void main(String[] args) throws Exception {
         getHostDetails();
         Logger log = Logger.getLogger(EduMsgController.class);
-
-         // EduMsgRedis.redisCache.flushDB();
         final SslContext sslCtx;
         if (SSL) {
             SelfSignedCertificate ssc = new SelfSignedCertificate();
@@ -53,9 +51,6 @@ public class EduMsgController {
         catch (Exception e) {
             e.printStackTrace();
             System.err.println("Controller is not running");
-        }
-        finally {
-
         }
     }
     private static int getPort() {

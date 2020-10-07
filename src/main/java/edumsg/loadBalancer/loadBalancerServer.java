@@ -44,7 +44,7 @@ public class loadBalancerServer {
 
         // Configure the server.
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new NioEventLoopGroup(60);
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
@@ -55,10 +55,9 @@ public class loadBalancerServer {
 
             System.err.println("Server is listening on "
                     + (SSL ? "https" : "http") + "://127.0.0.1:" + PORT + '/');
-            // set up the channels to connect to main server and controller server
+            // set up the channel to connect to the controller server
             HttpSnoopClient.ControllerChannel();
             Calculation.initial_instances();
-            systemStatus.send();
             ch.closeFuture().sync();
         }
         catch (Exception e) {

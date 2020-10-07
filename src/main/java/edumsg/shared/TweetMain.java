@@ -42,15 +42,18 @@ public class TweetMain extends RunnableClasses  implements MessageListener{
     }
 
     public static void main(String[] args) throws Exception {
+        // set the initial parameters for tweet application
         db.initSource();
         CommandsMap.instantiate();
         TweetsCache.tweetBgSave();
-        MyLogger.initialize(LOGGER,"C:\\Users\\OS\\Desktop\\Edumsg-comp\\logs");
+        // set the initial logger path for the micro-service in the local disk
+        MyLogger.initialize(LOGGER,"C:\\Users\\OS\\Desktop\\bachelor\\Edumsg-comp\\logs");
         cur_instance = config.getInstance_num();
 
-            consumer = new Consumer(new ActiveMQConfig("TWEET_" + cur_instance + ".INQUEUE"), "TWEET");
-            cons_ctrl = new Consumer(new ActiveMQConfig("TWEET_" + cur_instance + "_CONTROLLER.INQUEUE"), "TWEET");
-            new subscriber(new ActiveMQConfig("TWEET"), "TWEET");
+        // assign the consumers for all queues and topics that will serve the tweet application
+        consumer = new Consumer(new ActiveMQConfig("TWEET_" + cur_instance + ".INQUEUE"), "TWEET");
+        cons_ctrl = new Consumer(new ActiveMQConfig("TWEET_" + cur_instance + "_CONTROLLER.INQUEUE"), "TWEET");
+        new subscriber(new ActiveMQConfig("TWEET"), "TWEET");
 
     }
 
@@ -62,12 +65,12 @@ public class TweetMain extends RunnableClasses  implements MessageListener{
         run = false;
     }
     public static void start() {
-        // restart the app by create new queue
+        // restart the app by create a new queue
         consumer = new Consumer(new ActiveMQConfig("TWEET_"+cur_instance+".INQUEUE") ,"TWEET");
         run = true;
 
     }
-    public static void exit() throws JMSException, JsonProcessingException, InterruptedException {
+    public static void exit() throws JMSException, JsonProcessingException {
         // send the response first then we close activemq conn before we peacefully exit the app
         controllerResponse.controllerSubmit("TWEET", cur_instance,"tweet app shutdown successfully","shut down", null, LOGGER);
         cons_ctrl.getConsumer().close();
@@ -77,13 +80,13 @@ public class TweetMain extends RunnableClasses  implements MessageListener{
         System.exit(0);
     }
 
-
+    // once any one of the queues or topics for the tweet app receive a msg this method will be called.
     @Override
     public void onMessage(Message message) {
         try {
             String msgTxt = ((TextMessage) message).getText();
             if(message.getJMSDestination().toString().contains("topic")) {
-                updateClass.init(msgTxt);
+                updateClass.setup(msgTxt);
             }
             else {
                 if (message.getJMSDestination().toString().contains("CONTROLLER")) {
