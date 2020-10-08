@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 
 public class GetTimelineCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(GetTimelineCommand.class.getName());
+    private static double classVersion = 1.0;
 
     @Override
     public void execute() {
@@ -45,6 +46,7 @@ public class GetTimelineCommand extends Command implements Runnable {
             proc.execute();
 
             set = (ResultSet) proc.getObject(1);
+            System.out.println("set......."+set);
 
             ArrayNode tweets = nf.arrayNode();
             root.put("app", map.get("app"));
@@ -95,6 +97,7 @@ public class GetTimelineCommand extends Command implements Runnable {
                 JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
                 cacheEntry.put("cacheStatus", "valid");
                 UserCache.userCache.set("timeline:" + map.get("session_id"), cacheEntry.toString());
+                System.out.println("mapper.writeValueAsString(root)..."+mapper.writeValueAsString(root));
             } catch (JsonGenerationException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
@@ -116,5 +119,9 @@ public class GetTimelineCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn,null);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }

@@ -18,11 +18,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class WorkerPool {
     ThreadPoolExecutor executor;
+    private int maxThreads = 50;
 
     public WorkerPool() {
-
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
-        executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+        executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(maxThreads);
         RejectedExecutionHandlerImpl rejectionHandler = new RejectedExecutionHandlerImpl();
         executor.setRejectedExecutionHandler(rejectionHandler);
     }
@@ -37,5 +37,13 @@ public class WorkerPool {
 
     public void submit(Runnable r) {
         executor.submit(r);
+    }
+
+    public void setMaxThreads(int maxThreads) {
+        this.maxThreads = maxThreads;
+    }
+
+    public int getMaxThreads() {
+        return maxThreads;
     }
 }

@@ -9,6 +9,7 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 */
+//updated class
 
 package edumsg.core.commands.user;
 
@@ -24,6 +25,7 @@ import java.util.logging.Logger;
 
 public class LogoutCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(LogoutCommand.class.getName());
+    private static double classVersion = 1.0;
 
     @Override
     public void execute() {
@@ -60,4 +62,7 @@ public class LogoutCommand extends Command implements Runnable {
         }
     }
 
+    public static double getClassVersion() {
+        return classVersion;
+    }
 }

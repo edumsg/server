@@ -34,6 +34,7 @@ public class LoginCommand extends Command {
     private Timestamp created_at;
     private String avatar_url;
     private Boolean overlay, protected_tweets;
+    private static double classVersion = 1.0;
 
     @Override
     public void execute() {
@@ -175,5 +176,9 @@ public class LoginCommand extends Command {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn, null);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }

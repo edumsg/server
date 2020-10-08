@@ -7,8 +7,10 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Pipeline;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,20 +19,27 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class Cache {
-    protected static JedisPool redisPool = getConnection();
+    protected static JedisPool redisPool;
 
-    public static JedisPool getConnection() {
+    static {
+        try {
+            redisPool = getConnection();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static JedisPool getConnection() throws UnknownHostException {
         URI redisURI;
+        InetAddress localHost = InetAddress.getLocalHost();
         JedisPool jedis = null;
         try {
             redisURI = new URI(System.getenv("REDIS_URL"));
             System.err.println("Redis URI :" + redisURI);
             jedis = new JedisPool(redisURI);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch ( NullPointerException e ) {
+        } catch (NullPointerException | URISyntaxException e ) {
             System.err.println("Redis URI : local-6379");
-            jedis = new JedisPool(new JedisPoolConfig(),"localhost", 6379);
+            jedis = new JedisPool(new JedisPoolConfig(),localHost.getHostAddress(), 6379);
         }
         return jedis;
     }

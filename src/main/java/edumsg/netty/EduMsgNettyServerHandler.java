@@ -23,8 +23,6 @@ import io.netty.util.CharsetUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.jms.JMSException;
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,68 +38,61 @@ public class EduMsgNettyServerHandler extends
 
     private HttpRequest request;
     private String requestBody;
-    private long correlationId;
-    volatile String responseBody;
+    private String correlationId;
+    private String responseBody;
     Logger log = Logger.getLogger(EduMsgNettyServer.class.getName());
     ExecutorService executorService = Executors.newCachedThreadPool();
+    private int cur_instance;
 
     public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
     }
 
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg)
             throws Exception {
-        if (correlationId == 0L)
-            correlationId = System.currentTimeMillis();
-        //System.out.println("Correlation ID (HANDLER): " + correlationId);
-
-//        System.out.println("CH:" + ctx.channel().toString());
 
         if (msg instanceof HttpRequest) {
+            requestBody = "";
             HttpRequest request = this.request = (HttpRequest) msg;
+            correlationId =request.headers().get("id");
+            cur_instance = request.headers().getInt("App_Num");
             if (HttpHeaders.is100ContinueExpected(request)) {
                 send100Continue(ctx);
             }
-
         }
+
         if (msg instanceof HttpContent) {
             HttpContent httpContent = (HttpContent) msg;
             ByteBuf content = httpContent.content();
-//            System.out.println("req " + content.toString(CharsetUtil.UTF_8));
-            setRequestBody(content.toString(CharsetUtil.UTF_8));
+            requestBody = requestBody + content.toString(CharsetUtil.UTF_8) ;
         }
+
         if (msg instanceof LastHttpContent) {
             LastHttpContent trailer = (LastHttpContent) msg;
-//            ByteBuf content = trailer.content();
-//            System.out.println("ss " + content.toString(CharsetUtil.UTF_8));
             writeResponse(trailer, ctx);
         }
     }
 
-    private synchronized void writeResponse(HttpObject currentObj, final ChannelHandlerContext ctx) throws JMSException,
-            NumberFormatException, IOException, InterruptedException, JSONException, ExecutionException {
+    private synchronized void writeResponse(HttpObject currentObj, final ChannelHandlerContext ctx) throws
+            NumberFormatException, InterruptedException, JSONException, ExecutionException {
+
 
         JSONObject requestJson = new JSONObject(requestBody);
-        NettyNotifier notifier = new NettyNotifier(this, requestJson.getString("queue"));
-//        notifier.start();
+        // get the name of intended queue where we will direct this request
+        String Queue = requestJson.getString("queue")+"_"+cur_instance;
+        NettyNotifier notifier = new NettyNotifier(this, Queue);
         System.out.println("Request Body: " + requestBody);
-        sendMessageToActiveMQ(requestBody, requestJson.getString("queue"));
+        sendMessageToActiveMQ(requestBody, Queue);
 
-        System.out.println("waited");
-        String oldResponseBody = responseBody;
+        System.out.println("waiting...");
+        // assign a thread to handle this request from the executors pool
         Future future = executorService.submit(notifier);
         this.responseBody = (String) future.get();
-//        System.out.println("handler: " + this.toString() + "\nnotifier: " + notifier.toString());
-//        synchronized (this) {
-//            wait();
-//        }
-//        notifier.join();
-//        if (responseBody == null)
-//            throw new JMSException("Error getting response body");
-        System.out.println("notified");
-        System.out.println("netty" + getResponseBody());
-        System.out.println("-----------");
+
+        System.out.println("res..."+ getResponseBody());
+        // process to send the response back through its channel
         JSONObject json = new JSONObject(getResponseBody());
         HttpResponseStatus status = null;
         if (!json.has("message"))
@@ -109,29 +100,30 @@ public class EduMsgNettyServerHandler extends
                     .get("code")),
                     Integer.parseInt((String) json.get("code")) == 200 ? "Ok"
                             : "Bad Request");
-        else
+        else{
             status = new HttpResponseStatus(Integer.parseInt((String) json
-                    .get("code")), (String) json.get("message"));
-
+                    .get("code")), (String) json.get("message"));}
         boolean keepAlive = HttpHeaders.isKeepAlive(request);
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
-                status, Unpooled.copiedBuffer(responseBody, CharsetUtil.UTF_8));
 
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
+                status, Unpooled.copiedBuffer(responseBody,CharsetUtil.UTF_8));
+        // set some info at the headers of the responses to be used in the load balancer
         response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
+        response.headers().setInt("App_Num",cur_instance);
+        response.headers().set("App_Type", requestJson.getString("queue"));
+        response.headers().set("id", getCorrelationId());
         if (keepAlive) {
             response.headers().set(CONTENT_LENGTH,
                     response.content().readableBytes());
             response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
         }
-
         ctx.writeAndFlush(response);
-//        channelReadComplete(ctx);
-//        notifyAll();
     }
+
 
     private void sendMessageToActiveMQ(String jsonBody, String queue) {
         Producer p = new Producer(new ActiveMQConfig(queue.toUpperCase() + ".INQUEUE"));
-        p.send(jsonBody, correlationId+"", log);
+        p.send(jsonBody, correlationId, log);
     }
 
     private static void send100Continue(ChannelHandlerContext ctx) {
@@ -150,19 +142,17 @@ public class EduMsgNettyServerHandler extends
         return responseBody;
     }
 
-    public synchronized void setResponseBody(String responseBody) {
-        this.responseBody = responseBody;
-    }
-
-    public String getRequestBody() {
-        return requestBody;
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
     }
 
     public void setRequestBody(String requestBody) {
+
         this.requestBody = requestBody;
     }
 
-    public long getCorrelationId() {
+    public String getCorrelationId() {
+
         return correlationId;
     }
 }

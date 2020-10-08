@@ -12,108 +12,104 @@ IN THE SOFTWARE.
 
 package edumsg.shared;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Consumer;
+import edumsg.activemq.subscriber;
 import edumsg.concurrent.WorkerPool;
 import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
+import edumsg.core.config;
+import edumsg.logger.MyLogger;
 import edumsg.redis.UserCache;
+import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.command.ActiveMQDestination;
 
 import javax.jms.*;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class UserMain extends RunnableClasses{
+
+public class UserMain extends RunnableClasses implements MessageListener{
     private static final Logger LOGGER = Logger.getLogger(UserMain.class.getName());
     private static WorkerPool pool = new WorkerPool();
+    private static PostgresConnection db = new PostgresConnection();
+    private static MyLogger MyLogger = new MyLogger();
+    private static int cur_instance;
+    private static Consumer consumer;
+    private static Consumer cons_ctrl;
     private static boolean run = true;
 
-    public static void main(String[] args) throws IOException {
-        PostgresConnection.initSource();
+    public UserMain(){
+    }
+
+    public static void main(String[] args) throws Exception {
+        // set the initial parameters for user application
+        db.initSource();
         CommandsMap.instantiate();
         UserCache.userBgSave();
-        getHostDetails();
-        
-//        String herokuPrivateIP = "No Such IP";
-//        try {
-//            herokuPrivateIP = System.getenv("HEROKU_PRIVATE_IP");
-//        } catch ( Exception e) {
-//            System.err.println(e.getMessage());
-//        }
-//        System.err.println("User Main Class :: Heroku Private IP: " + herokuPrivateIP);
+        // set the initial logger path for the micro-service in the local disk
+        MyLogger.initialize(LOGGER,"C:\\Users\\OS\\Desktop\\bachelor\\Edumsg-comp\\logs");
+        cur_instance = config.getInstance_num();
 
-        Consumer c = null;
-        try {
-            c = new Consumer(new ActiveMQConfig("USER.INQUEUE"));
-
-            while (run) {
-                Message msg = c.receive();
-                if (msg == null)
-                {
-                    throw new JMSException("Error receiving message from ActiveMQ");
-                }
-                if (msg instanceof TextMessage) {
-                    String msgTxt = ((TextMessage) msg).getText();
-                    handleMsg(msgTxt, msg.getJMSCorrelationID(),"user",LOGGER,pool);
-                }
-            }
-        }
-        catch (JMSException e)
-        {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-        finally {
-            if (c != null)
-            {
-                MessageConsumer mc;
-                if ((mc = c.getConsumer()) != null)
-                {
-                    try {
-                        mc.close();
-                    } catch (JMSException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    }
-                }
-                Session s;
-                if ((s = c.getSession()) != null)
-                {
-                    try {
-                        s.close();
-                    } catch (JMSException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    }
-                }
-                Connection conn;
-                if ((conn = c.getConn()) != null)
-                {
-                    try {
-                        conn.close();
-                    } catch (JMSException e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                    }
-                }
-            }
-        }
+        // assign the consumers for all queues and topics that will serve the user application
+        consumer = new Consumer(new ActiveMQConfig("USER_"+cur_instance+".INQUEUE") ,"USER");
+        cons_ctrl = new Consumer(new ActiveMQConfig("USER_" + cur_instance + "_CONTROLLER.INQUEUE"), "USER");
+        new subscriber(new ActiveMQConfig("USER"), "USER");
     }
 
-    public static void shutdown() {
-        run = false;
+    public static void stop() throws JMSException {
+        // to stop the app from listening to new messages we disconnect the consumer and delete the queue
+        consumer.getConsumer().close();
+        Connection conn = consumer.getConn();
+        ((ActiveMQConnection) conn).destroyDestination((ActiveMQDestination) consumer.getQueue());
+       run = false;
     }
 
-    private static void getHostDetails () {
-        InetAddress ip;
-        String hostname;
+    public static void start() {
+        // restart the app by create new queue
+        consumer = new Consumer(new ActiveMQConfig("USER_"+cur_instance+".INQUEUE") ,"USER");
+        run = true;
+    }
+
+    public static void exit() throws JMSException, JsonProcessingException {
+        // send the response first then we close activemq conn before we peacefully exit the app
+        controllerResponse.controllerSubmit("USER", cur_instance,"user app shutdown successfully","shut down", null, LOGGER);
+        cons_ctrl.getConsumer().close();
+        Connection conn = cons_ctrl.getConn();
+        ((ActiveMQConnection) conn).destroyDestination((ActiveMQDestination) cons_ctrl.getQueue());
+        cons_ctrl.getConn().close();
+        System.exit(0);
+    }
+
+    // once any one of the queues or topics for the user app receive a msg this method will be called.
+    @Override
+    public void onMessage(Message message) {
         try {
-            ip = InetAddress.getLocalHost();
-            hostname = ip.getHostName();
-            System.err.println("Your current IP address : " + ip);
-            System.err.println("Your current Hostname : " + hostname);
-        } catch (UnknownHostException e) {
+            String msgTxt = ((TextMessage) message).getText();
+            // the destination queue of a message decide the behaviour of the user application to handle this msg
+            if(message.getJMSDestination().toString().contains("topic")) {
+                // messages coming through topic determine update command
+                updateClass.setup(msgTxt);
+            }else {
+                if (message.getJMSDestination().toString().contains("CONTROLLER")) {
+                    // msg coming from the controller queues
+                    handleControllerMsg(msgTxt, message.getJMSCorrelationID(), "user", LOGGER, pool, db,MyLogger,cur_instance);
+                } else {
+                    // msg coming from the end-user queues
+                    handleMsg(msgTxt, message.getJMSCorrelationID(), "user", LOGGER, pool, cur_instance);
+                }
+            }
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
+
+    }
+
+
+    public static boolean isRun() {
+        return run;
     }
 }
 

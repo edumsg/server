@@ -19,6 +19,7 @@ import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
 import edumsg.core.User;
+import edumsg.core.commands.user.GetUserCommand;
 import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ import java.util.logging.Logger;
 
 public class MyProfileCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
+    private static double classVersion = 1.7;
 
     @Override
     public void execute() {
@@ -130,5 +132,9 @@ public class MyProfileCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn,null);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }

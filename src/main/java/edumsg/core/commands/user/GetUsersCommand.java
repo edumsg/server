@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 
 public class GetUsersCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(GetUsersCommand.class.getName());
+    private static double classVersion = 1.0;
 
     @Override
     public void execute() {
@@ -97,5 +98,9 @@ public class GetUsersCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn,null);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }

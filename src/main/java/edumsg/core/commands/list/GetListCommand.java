@@ -9,7 +9,7 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTH
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 */
-
+// updated class
 package edumsg.core.commands.list;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 
 public class GetListCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(CreateListCommand.class.getName());
+    private static double classVersion = 1.3;
 
     @Override
     public void execute() {
@@ -80,5 +81,9 @@ public class GetListCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }

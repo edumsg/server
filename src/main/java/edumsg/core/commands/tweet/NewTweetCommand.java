@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 
 public class NewTweetCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(NewTweetCommand.class.getName());
+    private static double classVersion = 1.0;
 
     @Override
     public void execute() {
@@ -53,6 +54,7 @@ public class NewTweetCommand extends Command implements Runnable {
             }
             String id = null;
             while(set.next()) {
+                System.out.println("creator_id..." + set.getInt("creator_id") );
                 id = set.getInt("id") + "";
                 details.put("id", id);
                 details.put("tweet_text", set.getString("tweet_text"));
@@ -121,6 +123,7 @@ public class NewTweetCommand extends Command implements Runnable {
 //            }
 
         } catch (PSQLException e) {
+            System.out.println("Exception..." + e.getMessage());
             if (e.getMessage().contains("value too long")) {
                 CommandsHelp.handleError(map.get("app"), map.get("method"), "Tweet exceeds 140 characters", map.get("correlation_id"), LOGGER);
             } else {
@@ -133,5 +136,9 @@ public class NewTweetCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }

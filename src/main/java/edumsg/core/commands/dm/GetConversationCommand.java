@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 
 public class GetConversationCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(GetConversationCommand.class.getName());
+    private static double classVersion = 1.0;
 
     @Override
     public void execute() {
@@ -113,5 +114,9 @@ public class GetConversationCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }

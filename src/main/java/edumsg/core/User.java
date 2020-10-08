@@ -35,6 +35,7 @@ public class User {
 
     private String gender;
 
+
     public void setGender(String gender) {
         this.gender = gender;
     }
@@ -108,4 +109,5 @@ public class User {
     public void setSessionID(String sessionID) {
         this.session_id = sessionID;
     }
+
 }

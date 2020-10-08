@@ -30,10 +30,11 @@ import java.util.logging.Logger;
 
 public class FollowCommand extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(FollowCommand.class.getName());
+    private static double classVersion = 2.7;
 
 
     @Override
-    public void execute() {
+    public void execute() throws Exception {
 
         try {
             dbConn = PostgresConnection.getDataSource().getConnection();
@@ -98,6 +99,8 @@ public class FollowCommand extends Command implements Runnable {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 //            catch (JSONException e) {
 //                e.printStackTrace();
@@ -121,5 +124,9 @@ public class FollowCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn,null);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }

@@ -31,9 +31,10 @@ import java.util.logging.Logger;
 
 public class GetUser2Command extends Command implements Runnable {
     private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
+    private static double classVersion = 1.0;
 
     @Override
-    public void execute() {
+    public void execute() throws Exception {
 
         try {
             details = null; //Cache.returnUser(map.get("username"));
@@ -119,6 +120,8 @@ public class GetUser2Command extends Command implements Runnable {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
             } catch (IOException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
             dbConn.commit();
@@ -131,5 +134,9 @@ public class GetUser2Command extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn,null);
         }
+    }
+
+    public static double getClassVersion() {
+        return classVersion;
     }
 }
