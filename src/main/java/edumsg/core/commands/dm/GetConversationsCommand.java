@@ -15,8 +15,8 @@ package edumsg.core.commands.dm;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ValueNode;
+import edumsg.NodeManager.Main;
 import edumsg.core.*;
-import edumsg.redis.TweetsCache;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
@@ -101,7 +101,7 @@ public class GetConversationsCommand extends Command implements Runnable {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
                 JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
                 cacheEntry.put("cacheStatus", "valid");
-                TweetsCache.tweetCache.set("get_convs:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
+                Main.tweetCache.jedisCache.set("get_convs:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {

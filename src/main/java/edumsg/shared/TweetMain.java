@@ -21,7 +21,7 @@ import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
 import edumsg.core.config;
 import edumsg.logger.MyLogger;
-import edumsg.redis.TweetsCache;
+import edumsg.redis.TweetCache;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.command.ActiveMQDestination;
 
@@ -45,7 +45,7 @@ public class TweetMain extends RunnableClasses implements MessageListener {
         // set the initial parameters for tweet application
         db.initSource();
         CommandsMap.instantiate();
-        TweetsCache.tweetBgSave();
+        TweetCache.tweetBgSave();
         // set the initial logger path for the micro-service in the local disk
         MyLogger.initialize(LOGGER, "C:\\Users\\ziads\\Desktop\\Bachelor\\logs");
         cur_instance = config.getInstance_num();

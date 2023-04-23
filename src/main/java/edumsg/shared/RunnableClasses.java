@@ -11,9 +11,6 @@ import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
 import edumsg.logger.MyLogger;
 import edumsg.redis.DMCache;
-import edumsg.redis.ListCache;
-import edumsg.redis.TweetsCache;
-import edumsg.redis.UserCache;
 import org.json.JSONException;
 import org.json.JSONObject;
 import redis.clients.jedis.Jedis;
@@ -47,13 +44,13 @@ public abstract class RunnableClasses {
             Jedis cache = null;
             switch (subclass.toLowerCase()) {
                 case "user":
-                    cache = UserCache.userCache;
+                    cache = Main.userCache.jedisCache;
                     break;
                 case "tweet":
-                    cache = TweetsCache.tweetCache;
+                    cache = Main.tweetCache.jedisCache;
                     break;
                 case "list":
-                    cache = ListCache.listCache;
+                    cache = Main.listCache.jedisCache;
                     break;
                 case "dm":
                     cache = DMCache.dmCache;

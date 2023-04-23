@@ -15,8 +15,8 @@ package edumsg.core.commands.user;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import edumsg.NodeManager.Main;
 import edumsg.core.*;
-import edumsg.redis.UserCache;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
@@ -99,7 +99,7 @@ public class GetTimelineCommand extends Command implements Runnable {
                         map.get("correlation_id"), LOGGER);
                 JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
                 cacheEntry.put("cacheStatus", "valid");
-                UserCache.userCache.set("timeline:" + map.get("session_id"), cacheEntry.toString());
+                Main.userCache.jedisCache.set("timeline:" + map.get("session_id"), cacheEntry.toString());
                 System.out.println("mapper.writeValueAsString(root)..." + mapper.writeValueAsString(root));
             } catch (JsonGenerationException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);

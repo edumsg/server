@@ -13,8 +13,8 @@ IN THE SOFTWARE.
 package edumsg.core.commands.user;
 
 import com.fasterxml.jackson.databind.node.ValueNode;
+import edumsg.NodeManager.Main;
 import edumsg.core.*;
-import edumsg.redis.UserCache;
 import org.postgresql.util.PSQLException;
 
 import java.io.UnsupportedEncodingException;
@@ -145,9 +145,9 @@ public class LoginCommand extends Command {
                 dbConn.commit();
 
                 user.setSessionID(cleaned_session);
-                UserCache.cacheUser(id.toString(), details);
-                UserCache.mapUsernameID(username, id + "");
-                UserCache.cacheUserSession(cleaned_session, details.get("id"));
+                Main.userCache.cacheUser(id.toString(), details);
+                Main.userCache.mapUsernameID(username, id + "");
+                Main.userCache.cacheUserSession(cleaned_session, details.get("id"));
 
 
                 ValueNode child = nf.pojoNode(user);

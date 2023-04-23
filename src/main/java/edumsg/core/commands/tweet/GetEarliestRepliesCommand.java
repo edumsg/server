@@ -4,9 +4,9 @@ package edumsg.core.commands.tweet;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import edumsg.NodeManager.Main;
 import edumsg.core.*;
 import edumsg.core.commands.user.GetUserCommand;
-import edumsg.redis.TweetsCache;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
@@ -87,7 +87,7 @@ public class GetEarliestRepliesCommand extends Command implements Runnable {
                         map.get("correlation_id"), LOGGER);
                 JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
                 cacheEntry.put("cacheStatus", "valid");
-                TweetsCache.tweetCache.set("get_earliest_replies:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
+                Main.tweetCache.jedisCache.set("get_earliest_replies:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {

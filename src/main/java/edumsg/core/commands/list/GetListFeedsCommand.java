@@ -15,8 +15,8 @@ package edumsg.core.commands.list;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import edumsg.NodeManager.Main;
 import edumsg.core.*;
-import edumsg.redis.ListCache;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
@@ -95,7 +95,7 @@ public class GetListFeedsCommand extends Command implements Runnable {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
                 JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
                 cacheEntry.put("cacheStatus", "valid");
-                ListCache.listCache.set("get_list_feeds:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
+                Main.listCache.jedisCache.set("get_list_feeds:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {

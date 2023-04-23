@@ -3,6 +3,7 @@ package edumsg.redis;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Pipeline;
 
 import java.net.InetAddress;
 import java.net.URI;
@@ -10,8 +11,7 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class Cache {
@@ -24,6 +24,9 @@ public class Cache {
             e.printStackTrace();
         }
     }
+
+    public Jedis jedisCache = edumsg.redis.Cache.getRedisPoolResource();
+    private Pipeline dmPipeline = jedisCache.pipelined();
 
     public static JedisPool getConnection() throws UnknownHostException {
         URI redisURI;
@@ -56,7 +59,6 @@ public class Cache {
         return jedis;
     }
 
-
     protected static boolean checkNulls(Map<String, String> map) {
         return map.containsValue(null);
     }
@@ -69,7 +71,6 @@ public class Cache {
 
         return result;
     }
-
 
     protected static String braceRemover(String x) {
         if (x.startsWith("{") && x.endsWith("}")) {
@@ -85,6 +86,16 @@ public class Cache {
                 }
             }
         }
+    }
+
+    public void BgSave() {
+        Runnable runnable = () -> {
+            String res;
+            res = jedisCache.bgsave();
+            System.out.println(res);
+        };
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        service.scheduleAtFixedRate(runnable, 0, 15, TimeUnit.MINUTES);
     }
 
 
