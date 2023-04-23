@@ -29,7 +29,7 @@ import javax.jms.*;
 import java.util.logging.Logger;
 
 
-public class UserMain extends RunnableClasses implements MessageListener{
+public class UserMain extends RunnableClasses implements MessageListener {
     private static final Logger LOGGER = Logger.getLogger(UserMain.class.getName());
     private static WorkerPool pool = new WorkerPool();
     private static PostgresConnection db = new PostgresConnection();
@@ -39,7 +39,7 @@ public class UserMain extends RunnableClasses implements MessageListener{
     private static Consumer cons_ctrl;
     private static boolean run = true;
 
-    public UserMain(){
+    public UserMain() {
     }
 
     public static void main(String[] args) throws Exception {
@@ -48,11 +48,11 @@ public class UserMain extends RunnableClasses implements MessageListener{
         CommandsMap.instantiate();
         UserCache.userBgSave();
         // set the initial logger path for the micro-service in the local disk
-        MyLogger.initialize(LOGGER,"C:\\Users\\OS\\Desktop\\bachelor\\Edumsg-comp\\logs");
+        MyLogger.initialize(LOGGER, "C:\\Users\\ziads\\Desktop\\Bachelor\\logs");
         cur_instance = config.getInstance_num();
 
         // assign the consumers for all queues and topics that will serve the user application
-        consumer = new Consumer(new ActiveMQConfig("USER_"+cur_instance+".INQUEUE") ,"USER");
+        consumer = new Consumer(new ActiveMQConfig("USER_" + cur_instance + ".INQUEUE"), "USER");
         cons_ctrl = new Consumer(new ActiveMQConfig("USER_" + cur_instance + "_CONTROLLER.INQUEUE"), "USER");
         new subscriber(new ActiveMQConfig("USER"), "USER");
     }
@@ -62,23 +62,27 @@ public class UserMain extends RunnableClasses implements MessageListener{
         consumer.getConsumer().close();
         Connection conn = consumer.getConn();
         ((ActiveMQConnection) conn).destroyDestination((ActiveMQDestination) consumer.getQueue());
-       run = false;
+        run = false;
     }
 
     public static void start() {
         // restart the app by create new queue
-        consumer = new Consumer(new ActiveMQConfig("USER_"+cur_instance+".INQUEUE") ,"USER");
+        consumer = new Consumer(new ActiveMQConfig("USER_" + cur_instance + ".INQUEUE"), "USER");
         run = true;
     }
 
     public static void exit() throws JMSException, JsonProcessingException {
         // send the response first then we close activemq conn before we peacefully exit the app
-        controllerResponse.controllerSubmit("USER", cur_instance,"user app shutdown successfully","shut down", null, LOGGER);
+        controllerResponse.controllerSubmit("USER", cur_instance, "user app shutdown successfully", "shut down", null, LOGGER);
         cons_ctrl.getConsumer().close();
         Connection conn = cons_ctrl.getConn();
         ((ActiveMQConnection) conn).destroyDestination((ActiveMQDestination) cons_ctrl.getQueue());
         cons_ctrl.getConn().close();
         System.exit(0);
+    }
+
+    public static boolean isRun() {
+        return run;
     }
 
     // once any one of the queues or topics for the user app receive a msg this method will be called.
@@ -87,13 +91,13 @@ public class UserMain extends RunnableClasses implements MessageListener{
         try {
             String msgTxt = ((TextMessage) message).getText();
             // the destination queue of a message decide the behaviour of the user application to handle this msg
-            if(message.getJMSDestination().toString().contains("topic")) {
+            if (message.getJMSDestination().toString().contains("topic")) {
                 // messages coming through topic determine update command
                 updateClass.setup(msgTxt);
-            }else {
+            } else {
                 if (message.getJMSDestination().toString().contains("CONTROLLER")) {
                     // msg coming from the controller queues
-                    handleControllerMsg(msgTxt, message.getJMSCorrelationID(), "user", LOGGER, pool, db,MyLogger,cur_instance);
+                    handleControllerMsg(msgTxt, message.getJMSCorrelationID(), "user", LOGGER, pool, db, MyLogger, cur_instance);
                 } else {
                     // msg coming from the end-user queues
                     handleMsg(msgTxt, message.getJMSCorrelationID(), "user", LOGGER, pool, cur_instance);
@@ -105,11 +109,6 @@ public class UserMain extends RunnableClasses implements MessageListener{
         }
 
 
-    }
-
-
-    public static boolean isRun() {
-        return run;
     }
 }
 

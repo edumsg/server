@@ -38,7 +38,7 @@ public class DMMain extends RunnableClasses implements MessageListener {
     private static Consumer cons_ctrl;
     private static boolean run = true;
 
-    public DMMain(){
+    public DMMain() {
     }
 
     public static void main(String[] args) throws Exception {
@@ -47,7 +47,7 @@ public class DMMain extends RunnableClasses implements MessageListener {
         CommandsMap.instantiate();
         DMCache.dmBgSave();
         // set the initial logger path for the micro-service in the local disk
-        MyLogger.initialize(LOGGER,"C:\\Users\\OS\\Desktop\\bachelor\\Edumsg-comp\\logs");
+        MyLogger.initialize(LOGGER, "C:\\Users\\ziads\\Desktop\\Bachelor\\logs");
         cur_instance = config.getInstance_num();
 
         // assign the consumers for all queues and topics that will serve the dm application
@@ -64,15 +64,17 @@ public class DMMain extends RunnableClasses implements MessageListener {
         ((ActiveMQConnection) conn).destroyDestination((ActiveMQDestination) consumer.getQueue());
         run = false;
     }
+
     public static void start() {
         // restart the app by create new queue
-        consumer = new Consumer(new ActiveMQConfig("DM_"+cur_instance+".INQUEUE") ,"DM");
+        consumer = new Consumer(new ActiveMQConfig("DM_" + cur_instance + ".INQUEUE"), "DM");
         run = true;
 
     }
+
     public static void exit() throws JMSException, JsonProcessingException {
         // send the response first then we close activemq conn before we peacefully exit the app
-        controllerResponse.controllerSubmit("DM", cur_instance,"DM app shutdown successfully","shut down", null, LOGGER);
+        controllerResponse.controllerSubmit("DM", cur_instance, "DM app shutdown successfully", "shut down", null, LOGGER);
         cons_ctrl.getConsumer().close();
         Connection conn = cons_ctrl.getConn();
         ((ActiveMQConnection) conn).destroyDestination((ActiveMQDestination) cons_ctrl.getQueue());
@@ -80,18 +82,20 @@ public class DMMain extends RunnableClasses implements MessageListener {
         System.exit(0);
     }
 
+    public static boolean isRun() {
+        return run;
+    }
 
     // once any one of the queues or topics for the dm app receive a msg this method will be called.
     @Override
     public void onMessage(Message message) {
         try {
             String msgTxt = ((TextMessage) message).getText();
-            if(message.getJMSDestination().toString().contains("topic")) {
+            if (message.getJMSDestination().toString().contains("topic")) {
                 updateClass.setup(msgTxt);
-            }
-            else {
+            } else {
                 if (message.getJMSDestination().toString().contains("CONTROLLER")) {
-                    handleControllerMsg(msgTxt, message.getJMSCorrelationID(), "dm", LOGGER, pool, db,MyLogger, cur_instance);
+                    handleControllerMsg(msgTxt, message.getJMSCorrelationID(), "dm", LOGGER, pool, db, MyLogger, cur_instance);
                 } else {
                     handleMsg(msgTxt, message.getJMSCorrelationID(), "dm", LOGGER, pool, cur_instance);
                 }
@@ -99,9 +103,5 @@ public class DMMain extends RunnableClasses implements MessageListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public static boolean isRun() {
-        return run;
     }
 }
