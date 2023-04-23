@@ -15,7 +15,7 @@ public class UserCache extends Cache {
     private static Pipeline userPipeline = userCache.pipelined();
 
 
-    public static void userBgSave(){
+    public static void userBgSave() {
         Runnable runnable = () -> {
             String res;
             res = userCache.bgsave();
@@ -35,8 +35,8 @@ public class UserCache extends Cache {
 
 
     public static void addUserToCacheList(String user_id) {
-        if (user_id != null && !userCache.sismember("user:",user_id)) {
-            userCache.sadd("users:",user_id);
+        if (user_id != null && !userCache.sismember("user:", user_id)) {
+            userCache.sadd("users:", user_id);
         }
     }
 
@@ -49,8 +49,7 @@ public class UserCache extends Cache {
     public static String cacheUser(String user_id, Map<String, String> userDetails) {
         if (!Cache.checkNulls(userDetails)) {
             return userCache.hmset("user:" + user_id, userDetails);
-        }
-        else
+        } else
             return "";
     }
 
@@ -83,7 +82,7 @@ public class UserCache extends Cache {
     }
 
     public static void cacheUserSession(String session_id, String user_id) {
-        userCache.hset("sessions" , session_id, user_id);
+        userCache.hset("sessions", session_id, user_id);
     }
 
     public static void mapUsernameID(String username, String id) {

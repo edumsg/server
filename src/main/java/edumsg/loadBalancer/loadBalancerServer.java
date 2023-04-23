@@ -23,6 +23,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import org.apache.log4j.Logger;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -37,7 +38,7 @@ public class loadBalancerServer {
         final SslContext sslCtx;
         if (SSL) {
             SelfSignedCertificate ssc = new SelfSignedCertificate();
-            sslCtx =  SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
+            sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
         } else {
             sslCtx = null;
         }
@@ -59,12 +60,10 @@ public class loadBalancerServer {
             HttpSnoopClient.ControllerChannel();
             Calculation.initial_instances();
             ch.closeFuture().sync();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Server is not running");
-        }
-        finally {
+        } finally {
         }
     }
 
@@ -72,13 +71,13 @@ public class loadBalancerServer {
         int PORT;
         try {
             PORT = Integer.parseInt(System.getenv("PORT"));
-        } catch ( Exception e ) {
+        } catch (Exception e) {
             PORT = Integer.parseInt(System.getProperty("port", SSL ? "8443" : "7070"));
         }
         return PORT;
     }
 
-    public static void getHostDetails () {
+    public static void getHostDetails() {
         InetAddress localHost;
         try {
             localHost = InetAddress.getLocalHost();

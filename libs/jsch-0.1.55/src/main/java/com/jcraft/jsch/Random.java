@@ -29,6 +29,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-public interface Random{
-  void fill(byte[] foo, int start, int len);
+public interface Random {
+    void fill(byte[] foo, int start, int len);
 }

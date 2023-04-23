@@ -36,9 +36,9 @@ public class Consumer {
     }
 
 
-	public Consumer(RabbitMQConfig config, long correlationId) {
-		this.config = config;
-		String messageSelector = "JMSCorrelationID='" + correlationId + "'";
+    public Consumer(RabbitMQConfig config, long correlationId) {
+        this.config = config;
+        String messageSelector = "JMSCorrelationID='" + correlationId + "'";
         System.out.println("Consumer Class :: Correlation ID " + correlationId);
         try {
             conn = config.connect();
@@ -48,7 +48,7 @@ public class Consumer {
         } catch (JMSException e) {
             lgr.log(Level.SEVERE, e.getMessage(), e);
         }
-	}
+    }
 
     public Message receive() {
         if (consumer != null) {

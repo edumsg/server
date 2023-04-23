@@ -17,34 +17,34 @@
 -->
 <html>
 <head>
-  <title>Send a JMS Message</title>
-  <link rel="stylesheet" href="style.css" type="text/css">
+    <title>Send a JMS Message</title>
+    <link href="style.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
 <h1>Send a JMS Message</h1>
 
 <form action="message/FOO/BAR" method="post">
-  <p>
-    <label for="destination">Destination name</label>
-    <input type="text" name="destination" value="FOO.BAR"/>
-  </p>
-  <p>
-    <label for="type">Destination Type: </label>
-    <select name="type">
-      <option selected value="queue">Queue</option>
-      <option value="topic">Topic</option>
-   </select>
-  </p>
-  <p>
-    <textarea name="body" rows="30" cols="80">
+    <p>
+        <label for="destination">Destination name</label>
+        <input name="destination" type="text" value="FOO.BAR"/>
+    </p>
+    <p>
+        <label for="type">Destination Type: </label>
+        <select name="type">
+            <option selected value="queue">Queue</option>
+            <option value="topic">Topic</option>
+        </select>
+    </p>
+    <p>
+    <textarea cols="80" name="body" rows="30">
 Enter some text here for the message body...
     </textarea>
-  </p>
-  <p>
-    <input type="submit" value="Send"/>
-    <input type="reset"/>
-  </p>
+    </p>
+    <p>
+        <input type="submit" value="Send"/>
+        <input type="reset"/>
+    </p>
 </form>
 
 </body>

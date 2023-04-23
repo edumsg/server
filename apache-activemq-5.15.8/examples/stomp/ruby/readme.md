@@ -2,9 +2,9 @@ Prereqs
 =======
 
 - Install RubyGems see: http://docs.rubygems.org/
-- Install the stomp gem.  Run: gem install stomp
+- Install the stomp gem. Run: gem install stomp
 
-Overview of stompcat.rb and catstomp.rb 
+Overview of stompcat.rb and catstomp.rb
 ==========================================
 
 The basic idea behind these scripts to to create something like netcat except over JMS

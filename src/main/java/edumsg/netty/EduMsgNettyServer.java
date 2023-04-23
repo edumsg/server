@@ -12,13 +12,7 @@ IN THE SOFTWARE.
 
 package edumsg.netty;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import edumsg.activemq.ActiveMQConfig;
-import edumsg.activemq.Producer;
-import edumsg.core.config;
 import edumsg.redis.EduMsgRedis;
-import edumsg.shared.MyObjectMapper;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
@@ -48,7 +42,7 @@ public class EduMsgNettyServer {
         final SslContext sslCtx;
         if (SSL) {
             SelfSignedCertificate ssc = new SelfSignedCertificate();
-          sslCtx =  SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
+            sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
         } else {
             sslCtx = null;
         }
@@ -70,12 +64,10 @@ public class EduMsgNettyServer {
                     + (SSL ? "https" : "http") + "://127.0.0.1:" + PORT + '/');
 
             ch.closeFuture().sync();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Server is not running");
-        }
-        finally {
+        } finally {
 //            bossGroup.shutdownGracefully();
 //            workerGroup.shutdownGracefully();
         }
@@ -85,13 +77,13 @@ public class EduMsgNettyServer {
         int PORT;
         try {
             PORT = Integer.parseInt(System.getenv("PORT"));
-        } catch ( Exception e ) {
+        } catch (Exception e) {
             PORT = Integer.parseInt(System.getProperty("port", SSL ? "8443" : "8080"));
         }
         return PORT;
     }
 
-    public static void getHostDetails () {
+    public static void getHostDetails() {
         InetAddress localHost;
         try {
             localHost = InetAddress.getLocalHost();

@@ -16,7 +16,6 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import edumsg.core.*;
-import edumsg.redis.Cache;
 import edumsg.redis.TweetsCache;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
@@ -31,9 +30,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GetConversationsCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(GetConversationsCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(GetConversationsCommand.class.getName());
 
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -118,9 +120,5 @@ public class GetConversationsCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

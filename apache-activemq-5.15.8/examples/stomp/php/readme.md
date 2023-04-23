@@ -1,7 +1,7 @@
 Prereqs
 =======
 
-Install the [PHP Stomp client](http://www.php.net/manual/en/book.stomp.php) 
+Install the [PHP Stomp client](http://www.php.net/manual/en/book.stomp.php)
 library.
 
 Pear users can install it by running:

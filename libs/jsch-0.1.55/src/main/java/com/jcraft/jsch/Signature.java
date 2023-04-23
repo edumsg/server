@@ -29,9 +29,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-public interface Signature{
-  void init() throws Exception;
-  void update(byte[] H) throws Exception;
-  boolean verify(byte[] sig) throws Exception;
-  byte[] sign() throws Exception;
+public interface Signature {
+    void init() throws Exception;
+
+    void update(byte[] H) throws Exception;
+
+    boolean verify(byte[] sig) throws Exception;
+
+    byte[] sign() throws Exception;
 }

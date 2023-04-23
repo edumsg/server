@@ -37,7 +37,7 @@ public abstract class Command implements Runnable {
     public abstract void execute() throws Exception;
 
     public void setMap(HashMap<String, String> map) {
-        this.map=map;
+        this.map = map;
     }
 
     @Override

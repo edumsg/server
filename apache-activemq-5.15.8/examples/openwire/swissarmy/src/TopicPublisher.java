@@ -5,15 +5,16 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import java.util.Arrays;
 
 import javax.jms.BytesMessage;
@@ -64,6 +65,32 @@ public class TopicPublisher implements MessageListener {
         p.run();
     }
 
+    static long min(long[] times) {
+        long min = times.length > 0 ? times[0] : 0;
+        for (int i = 0; i < times.length; i++) {
+            min = Math.min(min, times[i]);
+        }
+        return min;
+    }
+
+    static long max(long[] times) {
+        long max = times.length > 0 ? times[0] : 0;
+        for (int i = 0; i < times.length; i++) {
+            max = Math.max(max, times[i]);
+        }
+        return max;
+    }
+
+    static long avg(long[] times, long min, long max) {
+        long sum = 0;
+        for (int i = 0; i < times.length; i++) {
+            sum += times[i];
+        }
+        sum -= min;
+        sum -= max;
+        return sum / times.length - 2;
+    }
+
     private void run() throws Exception {
         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(url);
         connection = factory.createConnection();
@@ -76,7 +103,7 @@ public class TopicPublisher implements MessageListener {
 
         payload = new byte[size];
         for (int i = 0; i < size; i++) {
-            payload[i] = (byte)DATA[i % DATA.length];
+            payload[i] = (byte) DATA[i % DATA.length];
         }
 
         session.createConsumer(control).setMessageListener(this);
@@ -146,37 +173,11 @@ public class TopicPublisher implements MessageListener {
 
     Object getReport(Message m) {
         try {
-            return ((TextMessage)m).getText();
+            return ((TextMessage) m).getText();
         } catch (JMSException e) {
             e.printStackTrace(System.out);
             return e.toString();
         }
-    }
-
-    static long min(long[] times) {
-        long min = times.length > 0 ? times[0] : 0;
-        for (int i = 0; i < times.length; i++) {
-            min = Math.min(min, times[i]);
-        }
-        return min;
-    }
-
-    static long max(long[] times) {
-        long max = times.length > 0 ? times[0] : 0;
-        for (int i = 0; i < times.length; i++) {
-            max = Math.max(max, times[i]);
-        }
-        return max;
-    }
-
-    static long avg(long[] times, long min, long max) {
-        long sum = 0;
-        for (int i = 0; i < times.length; i++) {
-            sum += times[i];
-        }
-        sum -= min;
-        sum -= max;
-        return sum / times.length - 2;
     }
 
     public void setBatch(int batch) {

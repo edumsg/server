@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 import edumsg.redis.UserCache;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
@@ -29,10 +28,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CreateDmCommand extends Command implements Runnable {
+    private static double classVersion = 1.0;
     private final Logger LOGGER = Logger.getLogger(CreateDmCommand.class
             .getName());
-    private static double classVersion = 1.0;
 
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -105,9 +107,5 @@ public class CreateDmCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

@@ -14,22 +14,22 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 --%>
-<%@ attribute name="connection" type="java.lang.String" required="true"  %>
-<%@ attribute name="connectionName" type="java.lang.String" required="true"  %>
-<%@ attribute name="broker" type="org.apache.activemq.web.BrokerFacade" required="true"  %>
-<%@ attribute name="connectorName" type="java.lang.String" required="true"  %>
+<%@ attribute name="connection" type="java.lang.String" required="true" %>
+<%@ attribute name="connectionName" type="java.lang.String" required="true" %>
+<%@ attribute name="broker" type="org.apache.activemq.web.BrokerFacade" required="true" %>
+<%@ attribute name="connectorName" type="java.lang.String" required="true" %>
 <%@ tag import="java.util.Iterator" %>
 <%@ tag import="org.apache.activemq.broker.jmx.ConnectionViewMBean" %>
 <%
-	Iterator it = broker.getConnections(connectorName).iterator();
-	while (it.hasNext()) {
-		String conName = (String) it.next();
-		ConnectionViewMBean con = broker.getConnection(conName);
-		request.setAttribute(connectionName, conName);
-		request.setAttribute(connection, con);
+    Iterator it = broker.getConnections(connectorName).iterator();
+    while (it.hasNext()) {
+        String conName = (String) it.next();
+        ConnectionViewMBean con = broker.getConnection(conName);
+        request.setAttribute(connectionName, conName);
+        request.setAttribute(connection, con);
 %>
 <jsp:doBody/>
 <%
-	}
+    }
 %>       
     

@@ -31,15 +31,15 @@
     in separate consoles
  -->
 <beans
-  xmlns="http://www.springframework.org/schema/beans"
-  xmlns:amq="http://activemq.apache.org/schema/core"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.springframework.org/schema/beans"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
 
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="dynamic-broker1" dataDirectory="${activemq.data}">
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="dynamic-broker1"
+            dataDirectory="${activemq.data}">
 
         <!-- Destination specific policies using destination names or wildcards -->
         <destinationPolicy>
@@ -47,7 +47,7 @@
                 <policyEntries>
                     <policyEntry queue=">" producerFlowControl="true" memoryLimit="20mb">
                         <deadLetterStrategy>
-                          <individualDeadLetterStrategy queuePrefix="DLQ." useQueueForQueueMessages="true" />
+                            <individualDeadLetterStrategy queuePrefix="DLQ." useQueueForQueueMessages="true"/>
                         </deadLetterStrategy>
                     </policyEntry>
                     <policyEntry topic=">" producerFlowControl="true" memoryLimit="20mb">
@@ -68,11 +68,11 @@
             http://activemq.apache.org/multicast-transport-reference.html
         -->
         <networkConnectors>
-          <networkConnector uri="multicast://default"
-            dynamicOnly="true"
-            networkTTL="3"
-            prefetchSize="1"
-            decreaseNetworkConsumerPriority="true" />
+            <networkConnector uri="multicast://default"
+                              dynamicOnly="true"
+                              networkTTL="3"
+                              prefetchSize="1"
+                              decreaseNetworkConsumerPriority="true"/>
         </networkConnectors>
 
         <persistenceAdapter>
@@ -99,7 +99,7 @@
             Configure discovery URI to use multicast protocol
         -->
         <transportConnectors>
-            <transportConnector name="openwire" uri="tcp://0.0.0.0:61616" discoveryUri="multicast://default" />
+            <transportConnector name="openwire" uri="tcp://0.0.0.0:61616" discoveryUri="multicast://default"/>
         </transportConnectors>
 
 

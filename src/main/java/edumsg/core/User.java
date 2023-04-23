@@ -34,7 +34,7 @@ public class User {
     private String session_id;
 
     private String gender;
-
+    private String date_of_birth;
 
     public void setGender(String gender) {
         this.gender = gender;
@@ -43,8 +43,6 @@ public class User {
     public void setDate_of_birth(String date_of_birth) {
         this.date_of_birth = date_of_birth;
     }
-
-    private String date_of_birth;
 
     public void setId(Integer id) {
         this.id = id;

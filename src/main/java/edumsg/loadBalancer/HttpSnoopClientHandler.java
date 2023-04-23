@@ -24,7 +24,9 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.util.CharsetUtil;
+
 import java.util.HashMap;
+
 import static java.lang.System.currentTimeMillis;
 
 
@@ -35,6 +37,18 @@ public class HttpSnoopClientHandler extends SimpleChannelInboundHandler<HttpObje
     private notifier notifier;
     private String reqId;
 
+    public static String getRes() {
+        return response;
+    }
+
+    public static void setRes(String res) {
+        HttpSnoopClientHandler.response = res;
+    }
+
+    public static void add_notifier(String reqId, notifier notifier) {
+        notifiers.put(reqId, notifier);
+    }
+
     @Override
     public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
 
@@ -43,7 +57,7 @@ public class HttpSnoopClientHandler extends SimpleChannelInboundHandler<HttpObje
             // clear the previous response
             response = "";
             reqId = ((DefaultHttpResponse) msg).headers().get("id");
-            Calculation.reveive_time((DefaultHttpResponse) msg , currentTimeMillis());
+            Calculation.reveive_time((DefaultHttpResponse) msg, currentTimeMillis());
             // after receiving a response decrement the number of incomplete (concurrent) requests for a specific server instance
             String remoteAdress = ctx.channel().remoteAddress().toString().split(":")[0].substring(1);
             //System.out.println(remoteAdress);
@@ -58,9 +72,9 @@ public class HttpSnoopClientHandler extends SimpleChannelInboundHandler<HttpObje
 
         if (msg instanceof DefaultLastHttpContent) {
 
-            DefaultLastHttpContent HttpLastContent = (DefaultLastHttpContent)msg;
+            DefaultLastHttpContent HttpLastContent = (DefaultLastHttpContent) msg;
             ByteBuf lastContent = HttpLastContent.content();
-            response =response + lastContent.toString(CharsetUtil.UTF_8);
+            response = response + lastContent.toString(CharsetUtil.UTF_8);
             // release the thread that wait for the response to be completed
             notifier = notifiers.get(reqId);
             notifier.setResponse(response);
@@ -74,18 +88,6 @@ public class HttpSnoopClientHandler extends SimpleChannelInboundHandler<HttpObje
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
-    }
-
-
-    public static void setRes(String res) {
-        HttpSnoopClientHandler.response = res;
-    }
-
-    public static String getRes() {
-        return response;
-    }
-    public static void add_notifier (String reqId , notifier notifier){
-        notifiers.put(reqId, notifier);
     }
 
 }

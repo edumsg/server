@@ -14,12 +14,13 @@ public class serverInstances {
     private URI uri;
     private int totalReq;
 
-    public serverInstances (String host){
+    public serverInstances(String host) {
         this.host = host;
-        this.uri = URI.create(System.getProperty("uri", "http://"+host+":8080/"));
+        this.uri = URI.create(System.getProperty("uri", "http://" + host + ":8080/"));
         this.creat_channel();
     }
-    public void creat_channel(){
+
+    public void creat_channel() {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap();

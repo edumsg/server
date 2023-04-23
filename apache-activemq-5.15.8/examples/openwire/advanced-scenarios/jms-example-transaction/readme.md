@@ -7,7 +7,7 @@ This example demos using JMS transactions
 ## Prereqs
 
 - Install Java SDK
-- Install [Maven](http://maven.apache.org/download.html) 
+- Install [Maven](http://maven.apache.org/download.html)
 
 ## Building
 

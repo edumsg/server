@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,11 +17,12 @@
 package example;
 
 import org.fusesource.stomp.jms.*;
+
 import javax.jms.*;
 
 class Listener {
 
-    public static void main(String []args) throws JMSException {
+    public static void main(String[] args) throws JMSException {
 
         String user = env("ACTIVEMQ_USER", "admin");
         String password = env("ACTIVEMQ_PASSWORD", "password");
@@ -41,31 +42,31 @@ class Listener {
         long start = System.currentTimeMillis();
         long count = 1;
         System.out.println("Waiting for messages...");
-        while(true) {
+        while (true) {
             Message msg = consumer.receive();
-            if( msg instanceof  TextMessage ) {
+            if (msg instanceof TextMessage) {
                 String body = ((TextMessage) msg).getText();
-                if( "SHUTDOWN".equals(body)) {
+                if ("SHUTDOWN".equals(body)) {
                     long diff = System.currentTimeMillis() - start;
-                    System.out.println(String.format("Received %d in %.2f seconds", count, (1.0*diff/1000.0)));
+                    System.out.println(String.format("Received %d in %.2f seconds", count, (1.0 * diff / 1000.0)));
                     break;
                 } else {
-                    if( count != msg.getIntProperty("id") ) {
-                        System.out.println("mismatch: "+count+"!="+msg.getIntProperty("id"));
+                    if (count != msg.getIntProperty("id")) {
+                        System.out.println("mismatch: " + count + "!=" + msg.getIntProperty("id"));
                     }
                     count = msg.getIntProperty("id");
 
-                    if( count == 0 ) {
+                    if (count == 0) {
                         start = System.currentTimeMillis();
                     }
-                    if( count % 1000 == 0 ) {
+                    if (count % 1000 == 0) {
                         System.out.println(String.format("Received %d messages.", count));
                     }
-                    count ++;
+                    count++;
                 }
 
             } else {
-                System.out.println("Unexpected message type: "+msg.getClass());
+                System.out.println("Unexpected message type: " + msg.getClass());
             }
         }
         connection.close();
@@ -73,13 +74,13 @@ class Listener {
 
     private static String env(String key, String defaultValue) {
         String rc = System.getenv(key);
-        if( rc== null )
+        if (rc == null)
             return defaultValue;
         return rc;
     }
 
-    private static String arg(String []args, int index, String defaultValue) {
-        if( index < args.length )
+    private static String arg(String[] args, int index, String defaultValue) {
+        if (index < args.length)
             return args[index];
         else
             return defaultValue;

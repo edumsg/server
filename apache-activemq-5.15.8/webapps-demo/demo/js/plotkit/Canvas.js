@@ -37,13 +37,11 @@
 // Check required components
 // --------------------------------------------------------------------
 
-try {    
-    if (typeof(PlotKit.Layout) == 'undefined')
-    {
-        throw "";    
+try {
+    if (typeof (PlotKit.Layout) == 'undefined') {
+        throw "";
     }
-} 
-catch (e) {    
+} catch (e) {
     throw "PlotKit.Layout depends on MochiKit.{Base,Color,DOM,Format} and PlotKit.Base and PlotKit.Layout"
 }
 
@@ -52,30 +50,30 @@ catch (e) {
 //  Defines the renderer class
 // ------------------------------------------------------------------------
 
-if (typeof(PlotKit.CanvasRenderer) == 'undefined') {
+if (typeof (PlotKit.CanvasRenderer) == 'undefined') {
     PlotKit.CanvasRenderer = {};
 }
 
 PlotKit.CanvasRenderer.NAME = "PlotKit.CanvasRenderer";
 PlotKit.CanvasRenderer.VERSION = PlotKit.VERSION;
 
-PlotKit.CanvasRenderer.__repr__ = function() {
+PlotKit.CanvasRenderer.__repr__ = function () {
     return "[" + this.NAME + " " + this.VERSION + "]";
 };
 
-PlotKit.CanvasRenderer.toString = function() {
+PlotKit.CanvasRenderer.toString = function () {
     return this.__repr__();
 }
 
-PlotKit.CanvasRenderer = function(element, layout, options) {
-    if (arguments.length  > 0)
+PlotKit.CanvasRenderer = function (element, layout, options) {
+    if (arguments.length > 0)
         this.__init__(element, layout, options);
 };
 
-PlotKit.CanvasRenderer.prototype.__init__ = function(element, layout, options) {
+PlotKit.CanvasRenderer.prototype.__init__ = function (element, layout, options) {
     var isNil = MochiKit.Base.isUndefinedOrNull;
     var Color = MochiKit.Color.Color;
-    
+
     // default options
     this.options = {
         "drawBackground": true,
@@ -95,8 +93,8 @@ PlotKit.CanvasRenderer.prototype.__init__ = function(element, layout, options) {
         "axisLabelColor": Color.blackColor(),
         "axisLabelFont": "Arial",
         "axisLabelFontSize": 9,
-		"axisLabelWidth": 50,
-		"pieRadius": 0.4,
+        "axisLabelWidth": 50,
+        "pieRadius": 0.4,
         "enableEvents": true,
         "IECanvasHTC": "PlotKit/iecanvas.htc"
     };
@@ -145,8 +143,8 @@ PlotKit.CanvasRenderer.prototype.__init__ = function(element, layout, options) {
         h: this.height - this.options.padding.top - this.options.padding.bottom
     };
 
-    MochiKit.DOM.updateNodeAttributes(this.container, 
-    {"style":{ "position": "relative", "width": this.width + "px"}});
+    MochiKit.DOM.updateNodeAttributes(this.container,
+        {"style": {"position": "relative", "width": this.width + "px"}});
 
     // load event system if we have Signals
     try {
@@ -154,13 +152,12 @@ PlotKit.CanvasRenderer.prototype.__init__ = function(element, layout, options) {
         if (MochiKit.Signal && this.options.enableEvents) {
             this._initialiseEvents();
         }
-    }
-    catch (e) {
+    } catch (e) {
         // still experimental
     }
 };
 
-PlotKit.CanvasRenderer.IECanvasEmulationIfNeeded = function(htc) {
+PlotKit.CanvasRenderer.IECanvasEmulationIfNeeded = function (htc) {
     var ie = navigator.appVersion.match(/MSIE (\d\.\d)/);
     var opera = (navigator.userAgent.toLowerCase().indexOf("opera") != -1);
     if ((!ie) || (ie[1] < 6) || (opera))
@@ -173,11 +170,15 @@ PlotKit.CanvasRenderer.IECanvasEmulationIfNeeded = function(htc) {
         var nodes = document.getElementsByTagName('canvas');
         for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
-            if (node.getContext) { return; } // Other implementation, abort
+            if (node.getContext) {
+                return;
+            } // Other implementation, abort
             var newNode = MochiKit.DOM.CANVAS(
-               {id: node.id, 
-                width: "" + parseInt(node.width),
-                height: "" + parseInt(node.height)}, "");
+                {
+                    id: node.id,
+                    width: "" + parseInt(node.width),
+                    height: "" + parseInt(node.height)
+                }, "");
             newNode.style.width = parseInt(node.width) + "px";
             newNode.style.height = parseInt(node.height) + "px";
             node.id = node.id + "_old";
@@ -185,9 +186,11 @@ PlotKit.CanvasRenderer.IECanvasEmulationIfNeeded = function(htc) {
         }
 
         document.namespaces.add("v");
-        var vmlopts = {'id':'VMLRender',
-                       'codebase':'vgx.dll',
-                       'classid':'CLSID:10072CEC-8CC1-11D1-986E-00A0C955B42E'};
+        var vmlopts = {
+            'id': 'VMLRender',
+            'codebase': 'vgx.dll',
+            'classid': 'CLSID:10072CEC-8CC1-11D1-986E-00A0C955B42E'
+        };
         var vml = MochiKit.DOM.createDOM('object', vmlopts);
         document.body.appendChild(vml);
         var vmlStyle = document.createStyleSheet();
@@ -197,7 +200,7 @@ PlotKit.CanvasRenderer.IECanvasEmulationIfNeeded = function(htc) {
     return true;
 };
 
-PlotKit.CanvasRenderer.prototype.render = function() {
+PlotKit.CanvasRenderer.prototype.render = function () {
     if (this.isIE) {
         // VML takes a while to start up, so we just poll every this.IEDelay
         try {
@@ -206,8 +209,7 @@ PlotKit.CanvasRenderer.prototype.render = function() {
                 this.renderDelay = null;
             }
             var context = this.element.getContext("2d");
-        }
-        catch (e) {
+        } catch (e) {
             this.isFirstRender = false;
             if (this.maxTries-- > 0) {
                 this.renderDelay = MochiKit.Async.wait(this.IEDelay);
@@ -222,19 +224,17 @@ PlotKit.CanvasRenderer.prototype.render = function() {
 
     if (this.style == "bar") {
         this._renderBarChart();
-		this._renderBarAxis(); 
-	}
-    else if (this.style == "pie") {
+        this._renderBarAxis();
+    } else if (this.style == "pie") {
         this._renderPieChart();
-		this._renderPieAxis();
-	}
-    else if (this.style == "line") {
+        this._renderPieAxis();
+    } else if (this.style == "line") {
         this._renderLineChart();
-		this._renderLineAxis();
-	}
+        this._renderLineAxis();
+    }
 };
 
-PlotKit.CanvasRenderer.prototype._renderBarChartWrap = function(data, plotFunc) {
+PlotKit.CanvasRenderer.prototype._renderBarChartWrap = function (data, plotFunc) {
     var context = this.element.getContext("2d");
     var colorCount = this.options.colorScheme.length;
     var colorScheme = this.options.colorScheme;
@@ -243,44 +243,44 @@ PlotKit.CanvasRenderer.prototype._renderBarChartWrap = function(data, plotFunc) 
 
     for (var i = 0; i < setCount; i++) {
         var setName = setNames[i];
-        var color = colorScheme[i%colorCount];
+        var color = colorScheme[i % colorCount];
         context.save();
         context.fillStyle = color.toRGBString();
         if (this.options.strokeColor)
             context.strokeStyle = this.options.strokeColor.toRGBString();
-        else if (this.options.strokeColorTransform) 
+        else if (this.options.strokeColorTransform)
             context.strokeStyle = color[this.options.strokeColorTransform]().toRGBString();
-        
+
         context.lineWidth = this.options.strokeWidth;
-        var forEachFunc = function(obj) {
+        var forEachFunc = function (obj) {
             if (obj.name == setName)
                 plotFunc(context, obj);
-        };                
+        };
 
         MochiKit.Iter.forEach(data, bind(forEachFunc, this));
         context.restore();
     }
 };
 
-PlotKit.CanvasRenderer.prototype._renderBarChart = function() {
+PlotKit.CanvasRenderer.prototype._renderBarChart = function () {
     var bind = MochiKit.Base.bind;
 
-    var drawRect = function(context, bar) {
+    var drawRect = function (context, bar) {
         var x = this.area.w * bar.x + this.area.x;
         var y = this.area.h * bar.y + this.area.y;
         var w = this.area.w * bar.w;
-        var h = this.area.h * bar.h;       
+        var h = this.area.h * bar.h;
         if ((w < 1) || (h < 1))
             return;
         if (this.options.shouldFill)
             context.fillRect(x, y, w, h);
         if (this.options.shouldStroke)
-            context.strokeRect(x, y, w, h);                
+            context.strokeRect(x, y, w, h);
     };
     this._renderBarChartWrap(this.layout.bars, bind(drawRect, this));
 };
 
-PlotKit.CanvasRenderer.prototype._renderLineChart = function() {
+PlotKit.CanvasRenderer.prototype._renderLineChart = function () {
     var context = this.element.getContext("2d");
     var colorCount = this.options.colorScheme.length;
     var colorScheme = this.options.colorScheme;
@@ -291,7 +291,7 @@ PlotKit.CanvasRenderer.prototype._renderLineChart = function() {
 
     for (var i = 0; i < setCount; i++) {
         var setName = setNames[i];
-        var color = colorScheme[i%colorCount];
+        var color = colorScheme[i % colorCount];
         var strokeX = this.options.strokeColorTransform;
 
         // setup graphics context
@@ -299,23 +299,23 @@ PlotKit.CanvasRenderer.prototype._renderLineChart = function() {
         context.fillStyle = color.toRGBString();
         if (this.options.strokeColor)
             context.strokeStyle = this.options.strokeColor.toRGBString();
-        else if (this.options.strokeColorTransform) 
+        else if (this.options.strokeColorTransform)
             context.strokeStyle = color[strokeX]().toRGBString();
-        
+
         context.lineWidth = this.options.strokeWidth;
-        
+
         // create paths
-        var makePath = function() {
+        var makePath = function () {
             context.beginPath();
             context.moveTo(this.area.x, this.area.y + this.area.h);
-            var addPoint = function(context, point) {
-            if (point.name == setName)
-                context.lineTo(this.area.w * point.x + this.area.x,
-                               this.area.h * point.y + this.area.y);
+            var addPoint = function (context, point) {
+                if (point.name == setName)
+                    context.lineTo(this.area.w * point.x + this.area.x,
+                        this.area.h * point.y + this.area.y);
             };
             MochiKit.Iter.forEach(this.layout.points, partial(addPoint, context), this);
             context.lineTo(this.area.w + this.area.x,
-                           this.area.h + this.area.y);
+                this.area.h + this.area.y);
             context.lineTo(this.area.x, this.area.y + this.area.h);
             context.closePath();
         };
@@ -333,15 +333,15 @@ PlotKit.CanvasRenderer.prototype._renderLineChart = function() {
     }
 };
 
-PlotKit.CanvasRenderer.prototype._renderPieChart = function() {
+PlotKit.CanvasRenderer.prototype._renderPieChart = function () {
     var context = this.element.getContext("2d");
     var colorCount = this.options.colorScheme.length;
     var slices = this.layout.slices;
 
     var centerx = this.area.x + this.area.w * 0.5;
     var centery = this.area.y + this.area.h * 0.5;
-    var radius = Math.min(this.area.w * this.options.pieRadius, 
-                          this.area.h * this.options.pieRadius);
+    var radius = Math.min(this.area.w * this.options.pieRadius,
+        this.area.h * this.options.pieRadius);
 
     if (this.isIE) {
         centerx = parseInt(centerx);
@@ -350,21 +350,21 @@ PlotKit.CanvasRenderer.prototype._renderPieChart = function() {
     }
 
 
-	// NOTE NOTE!! Canvas Tag draws the circle clockwise from the y = 0, x = 1
-	// so we have to subtract 90 degrees to make it start at y = 1, x = 0
+    // NOTE NOTE!! Canvas Tag draws the circle clockwise from the y = 0, x = 1
+    // so we have to subtract 90 degrees to make it start at y = 1, x = 0
 
     for (var i = 0; i < slices.length; i++) {
-        var color = this.options.colorScheme[i%colorCount];
+        var color = this.options.colorScheme[i % colorCount];
         context.save();
         context.fillStyle = color.toRGBString();
 
-        var makePath = function() {
+        var makePath = function () {
             context.beginPath();
             context.moveTo(centerx, centery);
-            context.arc(centerx, centery, radius, 
-                        slices[i].startAngle - Math.PI/2,
-                        slices[i].endAngle - Math.PI/2,
-                        false);
+            context.arc(centerx, centery, radius,
+                slices[i].startAngle - Math.PI / 2,
+                slices[i].endAngle - Math.PI / 2,
+                false);
             context.lineTo(centerx, centery);
             context.closePath();
         };
@@ -374,7 +374,7 @@ PlotKit.CanvasRenderer.prototype._renderPieChart = function() {
                 makePath();
                 context.fill();
             }
-            
+
             if (this.options.shouldStroke) {
                 makePath();
                 context.lineWidth = this.options.strokeWidth;
@@ -389,29 +389,31 @@ PlotKit.CanvasRenderer.prototype._renderPieChart = function() {
     }
 };
 
-PlotKit.CanvasRenderer.prototype._renderBarAxis = function() {
-	this._renderAxis();
+PlotKit.CanvasRenderer.prototype._renderBarAxis = function () {
+    this._renderAxis();
 }
 
-PlotKit.CanvasRenderer.prototype._renderLineAxis = function() {
-	this._renderAxis();
+PlotKit.CanvasRenderer.prototype._renderLineAxis = function () {
+    this._renderAxis();
 };
 
 
-PlotKit.CanvasRenderer.prototype._renderAxis = function() {
+PlotKit.CanvasRenderer.prototype._renderAxis = function () {
     if (!this.options.drawXAxis && !this.options.drawYAxis)
         return;
 
     var context = this.element.getContext("2d");
 
-    var labelStyle = {"style":
-         {"position": "absolute",
-          "fontSize": this.options.axisLabelFontSize + "px",
-          "zIndex": 10,
-          "color": this.options.axisLabelColor.toRGBString(),
-          "width": this.options.axisLabelWidth + "px",
-          "overflow": "hidden"
-         }
+    var labelStyle = {
+        "style":
+            {
+                "position": "absolute",
+                "fontSize": this.options.axisLabelFontSize + "px",
+                "zIndex": 10,
+                "color": this.options.axisLabelColor.toRGBString(),
+                "width": this.options.axisLabelWidth + "px",
+                "overflow": "hidden"
+            }
     };
 
     // axis lines
@@ -422,7 +424,7 @@ PlotKit.CanvasRenderer.prototype._renderAxis = function() {
 
     if (this.options.drawYAxis) {
         if (this.layout.yticks) {
-            var drawTick = function(tick) {
+            var drawTick = function (tick) {
                 var x = this.area.x;
                 var y = this.area.y + tick[0] * this.area.h;
                 context.beginPath();
@@ -439,7 +441,7 @@ PlotKit.CanvasRenderer.prototype._renderAxis = function() {
                 MochiKit.DOM.appendChildNodes(this.container, label);
                 this.ylabels.push(label);
             };
-            
+
             MochiKit.Iter.forEach(this.layout.yticks, bind(drawTick, this));
         }
 
@@ -452,7 +454,7 @@ PlotKit.CanvasRenderer.prototype._renderAxis = function() {
 
     if (this.options.drawXAxis) {
         if (this.layout.xticks) {
-            var drawTick = function(tick) {
+            var drawTick = function (tick) {
                 var x = this.area.x + tick[0] * this.area.w;
                 var y = this.area.y + this.area.h;
                 context.beginPath();
@@ -463,13 +465,13 @@ PlotKit.CanvasRenderer.prototype._renderAxis = function() {
 
                 var label = DIV(labelStyle, tick[1]);
                 label.style.top = (y + this.options.axisTickSize) + "px";
-                label.style.left = (x - this.options.axisLabelWidth/2) + "px";
+                label.style.left = (x - this.options.axisLabelWidth / 2) + "px";
                 label.style.textAlign = "center";
                 label.style.width = this.options.axisLabelWidth + "px";
                 MochiKit.DOM.appendChildNodes(this.container, label);
                 this.xlabels.push(label);
             };
-            
+
             MochiKit.Iter.forEach(this.layout.xticks, bind(drawTick, this));
         }
 
@@ -484,87 +486,85 @@ PlotKit.CanvasRenderer.prototype._renderAxis = function() {
 
 };
 
-PlotKit.CanvasRenderer.prototype._renderPieAxis = function() {
+PlotKit.CanvasRenderer.prototype._renderPieAxis = function () {
     if (!this.options.drawXAxis)
         return;
 
-	if (this.layout.xticks) {
-		// make a lookup dict for x->slice values
-		var lookup = new Array();
-		for (var i = 0; i < this.layout.slices.length; i++) {
-			lookup[this.layout.slices[i].xval] = this.layout.slices[i];
-		}
-		
-		var centerx = this.area.x + this.area.w * 0.5;
-	    var centery = this.area.y + this.area.h * 0.5;
-	    var radius = Math.min(this.area.w * this.options.pieRadius,
-	                          this.area.h * this.options.pieRadius);
-		var labelWidth = this.options.axisLabelWidth;
-		
-		for (var i = 0; i < this.layout.xticks.length; i++) {
-			var slice = lookup[this.layout.xticks[i][0]];
-			if (MochiKit.Base.isUndefinedOrNull(slice))
-				continue;
-				
-				
-			var angle = (slice.startAngle + slice.endAngle)/2;
-			// normalize the angle
-			var normalisedAngle = angle;
-			if (normalisedAngle > Math.PI * 2)
-				normalisedAngle = normalisedAngle - Math.PI * 2;
-			else if (normalisedAngle < 0)
-				normalisedAngle = normalisedAngle + Math.PI * 2;
-				
-			var labelx = centerx + Math.sin(normalisedAngle) * (radius + 10);
-	        var labely = centery - Math.cos(normalisedAngle) * (radius + 10);
+    if (this.layout.xticks) {
+        // make a lookup dict for x->slice values
+        var lookup = new Array();
+        for (var i = 0; i < this.layout.slices.length; i++) {
+            lookup[this.layout.slices[i].xval] = this.layout.slices[i];
+        }
 
-			var attrib = {"position": "absolute",
-	                      "zIndex": 11,
-	                      "width": labelWidth + "px",
-	                      "fontSize": this.options.axisLabelFontSize + "px",
-	                      "overflow": "hidden",
-						  "color": this.options.axisLabelColor.toHexString()
-						};
+        var centerx = this.area.x + this.area.w * 0.5;
+        var centery = this.area.y + this.area.h * 0.5;
+        var radius = Math.min(this.area.w * this.options.pieRadius,
+            this.area.h * this.options.pieRadius);
+        var labelWidth = this.options.axisLabelWidth;
 
-			if (normalisedAngle <= Math.PI * 0.5) {
-	            // text on top and align left
-	            attrib["textAlign"] = "left";
-	            attrib["verticalAlign"] = "top";
-	            attrib["left"] = labelx + "px";
-	            attrib["top"] = (labely - this.options.axisLabelFontSize) + "px";
-	        }
-	        else if ((normalisedAngle > Math.PI * 0.5) && (normalisedAngle <= Math.PI)) {
-	            // text on bottom and align left
-	            attrib["textAlign"] = "left";
-	            attrib["verticalAlign"] = "bottom";     
-	            attrib["left"] = labelx + "px";
-	            attrib["top"] = labely + "px";
+        for (var i = 0; i < this.layout.xticks.length; i++) {
+            var slice = lookup[this.layout.xticks[i][0]];
+            if (MochiKit.Base.isUndefinedOrNull(slice))
+                continue;
 
-	        }
-	        else if ((normalisedAngle > Math.PI) && (normalisedAngle <= Math.PI*1.5)) {
-	            // text on bottom and align right
-	            attrib["textAlign"] = "right";
-	            attrib["verticalAlign"] = "bottom"; 
-	            attrib["left"] = (labelx  - labelWidth) + "px";
-	            attrib["top"] = labely + "px";
-	        }
-	        else {
-	            // text on top and align right
-	            attrib["textAlign"] = "right";
-	            attrib["verticalAlign"] = "bottom";  
-	            attrib["left"] = (labelx  - labelWidth) + "px";
-	            attrib["top"] = (labely - this.options.axisLabelFontSize) + "px";
-	        }
-	
-			var label = DIV({'style': attrib}, this.layout.xticks[i][1]);
-			this.xlabels.push(label);
-			MochiKit.DOM.appendChildNodes(this.container, label);
-	  }
-		
-	}
+
+            var angle = (slice.startAngle + slice.endAngle) / 2;
+            // normalize the angle
+            var normalisedAngle = angle;
+            if (normalisedAngle > Math.PI * 2)
+                normalisedAngle = normalisedAngle - Math.PI * 2;
+            else if (normalisedAngle < 0)
+                normalisedAngle = normalisedAngle + Math.PI * 2;
+
+            var labelx = centerx + Math.sin(normalisedAngle) * (radius + 10);
+            var labely = centery - Math.cos(normalisedAngle) * (radius + 10);
+
+            var attrib = {
+                "position": "absolute",
+                "zIndex": 11,
+                "width": labelWidth + "px",
+                "fontSize": this.options.axisLabelFontSize + "px",
+                "overflow": "hidden",
+                "color": this.options.axisLabelColor.toHexString()
+            };
+
+            if (normalisedAngle <= Math.PI * 0.5) {
+                // text on top and align left
+                attrib["textAlign"] = "left";
+                attrib["verticalAlign"] = "top";
+                attrib["left"] = labelx + "px";
+                attrib["top"] = (labely - this.options.axisLabelFontSize) + "px";
+            } else if ((normalisedAngle > Math.PI * 0.5) && (normalisedAngle <= Math.PI)) {
+                // text on bottom and align left
+                attrib["textAlign"] = "left";
+                attrib["verticalAlign"] = "bottom";
+                attrib["left"] = labelx + "px";
+                attrib["top"] = labely + "px";
+
+            } else if ((normalisedAngle > Math.PI) && (normalisedAngle <= Math.PI * 1.5)) {
+                // text on bottom and align right
+                attrib["textAlign"] = "right";
+                attrib["verticalAlign"] = "bottom";
+                attrib["left"] = (labelx - labelWidth) + "px";
+                attrib["top"] = labely + "px";
+            } else {
+                // text on top and align right
+                attrib["textAlign"] = "right";
+                attrib["verticalAlign"] = "bottom";
+                attrib["left"] = (labelx - labelWidth) + "px";
+                attrib["top"] = (labely - this.options.axisLabelFontSize) + "px";
+            }
+
+            var label = DIV({'style': attrib}, this.layout.xticks[i][1]);
+            this.xlabels.push(label);
+            MochiKit.DOM.appendChildNodes(this.container, label);
+        }
+
+    }
 };
 
-PlotKit.CanvasRenderer.prototype._renderBackground = function() {
+PlotKit.CanvasRenderer.prototype._renderBackground = function () {
     var context = this.element.getContext("2d");
     context.save();
     context.fillStyle = this.options.backgroundColor.toRGBString();
@@ -572,7 +572,7 @@ PlotKit.CanvasRenderer.prototype._renderBackground = function() {
     context.restore();
 };
 
-PlotKit.CanvasRenderer.prototype.clear = function() {
+PlotKit.CanvasRenderer.prototype.clear = function () {
     if (this.isIE) {
         // VML takes a while to start up, so we just poll every this.IEDelay
         try {
@@ -581,8 +581,7 @@ PlotKit.CanvasRenderer.prototype.clear = function() {
                 this.clearDelay = null;
             }
             var context = this.element.getContext("2d");
-        }
-        catch (e) {
+        } catch (e) {
             this.isFirstRender = false;
             this.clearDelay = MochiKit.Async.wait(this.IEDelay);
             this.clearDelay.addCallback(bind(this.clear, this));
@@ -593,19 +592,19 @@ PlotKit.CanvasRenderer.prototype.clear = function() {
     var context = this.element.getContext("2d");
     context.clearRect(0, 0, this.width, this.height);
 
-    
+
     for (var i = 0; i < this.xlabels.length; i++) {
         MochiKit.DOM.removeElement(this.xlabels[i]);
-    }        
+    }
     for (var i = 0; i < this.ylabels.length; i++) {
         MochiKit.DOM.removeElement(this.ylabels[i]);
-    }            
+    }
     this.xlabels = new Array();
     this.ylabels = new Array();
-    
+
 };
 
-PlotKit.CanvasRenderer.prototype._initialiseEvents = function() {
+PlotKit.CanvasRenderer.prototype._initialiseEvents = function () {
     var connect = MochiKit.Signal.connect;
     var bind = MochiKit.Base.bind;
     MochiKit.Signal.registerSignals(this, ['onmouseover', 'onclick', 'onmouseout', 'onmousemove']);
@@ -615,14 +614,14 @@ PlotKit.CanvasRenderer.prototype._initialiseEvents = function() {
     connect(this.element, 'onclick', bind(this.onclick, this));
 };
 
-PlotKit.CanvasRenderer.prototype._resolveObject = function(e) {
+PlotKit.CanvasRenderer.prototype._resolveObject = function (e) {
     // does not work in firefox
-	//var x = (e.event().offsetX - this.area.x) / this.area.w;
-	//var y = (e.event().offsetY - this.area.y) / this.area.h;
+    //var x = (e.event().offsetX - this.area.x) / this.area.w;
+    //var y = (e.event().offsetY - this.area.y) / this.area.h;
 
     var x = (e.mouse().page.x - PlotKit.Base.findPosX(this.element) - this.area.x) / this.area.w;
     var y = (e.mouse().page.y - PlotKit.Base.findPosY(this.element) - this.area.y) / this.area.h;
-	
+
     //log(x, y);
 
     var isHit = this.layout.hitTest(x, y);
@@ -631,7 +630,7 @@ PlotKit.CanvasRenderer.prototype._resolveObject = function(e) {
     return null;
 };
 
-PlotKit.CanvasRenderer.prototype._createEventObject = function(layoutObj, e) {
+PlotKit.CanvasRenderer.prototype._createEventObject = function (layoutObj, e) {
     if (layoutObj == null) {
         return null;
     }
@@ -641,31 +640,31 @@ PlotKit.CanvasRenderer.prototype._createEventObject = function(layoutObj, e) {
 };
 
 
-PlotKit.CanvasRenderer.prototype.onclick = function(e) {
+PlotKit.CanvasRenderer.prototype.onclick = function (e) {
     var layoutObject = this._resolveObject(e);
     var eventObject = this._createEventObject(layoutObject, e);
     if (eventObject != null)
         MochiKit.Signal.signal(this, "onclick", eventObject);
 };
 
-PlotKit.CanvasRenderer.prototype.onmouseover = function(e) {
+PlotKit.CanvasRenderer.prototype.onmouseover = function (e) {
     var layoutObject = this._resolveObject(e);
     var eventObject = this._createEventObject(layoutObject, e);
-    if (eventObject != null) 
+    if (eventObject != null)
         signal(this, "onmouseover", eventObject);
 };
 
-PlotKit.CanvasRenderer.prototype.onmouseout = function(e) {
+PlotKit.CanvasRenderer.prototype.onmouseout = function (e) {
     var layoutObject = this._resolveObject(e);
     var eventObject = this._createEventObject(layoutObject, e);
     if (eventObject == null)
         signal(this, "onmouseout", e);
-    else 
+    else
         signal(this, "onmouseout", eventObject);
 
 };
 
-PlotKit.CanvasRenderer.prototype.onmousemove = function(e) {
+PlotKit.CanvasRenderer.prototype.onmousemove = function (e) {
     var layoutObject = this._resolveObject(e);
     var eventObject = this._createEventObject(layoutObject, e);
 
@@ -687,16 +686,15 @@ PlotKit.CanvasRenderer.prototype.onmousemove = function(e) {
     //log("move", x, y);    
 };
 
-PlotKit.CanvasRenderer.isSupported = function(canvasName) {
+PlotKit.CanvasRenderer.isSupported = function (canvasName) {
     var canvas = null;
     try {
-        if (MochiKit.Base.isUndefinedOrNull(canvasName)) 
+        if (MochiKit.Base.isUndefinedOrNull(canvasName))
             canvas = MochiKit.DOM.CANVAS({});
         else
             canvas = MochiKit.DOM.getElement(canvasName);
         var context = canvas.getContext("2d");
-    }
-    catch (e) {
+    } catch (e) {
         var ie = navigator.appVersion.match(/MSIE (\d\.\d)/);
         var opera = (navigator.userAgent.toLowerCase().indexOf("opera") != -1);
         if ((!ie) || (ie[1] < 6) || (opera))

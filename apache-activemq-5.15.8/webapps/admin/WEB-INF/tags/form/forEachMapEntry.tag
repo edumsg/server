@@ -14,16 +14,16 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 --%>
-<%@ attribute name="var" type="java.lang.String" required="true"  %>
-<%@ attribute name="items" type="java.util.Map" required="true"  %>
+<%@ attribute name="var" type="java.lang.String" required="true" %>
+<%@ attribute name="items" type="java.util.Map" required="true" %>
 <%@ tag import="java.util.Iterator" %>
 <%
-  Iterator iter = items.entrySet().iterator();
-  while (iter.hasNext()) {
-  		 request.setAttribute(var, iter.next());
+    Iterator iter = items.entrySet().iterator();
+    while (iter.hasNext()) {
+        request.setAttribute(var, iter.next());
 %>
 <jsp:doBody/>
 <%
-	}
+    }
 %>       
     

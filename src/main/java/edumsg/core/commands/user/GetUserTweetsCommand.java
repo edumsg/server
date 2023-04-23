@@ -16,7 +16,6 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import edumsg.core.*;
-import edumsg.redis.Cache;
 import edumsg.redis.UserCache;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,8 +29,12 @@ import java.sql.Types;
 import java.util.logging.Logger;
 
 public class GetUserTweetsCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(GetUserTweetsCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(GetUserTweetsCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -75,8 +78,8 @@ public class GetUserTweetsCommand extends Command implements Runnable {
                 creator.setUsername(creator_username);
                 t.setCreator(creator);
 
-                    tweets.addPOJO(t);
-                }
+                tweets.addPOJO(t);
+            }
 
 //            set.close();
 //            proc.close();
@@ -109,9 +112,5 @@ public class GetUserTweetsCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn, null);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

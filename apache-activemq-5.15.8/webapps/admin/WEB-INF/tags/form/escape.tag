@@ -14,7 +14,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 --%>
-<%@ attribute name="text" type="java.lang.String" required="true"  %>
+<%@ attribute name="text" type="java.lang.String" required="true" %>
 <%
     out.println(java.net.URLEncoder.encode(text, "UTF-8"));
 %>

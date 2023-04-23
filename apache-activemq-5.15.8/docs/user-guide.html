@@ -15,9 +15,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<html><head>
-  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
-  <title>Getting Started</title>
+<html>
+<head>
+    <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+    <title>Getting Started</title>
 
 </head>
 <body>
@@ -25,31 +26,32 @@
 </h1>
 
 <p>
-Welcome to Apache ActiveMQ. This document gives you a quick overview of how to get started trying out Apache ActiveMQ.
+    Welcome to Apache ActiveMQ. This document gives you a quick overview of how to get started trying out Apache
+    ActiveMQ.
 </p>
 
 <h2>Running the broker</h2>
 
 <p>
-From the binary distribution you can run the Apache ActiveMQ server via the bin/activemq command.
-If you're using Windows, just type
+    From the binary distribution you can run the Apache ActiveMQ server via the bin/activemq command.
+    If you're using Windows, just type
 </p>
 <pre>
     cd bin
     activemq.bat start
 </pre>
 <p>
-On Unix-like systems, type
+    On Unix-like systems, type
 </p>
 <pre>
     ./bin/activemq console
 </pre>
 <p>to start the broker in foreground.</p>
 <p>
-The Apache ActiveMQ broker should now have started
+    The Apache ActiveMQ broker should now have started
 </p>
 <p>
-Tip: If you run the bin/activemq command without any arguments it will output usage.
+    Tip: If you run the bin/activemq command without any arguments it will output usage.
 </p>
 
 To stop the broker you can press ctrl + c to stop the process.
@@ -57,8 +59,8 @@ To stop the broker you can press ctrl + c to stop the process.
 <h2>Running the broker in the background</h2>
 
 <p>
-The broker can be started as a background process via the bin/activemq command
-on Unix-like systems, type
+    The broker can be started as a background process via the bin/activemq command
+    on Unix-like systems, type
 </p>
 <pre>
     ./bin/activemq start
@@ -68,15 +70,15 @@ on Unix-like systems, type
 <h2>Stopping the broker</h2>
 
 <p>
-The broker can be stopped via the bin/activemq command
-If you're using Windows, just type
+    The broker can be stopped via the bin/activemq command
+    If you're using Windows, just type
 </p>
 <pre>
     cd bin
     activemq.bat stop
 </pre>
 <p>
-On Unix-like systems, type
+    On Unix-like systems, type
 </p>
 <pre>
     ./bin/activemq stop
@@ -86,7 +88,8 @@ On Unix-like systems, type
 
 <h2>Access the web console</h2>
 
-In a web browser you can access the url <a href="http://0.0.0.0:8161/admin">http://0.0.0.0:8161/admin</a> to access the ActiveMQ web console.
+In a web browser you can access the url <a href="http://0.0.0.0:8161/admin">http://0.0.0.0:8161/admin</a> to access the
+ActiveMQ web console.
 <br/>
 The broker may ask for credentials to login the web console the first time.
 The default username and password is admin/admin. You can configure this in the conf/jetty-real.properties file.
@@ -101,13 +104,14 @@ If you're using Windows, just type
     activemq.bat console xbean:examples/conf/activemq-demo.xml
 </pre>
 <p>
-On Unix-like systems, type
+    On Unix-like systems, type
 </p>
 <pre>
     ./bin/activemq console xbean:examples/conf/activemq-demo.xml
 </pre>
 
-In a web browser you can access the url <a href="http://0.0.0.0:8161/demo">http://0.0.0.0:8161/demo</a> to access the ActiveMQ web demos.
+In a web browser you can access the url <a href="http://0.0.0.0:8161/demo">http://0.0.0.0:8161/demo</a> to access the
+ActiveMQ web demos.
 <br/>
 The broker may ask for credentials to login the web console the first time.
 The default username and password is admin/admin. You can configure this in the conf/jetty-real.properties file.
@@ -116,30 +120,31 @@ The default username and password is admin/admin. You can configure this in the 
 <h2>Running the example programs</h2>
 
 <p>
-To run the demo producer/consumer tools, you need Java and Ant installed.
+    To run the demo producer/consumer tools, you need Java and Ant installed.
 </p>
 
 <h3>Installing Ant</h3>
 
 
 <p>
-The example programs depend on <a href="http://ant.apache.org/">Ant</a> being installed. There are more detailed
-instructions on the Ant website - but essentially you need to follow these steps.
+    The example programs depend on <a href="http://ant.apache.org/">Ant</a> being installed. There are more detailed
+    instructions on the Ant website - but essentially you need to follow these steps.
 </p>
 <ul>
-<li>
-JAVA_HOME must point to your JDK installation, such that $JAVA_HOME/bin contains the java executable and $JAVA_HOME/lib contains some jar files.
-</li>
-<li>
-ANT_HOME must point to where you installed Apache Ant (http://ant.apache.org)
-</li>
-<li>
-then you need to add $JAVA_HOME/bin and $ANT_HOME/bin to your PATH variable.
-</li>
+    <li>
+        JAVA_HOME must point to your JDK installation, such that $JAVA_HOME/bin contains the java executable and
+        $JAVA_HOME/lib contains some jar files.
+    </li>
+    <li>
+        ANT_HOME must point to where you installed Apache Ant (http://ant.apache.org)
+    </li>
+    <li>
+        then you need to add $JAVA_HOME/bin and $ANT_HOME/bin to your PATH variable.
+    </li>
 </ul>
 
 <p>
-To test this is all working, try typing
+    To test this is all working, try typing
 </p>
 
 <pre>
@@ -151,7 +156,7 @@ To test this is all working, try typing
 <h3>Running the example producer and consumer</h3>
 
 <p>
-Once you've got Java and Ant installed correctly you should be able to run
+    Once you've got Java and Ant installed correctly you should be able to run
 </p>
 
 <pre>
@@ -160,7 +165,7 @@ Once you've got Java and Ant installed correctly you should be able to run
 </pre>
 
 <p>
-and in another shell
+    and in another shell
 </p>
 
 <pre>
@@ -169,13 +174,12 @@ and in another shell
 </pre>
 
 <p>
-you can specify exact URLs to connect to via command like arguments. e.g.
+    you can specify exact URLs to connect to via command like arguments. e.g.
 </p>
 
 <pre>
     ant producer -Durl=tcp://somehost:port
 </pre>
-
 
 
 <h2>Further Readings</h2>

@@ -54,7 +54,8 @@ public class EduMsgControllerHandler extends
             request = (HttpRequest) msg;
             if (HttpHeaders.is100ContinueExpected(request)) {
                 send100Continue(ctx);
-            } }
+            }
+        }
 
         if (msg instanceof HttpContent) {
             HttpContent httpContent = (HttpContent) msg;

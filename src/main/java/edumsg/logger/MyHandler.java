@@ -10,6 +10,7 @@ public class MyHandler extends StreamHandler {
         //add own logic to publish
         super.publish(record);
     }
+
     @Override
     public void flush() {
         super.flush();

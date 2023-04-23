@@ -26,30 +26,30 @@
 <%@include file="decorators/header.jsp" %>
 
 <div style="margin-top: 5em">
-<h2>Network Bridges</h2>
+    <h2>Network Bridges</h2>
 
-<table id="bridges" class="sortable autostripe">
-<thead>
-<tr>
-    <th>Remote Broker</th>
-    <th>Remote Address</th>
-    <th>Created By Duplex</th>
-    <th>Messages Enqueued</th>
-    <th>Messages Dequeued</th>
-</tr>
-</thead>
-<tbody>
-<c:forEach items="${requestContext.brokerQuery.networkBridges}" var="nb">
-<tr>
-	<td><c:out value="${nb.remoteBrokerName}" /></td>
-	<td><c:out value="${nb.remoteAddress}" /></td>
-	<td><c:out value="${nb.createdByDuplex}" /></td>
-	<td><c:out value="${nb.enqueueCounter}" /></td>
-	<td><c:out value="${nb.dequeueCounter}" /></td>
-</tr>
-</c:forEach>
-</tbody>
-</table>
+    <table id="bridges" class="sortable autostripe">
+        <thead>
+        <tr>
+            <th>Remote Broker</th>
+            <th>Remote Address</th>
+            <th>Created By Duplex</th>
+            <th>Messages Enqueued</th>
+            <th>Messages Dequeued</th>
+        </tr>
+        </thead>
+        <tbody>
+        <c:forEach items="${requestContext.brokerQuery.networkBridges}" var="nb">
+            <tr>
+                <td><c:out value="${nb.remoteBrokerName}"/></td>
+                <td><c:out value="${nb.remoteAddress}"/></td>
+                <td><c:out value="${nb.createdByDuplex}"/></td>
+                <td><c:out value="${nb.enqueueCounter}"/></td>
+                <td><c:out value="${nb.dequeueCounter}"/></td>
+            </tr>
+        </c:forEach>
+        </tbody>
+    </table>
 </div>
 <%@include file="decorators/footer.jsp" %>
 

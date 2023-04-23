@@ -5,15 +5,16 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import java.util.Arrays;
 import java.util.Date;
 
@@ -32,8 +33,8 @@ import org.apache.activemq.util.IndentPrinter;
 
 /**
  * A simple tool for publishing messages
- * 
- * 
+ *
+ *
  */
 public class RequesterTool {
 
@@ -129,7 +130,7 @@ public class RequesterTool {
 
             // Use the ActiveMQConnection interface to dump the connection
             // stats.
-            ActiveMQConnection c = (ActiveMQConnection)connection;
+            ActiveMQConnection c = (ActiveMQConnection) connection;
             c.getConnectionStats().dump(new IndentPrinter());
 
         } catch (Exception e) {
@@ -166,7 +167,7 @@ public class RequesterTool {
             System.out.println("Waiting for reponse message...");
             Message message2 = consumer.receive();
             if (message2 instanceof TextMessage) {
-                System.out.println("Reponse message: " + ((TextMessage)message2).getText());
+                System.out.println("Reponse message: " + ((TextMessage) message2).getText());
             } else {
                 System.out.println("Reponse message: " + message2);
             }

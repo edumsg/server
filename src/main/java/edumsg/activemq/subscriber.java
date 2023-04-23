@@ -12,25 +12,27 @@ public class subscriber {
     Connection conn;
     MessageConsumer consumer;
     Session session;
+
     // the constructor for crating a subscriber when we use a topic over the middle-ware connection
-    public subscriber(ActiveMQConfig config , String key) {
+    public subscriber(ActiveMQConfig config, String key) {
         this.config = config;
         try {
             conn = config.connect();
             session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
             Topic topic = session.createTopic(config.getQueueName());
             consumer = session.createConsumer(topic);
-            switch (key){
-                case "USER" :
+            switch (key) {
+                case "USER":
                     consumer.setMessageListener(new UserMain());
                     break;
-                case "TWEET" :
+                case "TWEET":
                     consumer.setMessageListener(new TweetMain());
                     break;
-                case "DM" :
+                case "DM":
                     consumer.setMessageListener(new DMMain());
                     break;
-                case "LIST" : consumer.setMessageListener(new ListMain());
+                case "LIST":
+                    consumer.setMessageListener(new ListMain());
                     break;
             }
             conn.start();

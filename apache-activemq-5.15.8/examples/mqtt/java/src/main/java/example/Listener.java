@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,7 @@ import org.fusesource.mqtt.client.*;
  */
 class Listener {
 
-    public static void main(String []args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         String user = env("ACTIVEMQ_USER", "admin");
         String password = env("ACTIVEMQ_PASSWORD", "password");
@@ -47,22 +47,26 @@ class Listener {
 
             public void onConnected() {
             }
+
             public void onDisconnected() {
             }
+
             public void onFailure(Throwable value) {
                 value.printStackTrace();
                 System.exit(-2);
             }
+
             public void onPublish(UTF8Buffer topic, Buffer msg, Runnable ack) {
                 String body = msg.utf8().toString();
-                if( "SHUTDOWN".equals(body)) {
+                if ("SHUTDOWN".equals(body)) {
                     long diff = System.currentTimeMillis() - start;
-                    System.out.println(String.format("Received %d in %.2f seconds", count, (1.0*diff/1000.0)));
+                    System.out.println(String.format("Received %d in %.2f seconds", count, (1.0 * diff / 1000.0)));
                     connection.disconnect(new Callback<Void>() {
                         @Override
                         public void onSuccess(Void value) {
                             System.exit(0);
                         }
+
                         @Override
                         public void onFailure(Throwable value) {
                             value.printStackTrace();
@@ -70,13 +74,13 @@ class Listener {
                         }
                     });
                 } else {
-                    if( count == 0 ) {
+                    if (count == 0) {
                         start = System.currentTimeMillis();
                     }
-                    if( count % 1000 == 0 ) {
+                    if (count % 1000 == 0) {
                         System.out.println(String.format("Received %d messages.", count));
                     }
-                    count ++;
+                    count++;
                 }
                 ack.run();
             }
@@ -88,12 +92,14 @@ class Listener {
                 connection.subscribe(topics, new Callback<byte[]>() {
                     public void onSuccess(byte[] qoses) {
                     }
+
                     public void onFailure(Throwable value) {
                         value.printStackTrace();
                         System.exit(-2);
                     }
                 });
             }
+
             @Override
             public void onFailure(Throwable value) {
                 value.printStackTrace();
@@ -103,20 +109,20 @@ class Listener {
 
         // Wait forever..
         synchronized (Listener.class) {
-            while(true)
+            while (true)
                 Listener.class.wait();
         }
     }
 
     private static String env(String key, String defaultValue) {
         String rc = System.getenv(key);
-        if( rc== null )
+        if (rc == null)
             return defaultValue;
         return rc;
     }
 
-    private static String arg(String []args, int index, String defaultValue) {
-        if( index < args.length )
+    private static String arg(String[] args, int index, String defaultValue) {
+        if (index < args.length)
             return args[index];
         else
             return defaultValue;

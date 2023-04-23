@@ -30,22 +30,24 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.jcraft.jsch.jcraft;
 
 import com.jcraft.jsch.MAC;
+
 import java.security.*;
 
-public class HMACSHA1 extends HMAC implements MAC{
-  private static final String name="hmac-sha1";
+public class HMACSHA1 extends HMAC implements MAC {
+    private static final String name = "hmac-sha1";
 
-  public HMACSHA1(){
-    super();
-    MessageDigest md=null;
-    try{ md=MessageDigest.getInstance("SHA-1"); }
-    catch(Exception e){
-      System.err.println(e);
+    public HMACSHA1() {
+        super();
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        setH(md);
     }
-    setH(md);
-  }
 
-  public String getName(){
-    return name;
-  }
+    public String getName() {
+        return name;
+    }
 }

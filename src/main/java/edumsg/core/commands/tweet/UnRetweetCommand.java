@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 import edumsg.redis.ListCache;
 import edumsg.redis.TweetsCache;
 import edumsg.redis.UserCache;
@@ -34,8 +33,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UnRetweetCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(UnRetweetCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(UnRetweetCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -116,9 +119,5 @@ public class UnRetweetCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

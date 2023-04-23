@@ -15,25 +15,26 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:aop="http://www.springframework.org/schema/aop"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <import resource="webconsole-query.xml"/>
-  <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
-  
-  <bean id="sessionPool" class="org.apache.activemq.web.SessionPool">
-  	<property name="connectionFactory" ref="connectionFactory"/>
-  </bean>
-  
-  <bean id="configuration" class="org.apache.activemq.web.config.SystemPropertiesConfiguration"/>
+    <import resource="webconsole-query.xml"/>
+    <bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
 
-  <bean id="brokerQuery" class="org.apache.activemq.web.RemoteJMXBrokerFacade" autowire="constructor" destroy-method="shutdown">
-  	<property name="configuration" ref="configuration"/>
-  	<property name="brokerName"><null/></property>
-  </bean>
-  
-  <bean id="connectionFactory" factory-bean="configuration" factory-method="getConnectionFactory"/>
+    <bean id="sessionPool" class="org.apache.activemq.web.SessionPool">
+        <property name="connectionFactory" ref="connectionFactory"/>
+    </bean>
+
+    <bean id="configuration" class="org.apache.activemq.web.config.SystemPropertiesConfiguration"/>
+
+    <bean id="brokerQuery" class="org.apache.activemq.web.RemoteJMXBrokerFacade" autowire="constructor"
+          destroy-method="shutdown">
+        <property name="configuration" ref="configuration"/>
+        <property name="brokerName">
+            <null/>
+        </property>
+    </bean>
+
+    <bean id="connectionFactory" factory-bean="configuration" factory-method="getConnectionFactory"/>
 
 </beans>

@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 import edumsg.redis.ListCache;
 import edumsg.redis.UserCache;
 import org.json.JSONObject;
@@ -28,8 +27,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UnFollowCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(UnFollowCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(UnFollowCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -101,11 +104,7 @@ public class UnFollowCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn,null);
+            PostgresConnection.disconnect(null, proc, dbConn, null);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

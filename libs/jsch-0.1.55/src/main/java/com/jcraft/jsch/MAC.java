@@ -29,11 +29,16 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-public interface MAC{
-  String getName();
-  int getBlockSize(); 
-  void init(byte[] key) throws Exception; 
-  void update(byte[] foo, int start, int len);
-  void update(int foo);
-  void doFinal(byte[] buf, int offset);
+public interface MAC {
+    String getName();
+
+    int getBlockSize();
+
+    void init(byte[] key) throws Exception;
+
+    void update(byte[] foo, int start, int len);
+
+    void update(int foo);
+
+    void doFinal(byte[] buf, int offset);
 }

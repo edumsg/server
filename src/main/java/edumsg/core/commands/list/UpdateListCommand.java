@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 import edumsg.redis.ListCache;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
@@ -32,8 +31,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UpdateListCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(UpdateListCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(UpdateListCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -81,21 +84,21 @@ public class UpdateListCommand extends Command implements Runnable {
 //                    System.out.println("invalidated");
                     ListCache.listCache.set("get_list:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry1 =   ListCache.listCache.get("get_list_feeds:" + map.get("session_id"));
+                String cacheEntry1 = ListCache.listCache.get("get_list_feeds:" + map.get("session_id"));
                 if (cacheEntry1 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
                     ListCache.listCache.set("get_list_feeds:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry2 =   ListCache.listCache.get("list_members:" + map.get("session_id"));
+                String cacheEntry2 = ListCache.listCache.get("list_members:" + map.get("session_id"));
                 if (cacheEntry2 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry2);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
                     ListCache.listCache.set("list_members:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry3 =   ListCache.listCache.get("list_subscribers:" + map.get("session_id"));
+                String cacheEntry3 = ListCache.listCache.get("list_subscribers:" + map.get("session_id"));
                 if (cacheEntry3 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry3);
                     cacheEntryJson.put("cacheStatus", "invalid");
@@ -127,9 +130,5 @@ public class UpdateListCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

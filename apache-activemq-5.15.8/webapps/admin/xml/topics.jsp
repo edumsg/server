@@ -1,4 +1,4 @@
-<%@ page contentType="text/xml;charset=ISO-8859-1"%>
+<%@ page contentType="text/xml;charset=ISO-8859-1" %>
 <%--
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -18,14 +18,14 @@
 <%-- Workaround for https://ops4j1.jira.com/browse/PAXWEB-1070 --%>
 <%@include file="../WEB-INF/jspf/headertags.jspf" %>
 <topics>
-<c:forEach items="${requestContext.brokerQuery.topics}" var="row">
-<topic name="<c:out value="${row.name}"/> ">
+    <c:forEach items="${requestContext.brokerQuery.topics}" var="row">
+        <topic name="<c:out value="${row.name}"/> ">
 
-  <stats size="${row.queueSize}"
-         consumerCount="${row.consumerCount}"
-         enqueueCount="${row.enqueueCount}"
-         dequeueCount="${row.dequeueCount}"/>
+            <stats size="${row.queueSize}"
+                   consumerCount="${row.consumerCount}"
+                   enqueueCount="${row.enqueueCount}"
+                   dequeueCount="${row.dequeueCount}"/>
 
-</topic>
-</c:forEach>
+        </topic>
+    </c:forEach>
 </topics>

@@ -1,21 +1,17 @@
 package edumsg.redis;
 
-import org.apache.commons.lang3.ObjectUtils;
-import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.Pipeline;
 
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class Cache {
@@ -37,23 +33,23 @@ public class Cache {
             redisURI = new URI(System.getenv("REDIS_URL"));
             System.err.println("Redis URI :" + redisURI);
             jedis = new JedisPool(redisURI);
-        } catch (NullPointerException | URISyntaxException e ) {
+        } catch (NullPointerException | URISyntaxException e) {
             System.err.println("Redis URI : local-6379");
-            jedis = new JedisPool(new JedisPoolConfig(),localHost.getHostAddress(), 6379);
+            jedis = new JedisPool(new JedisPoolConfig(), localHost.getHostAddress(), 6379);
         }
         return jedis;
     }
 
-    public static Jedis getRedisPoolResource () {
+    public static Jedis getRedisPoolResource() {
         Jedis jedis = null;
         try {
             jedis = redisPool.getResource();
-        } catch ( Exception e ) {
+        } catch (Exception e) {
             System.err.println("Cannot get RedisPool resource");
             System.err.println(e.getMessage());
         }
 
-        if ( jedis == null ) {
+        if (jedis == null) {
             System.err.println("No User Cache Created !!");
         }
 
@@ -66,10 +62,10 @@ public class Cache {
     }
 
     //converts HashMaps to ConcurrentHashmMaps
-    protected static ConcurrentMap<String,String> toConcurrentMap(Map<String, String> map) {
+    protected static ConcurrentMap<String, String> toConcurrentMap(Map<String, String> map) {
         String[] mapStrings = map.toString().split(",");
         CopyOnWriteArrayList<String> mapStringsConcurrent = new CopyOnWriteArrayList<>(Arrays.asList(mapStrings));
-        ConcurrentMap<String,String> result = mapStringsConcurrent.parallelStream().map(hash -> braceRemover(hash).trim().split("=")).collect(Collectors.toConcurrentMap(key -> key[0], value -> value[1]));
+        ConcurrentMap<String, String> result = mapStringsConcurrent.parallelStream().map(hash -> braceRemover(hash).trim().split("=")).collect(Collectors.toConcurrentMap(key -> key[0], value -> value[1]));
 
         return result;
     }

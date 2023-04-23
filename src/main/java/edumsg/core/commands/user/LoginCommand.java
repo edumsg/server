@@ -12,14 +12,11 @@ IN THE SOFTWARE.
 
 package edumsg.core.commands.user;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import edumsg.core.*;
 import edumsg.redis.UserCache;
 import org.postgresql.util.PSQLException;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.rmi.server.UID;
@@ -28,13 +25,17 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 public class LoginCommand extends Command {
+    private static double classVersion = 1.0;
     private final Logger LOGGER = Logger.getLogger(LoginCommand.class.getName());
     private Integer id;
     private String username, name, email, language, country, bio, website, link_color, background_color;
     private Timestamp created_at;
     private String avatar_url;
     private Boolean overlay, protected_tweets;
-    private static double classVersion = 1.0;
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -176,9 +177,5 @@ public class LoginCommand extends Command {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn, null);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

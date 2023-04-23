@@ -6,10 +6,6 @@
     For use under the BSD license. <http://www.liquidx.net/plotkit>
 -->
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink">
+        xmlns="http://www.w3.org/2000/svg"
+>
 </svg>

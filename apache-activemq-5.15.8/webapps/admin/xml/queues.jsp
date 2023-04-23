@@ -1,4 +1,4 @@
-<%@ page contentType="text/xml;charset=ISO-8859-1"%>
+<%@ page contentType="text/xml;charset=ISO-8859-1" %>
 <%--
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -18,19 +18,19 @@
 <%-- Workaround for https://ops4j1.jira.com/browse/PAXWEB-1070 --%>
 <%@include file="../WEB-INF/jspf/headertags.jspf" %>
 <queues>
-<c:forEach items="${requestContext.brokerQuery.queues}" var="row">
-<queue name="<c:out value="${row.name}" />">
+    <c:forEach items="${requestContext.brokerQuery.queues}" var="row">
+        <queue name="<c:out value="${row.name}" />">
 
-  <stats size="${row.queueSize}"
-         consumerCount="${row.consumerCount}"
-         enqueueCount="${row.enqueueCount}"
-         dequeueCount="${row.dequeueCount}"/>
+            <stats size="${row.queueSize}"
+                   consumerCount="${row.consumerCount}"
+                   enqueueCount="${row.enqueueCount}"
+                   dequeueCount="${row.dequeueCount}"/>
 
 
-  <feed>
-    <atom><c:out value="queueBrowse/${row.name}?view=rss&amp;feedType=atom_1.0"/></atom>
-    <rss><c:out value="queueBrowse/${row.name}?view=rss&amp;feedType=rss_2.0"/></rss>
-  </feed>
-</queue>
-</c:forEach>
+            <feed>
+                <atom><c:out value="queueBrowse/${row.name}?view=rss&amp;feedType=atom_1.0"/></atom>
+                <rss><c:out value="queueBrowse/${row.name}?view=rss&amp;feedType=rss_2.0"/></rss>
+            </feed>
+        </queue>
+    </c:forEach>
 </queues>

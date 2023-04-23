@@ -9,18 +9,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.*;
 
-import edumsg.redis.UserCache;
-
-import static edumsg.redis.UserCache.*;
+import static edumsg.redis.UserCache.returnUser;
+import static edumsg.redis.UserCache.userCache;
 
 public class TweetsCache extends Cache {
     //new instance of shared pool to support multithreaded environments
-    public static Jedis tweetCache = edumsg.redis.Cache.getRedisPoolResource();;
+    public static Jedis tweetCache = edumsg.redis.Cache.getRedisPoolResource();
+    ;
     private static Pipeline tweetPipeline = tweetCache.pipelined();
 
 
-//non blocking saving executed every 15min
-    public static void tweetBgSave(){
+    //non blocking saving executed every 15min
+    public static void tweetBgSave() {
         Runnable runnable = () -> {
             String res;
             res = tweetCache.bgsave();
@@ -45,7 +45,8 @@ public class TweetsCache extends Cache {
         }
 
     }
-//pipeline allows execution of multiple operations in 1 request to Redis saving network latencies
+
+    //pipeline allows execution of multiple operations in 1 request to Redis saving network latencies
     public static void deleteTweet(String tweet_id) {
         if (tweet_id != null) {
             String user = tweetCache.hget("tweet:" + tweet_id, "creator_id");
@@ -70,7 +71,9 @@ public class TweetsCache extends Cache {
 
         //tweets with their users added to COW Array List in a HashMap
         tweets.parallelStream().forEachOrdered(tweet_map -> {
-            users_and_tweets.add(new ConcurrentHashMap() {{put(tweet_map, toConcurrentMap(returnUser(tweet_map.get("creator_id"))));}});
+            users_and_tweets.add(new ConcurrentHashMap() {{
+                put(tweet_map, toConcurrentMap(returnUser(tweet_map.get("creator_id"))));
+            }});
         });
         return users_and_tweets;
     }

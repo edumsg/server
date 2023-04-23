@@ -29,8 +29,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GetListSubscribersCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(GetListSubscribersCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(GetListSubscribersCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -87,9 +91,5 @@ public class GetListSubscribersCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

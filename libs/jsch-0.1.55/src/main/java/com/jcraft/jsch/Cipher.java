@@ -29,12 +29,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-public interface Cipher{
-  static int ENCRYPT_MODE=0;
-  static int DECRYPT_MODE=1;
-  int getIVSize(); 
-  int getBlockSize(); 
-  void init(int mode, byte[] key, byte[] iv) throws Exception; 
-  void update(byte[] foo, int s1, int len, byte[] bar, int s2) throws Exception;
-  boolean isCBC();
+public interface Cipher {
+    static int ENCRYPT_MODE = 0;
+    static int DECRYPT_MODE = 1;
+
+    int getIVSize();
+
+    int getBlockSize();
+
+    void init(int mode, byte[] key, byte[] iv) throws Exception;
+
+    void update(byte[] foo, int s1, int len, byte[] bar, int s2) throws Exception;
+
+    boolean isCBC();
 }

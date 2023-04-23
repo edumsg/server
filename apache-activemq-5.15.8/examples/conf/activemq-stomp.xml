@@ -28,10 +28,9 @@
     e.g. $ bin/activemq console xbean:examples/conf/activemq-stomp.xml
  -->
 <beans
-  xmlns="http://www.springframework.org/schema/beans"
-  xmlns:amq="http://activemq.apache.org/schema/core"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.springframework.org/schema/beans"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
     <!-- Allows us to use system properties as variables in this configuration file -->
@@ -59,24 +58,24 @@
 
         <destinationPolicy>
             <policyMap>
-              <policyEntries>
-                <policyEntry topic=">" producerFlowControl="false">
-                  <pendingSubscriberPolicy>
-                    <vmCursor />
-                  </pendingSubscriberPolicy>
-                </policyEntry>
-                <policyEntry queue=">" producerFlowControl="false">
-                  <!-- Use VM cursor for better latency
-                       For more information, see:
+                <policyEntries>
+                    <policyEntry topic=">" producerFlowControl="false">
+                        <pendingSubscriberPolicy>
+                            <vmCursor/>
+                        </pendingSubscriberPolicy>
+                    </policyEntry>
+                    <policyEntry queue=">" producerFlowControl="false">
+                        <!-- Use VM cursor for better latency
+                             For more information, see:
 
-                       http://activemq.apache.org/message-cursors.html
+                             http://activemq.apache.org/message-cursors.html
 
-                  <pendingQueuePolicy>
-                    <vmQueueCursor/>
-                  </pendingQueuePolicy>
-                  -->
-                </policyEntry>
-              </policyEntries>
+                        <pendingQueuePolicy>
+                          <vmQueueCursor/>
+                        </pendingQueuePolicy>
+                        -->
+                    </policyEntry>
+                </policyEntries>
             </policyMap>
         </destinationPolicy>
 
@@ -117,7 +116,8 @@
 
         <!-- destroy the spring context on shutdown to stop jetty -->
         <shutdownHooks>
-            <bean xmlns="http://www.springframework.org/schema/beans" class="org.apache.activemq.hooks.SpringContextHook" />
+            <bean xmlns="http://www.springframework.org/schema/beans"
+                  class="org.apache.activemq.hooks.SpringContextHook"/>
         </shutdownHooks>
 
     </broker>

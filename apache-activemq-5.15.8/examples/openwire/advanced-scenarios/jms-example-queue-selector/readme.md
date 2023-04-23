@@ -7,7 +7,7 @@ This example shows how to use selectors to filter out messages based on criteria
 ## Prereqs
 
 - Install Java SDK
-- Install [Maven](http://maven.apache.org/download.html) 
+- Install [Maven](http://maven.apache.org/download.html)
 
 ## Building
 

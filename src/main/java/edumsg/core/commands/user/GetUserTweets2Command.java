@@ -20,8 +20,12 @@ import java.util.logging.Logger;
  * Created by omarelhagin on 21/5/16.
  */
 public class GetUserTweets2Command extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(GetUserTweetsCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(GetUserTweetsCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -99,9 +103,5 @@ public class GetUserTweets2Command extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn, null);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

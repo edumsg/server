@@ -15,14 +15,13 @@
     limitations under the License.
 -->
 <beans
-  xmlns="http://www.springframework.org/schema/beans"
-  xmlns:amq="http://activemq.apache.org/schema/core"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.springframework.org/schema/beans"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
     <!-- Allows us to use system properties as variables in this configuration file -->
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
 
     <!--
         The <broker> element is used to configure the ActiveMQ broker.
@@ -36,34 +35,34 @@
         ACTIVEMQ_OPTS_MEMORY="-Xmx11g -Xms6g -Dorg.apache.activemq.UseDedicatedTaskRunner=false -Djava.util.logging.config.file=logging.properties -XX:+UseLargePages"
     -->
     <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost"
-        dataDirectory="${activemq.data}" deleteAllMessagesOnStartup="true"
-        advisorySupport="false"
-        enableStatistics="false"
-        schedulerSupport="false"
-        useJmx="false">
+            dataDirectory="${activemq.data}" deleteAllMessagesOnStartup="true"
+            advisorySupport="false"
+            enableStatistics="false"
+            schedulerSupport="false"
+            useJmx="false">
 
         <destinationPolicy>
             <policyMap>
-              <policyEntries>
-                <!--
-                    producerFlowControll thread unnecessary with no memory limits
-                    with no failover, no need to suppress duplicates so audit can be disabled
-                    message expiry thread unnecessary as normal dispatch will handle expiry
-                -->
-                <policyEntry topic=">" producerFlowControl="false" enableAudit="false" expireMessagesPeriod="0">
-                  <pendingSubscriberPolicy>
-                    <!-- keep all references in memory -->
-                    <vmCursor />
-                  </pendingSubscriberPolicy>
-                </policyEntry>
-                <policyEntry queue=">" producerFlowControl="false" enableAudit="false" expireMessagesPeriod="0">
-                  <pendingQueuePolicy>
-                    <!-- keep all references in memory -->
-                    <vmQueueCursor/>
-                  </pendingQueuePolicy>
+                <policyEntries>
+                    <!--
+                        producerFlowControll thread unnecessary with no memory limits
+                        with no failover, no need to suppress duplicates so audit can be disabled
+                        message expiry thread unnecessary as normal dispatch will handle expiry
+                    -->
+                    <policyEntry topic=">" producerFlowControl="false" enableAudit="false" expireMessagesPeriod="0">
+                        <pendingSubscriberPolicy>
+                            <!-- keep all references in memory -->
+                            <vmCursor/>
+                        </pendingSubscriberPolicy>
+                    </policyEntry>
+                    <policyEntry queue=">" producerFlowControl="false" enableAudit="false" expireMessagesPeriod="0">
+                        <pendingQueuePolicy>
+                            <!-- keep all references in memory -->
+                            <vmQueueCursor/>
+                        </pendingQueuePolicy>
 
-                </policyEntry>
-              </policyEntries>
+                    </policyEntry>
+                </policyEntries>
             </policyMap>
         </destinationPolicy>
 
@@ -86,10 +85,10 @@
             <!-- keep index off the disk (in cache) -->
 
             <kahaDB directory="${activemq.data}/kahadb"
-                cleanupInterval="300000" checkpointInterval="50000"
-                journalMaxWriteBatchSize="62k"
-                journalMaxFileLength="1g"
-                indexCacheSize="100000" indexWriteBatchSize="100000"
+                    cleanupInterval="300000" checkpointInterval="50000"
+                    journalMaxWriteBatchSize="62k"
+                    journalMaxFileLength="1g"
+                    indexCacheSize="100000" indexWriteBatchSize="100000"
             />
         </persistenceAdapter>
 

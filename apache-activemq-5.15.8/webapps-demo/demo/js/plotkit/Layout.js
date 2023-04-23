@@ -13,13 +13,11 @@
     
 */
 
-try {    
-    if (typeof(PlotKit.Base) == 'undefined')
-    {
+try {
+    if (typeof (PlotKit.Base) == 'undefined') {
         throw ""
     }
-} 
-catch (e) {    
+} catch (e) {
     throw "PlotKit.Layout depends on MochiKit.{Base,Color,DOM,Format} and PlotKit.Base"
 }
 
@@ -27,18 +25,18 @@ catch (e) {
 // Start of Layout definition
 // --------------------------------------------------------------------
 
-if (typeof(PlotKit.Layout) == 'undefined') {
+if (typeof (PlotKit.Layout) == 'undefined') {
     PlotKit.Layout = {};
 }
 
 PlotKit.Layout.NAME = "PlotKit.Layout";
 PlotKit.Layout.VERSION = PlotKit.VERSION;
 
-PlotKit.Layout.__repr__ = function() {
+PlotKit.Layout.__repr__ = function () {
     return "[" + this.NAME + " " + this.VERSION + "]";
 };
 
-PlotKit.Layout.toString = function() {
+PlotKit.Layout.toString = function () {
     return this.__repr__();
 }
 
@@ -48,8 +46,8 @@ PlotKit.Layout.valid_styles = ["bar", "line", "pie", "point"];
 // Start of Layout definition
 // --------------------------------------------------------------------
 
-PlotKit.Layout = function(style, options) {
-    
+PlotKit.Layout = function (style, options) {
+
     this.options = {
         "barWidthFillFraction": 0.75,
         "xOriginIsZero": true,
@@ -66,7 +64,7 @@ PlotKit.Layout = function(style, options) {
     };
 
     // valid external options : TODO: input verification
-    this.style = style; 
+    this.style = style;
     MochiKit.Base.update(this.options, options ? options : {});
 
     // externally visible states
@@ -74,9 +72,8 @@ PlotKit.Layout = function(style, options) {
     if (!MochiKit.Base.isUndefinedOrNull(this.options.xAxis)) {
         this.minxval = this.options.xAxis[0];
         this.maxxval = this.options.xAxis[1];
-        this.xscale = this.maxxval - this.minxval; 
-    }
-    else {
+        this.xscale = this.maxxval - this.minxval;
+    } else {
         this.minxval = 0;
         this.maxxval = null;
         this.xscale = null; // val -> pos factor (eg, xval * xscale = xpos)
@@ -86,8 +83,7 @@ PlotKit.Layout = function(style, options) {
         this.minyval = this.options.yAxis[0];
         this.maxyval = this.options.yAxis[1];
         this.yscale = this.maxyval - this.maxymin;
-    }
-    else {
+    } else {
         this.minyval = 0;
         this.maxyval = null;
         this.yscale = null;
@@ -107,7 +103,7 @@ PlotKit.Layout = function(style, options) {
     this.yrange = 1;
 
     this.hitTestCache = {x2maxy: null};
-    
+
 };
 
 // --------------------------------------------------------------------
@@ -115,30 +111,30 @@ PlotKit.Layout = function(style, options) {
 // --------------------------------------------------------------------
 
 
-PlotKit.Layout.prototype.addDataset = function(setname, set_xy) {
+PlotKit.Layout.prototype.addDataset = function (setname, set_xy) {
     this.datasets[setname] = set_xy;
 };
 
-PlotKit.Layout.prototype.removeDataset = function(setname, set_xy) {
+PlotKit.Layout.prototype.removeDataset = function (setname, set_xy) {
     this.datasets[setname] = null;
 };
 
-PlotKit.Layout.prototype.addDatasetFromTable = function(name, tableElement, xcol, ycol) {
-	var isNil = MochiKit.Base.isUndefinedOrNull;
-	var scrapeText = MochiKit.DOM.scrapeText;
-	var strip = MochiKit.Format.strip;
-	
-	if (isNil(xcol))
-		xcol = 0;
-	if (isNil(ycol))
-		ycol = 1;
-        
+PlotKit.Layout.prototype.addDatasetFromTable = function (name, tableElement, xcol, ycol) {
+    var isNil = MochiKit.Base.isUndefinedOrNull;
+    var scrapeText = MochiKit.DOM.scrapeText;
+    var strip = MochiKit.Format.strip;
+
+    if (isNil(xcol))
+        xcol = 0;
+    if (isNil(ycol))
+        ycol = 1;
+
     var rows = tableElement.tBodies[0].rows;
     var data = new Array();
     if (!isNil(rows)) {
         for (var i = 0; i < rows.length; i++) {
             data.push([parseFloat(strip(scrapeText(rows[i].cells[xcol]))),
-                       parseFloat(strip(scrapeText(rows[i].cells[ycol])))]);
+                parseFloat(strip(scrapeText(rows[i].cells[ycol])))]);
         }
         this.addDataset(name, data);
         return true;
@@ -150,28 +146,25 @@ PlotKit.Layout.prototype.addDatasetFromTable = function(name, tableElement, xcol
 // Evaluates the layout for the current data and style.
 // --------------------------------------------------------------------
 
-PlotKit.Layout.prototype.evaluate = function() {
+PlotKit.Layout.prototype.evaluate = function () {
     this._evaluateLimits();
     this._evaluateScales();
     if (this.style == "bar") {
         this._evaluateBarCharts();
         this._evaluateBarTicks();
-    }
-    else if (this.style == "line") {
+    } else if (this.style == "line") {
         this._evaluateLineCharts();
         this._evaluateLineTicks();
-    }
-    else if (this.style == "pie") {
+    } else if (this.style == "pie") {
         this._evaluatePieCharts();
         this._evaluatePieTicks();
     }
 };
 
 
-
 // Given the fractional x, y positions, report the corresponding
 // x, y values.
-PlotKit.Layout.prototype.hitTest = function(x, y) {
+PlotKit.Layout.prototype.hitTest = function (x, y) {
     // TODO: make this more efficient with better datastructures
     //       for this.bars, this.points and this.slices
 
@@ -180,13 +173,11 @@ PlotKit.Layout.prototype.hitTest = function(x, y) {
     if ((this.style == "bar") && this.bars && (this.bars.length > 0)) {
         for (var i = 0; i < this.bars.length; i++) {
             var bar = this.bars[i];
-            if ((x >= bar.x) && (x <= bar.x + bar.w) 
+            if ((x >= bar.x) && (x <= bar.x + bar.w)
                 && (y >= bar.y) && (y - bar.y <= bar.h))
                 return bar;
         }
-    }
-
-    else if (this.style == "line") {
+    } else if (this.style == "line") {
         if (this.hitTestCache.x2maxy == null) {
             this._regenerateHitTestCache();
         }
@@ -199,7 +190,7 @@ PlotKit.Layout.prototype.hitTest = function(x, y) {
 
         for (var i = 1; i < xvalues.length; i++) {
             if (xvalues[i] > xval) {
-                xbefore = xvalues[i-1];
+                xbefore = xvalues[i - 1];
                 xafter = xvalues[i];
                 break;
             }
@@ -208,31 +199,30 @@ PlotKit.Layout.prototype.hitTest = function(x, y) {
         if ((xbefore != null)) {
             var ybefore = this.hitTestCache.x2maxy[xbefore];
             var yafter = this.hitTestCache.x2maxy[xafter];
-            var yval = (1.0 - y)/this.yscale;
+            var yval = (1.0 - y) / this.yscale;
 
             // interpolate whether we will fall inside or outside
             var gradient = (yafter - ybefore) / (xafter - xbefore);
             var projmaxy = ybefore + gradient * (xval - xbefore);
             if (projmaxy >= yval) {
                 // inside the highest curve (roughly)
-                var obj = {xval: xval, yval: yval,
-                           xafter: xafter, yafter: yafter,
-                           xbefore: xbefore, ybefore: ybefore,
-                           yprojected: projmaxy
+                var obj = {
+                    xval: xval, yval: yval,
+                    xafter: xafter, yafter: yafter,
+                    xbefore: xbefore, ybefore: ybefore,
+                    yprojected: projmaxy
                 };
                 return obj;
             }
         }
-    }
-
-    else if (this.style == "pie") {
-        var dist = Math.sqrt((y-0.5)*(y-0.5) + (x-0.5)*(x-0.5));
+    } else if (this.style == "pie") {
+        var dist = Math.sqrt((y - 0.5) * (y - 0.5) + (x - 0.5) * (x - 0.5));
         if (dist > this.options.pieRadius)
             return null;
 
         // TODO: actually doesn't work if we don't know how the Canvas
         //       lays it out, need to fix!
-        var angle = Math.atan2(y - 0.5, x - 0.5) - Math.PI/2;
+        var angle = Math.atan2(y - 0.5, x - 0.5) - Math.PI / 2;
         for (var i = 0; i < this.slices.length; i++) {
             var slice = this.slices[i];
             if (slice.startAngle < angle && slice.endAngle >= angle)
@@ -244,12 +234,12 @@ PlotKit.Layout.prototype.hitTest = function(x, y) {
 };
 
 // Reports valid position rectangle for X value (only valid for bar charts)
-PlotKit.Layout.prototype.rectForX = function(x) {
+PlotKit.Layout.prototype.rectForX = function (x) {
     return null;
 };
 
 // Reports valid angles through which X value encloses (only valid for pie charts)
-PlotKit.Layout.prototype.angleRangeForX = function(x) {
+PlotKit.Layout.prototype.angleRangeForX = function (x) {
     return null;
 };
 
@@ -257,7 +247,7 @@ PlotKit.Layout.prototype.angleRangeForX = function(x) {
 // START Internal Functions
 // --------------------------------------------------------------------
 
-PlotKit.Layout.prototype._evaluateLimits = function() {
+PlotKit.Layout.prototype._evaluateLimits = function () {
     // take all values from all datasets and find max and min
     var map = MochiKit.Base.map;
     var items = MochiKit.Base.items;
@@ -275,7 +265,7 @@ PlotKit.Layout.prototype._evaluateLimits = function() {
         else
             this.minxval = listMin(map(parseFloat, map(itemgetter(0), all)));
     }
-    
+
     if (isNil(this.options.yAxis)) {
         if (this.options.yOriginIsZero)
             this.minyval = 0;
@@ -287,23 +277,23 @@ PlotKit.Layout.prototype._evaluateLimits = function() {
     this.maxyval = listMax(map(parseFloat, map(itemgetter(1), all)));
 };
 
-PlotKit.Layout.prototype._evaluateScales = function() {
+PlotKit.Layout.prototype._evaluateScales = function () {
     var isNil = MochiKit.Base.isUndefinedOrNull;
 
     this.xrange = this.maxxval - this.minxval;
     if (this.xrange == 0)
         this.xscale = 1.0;
     else
-        this.xscale = 1/this.xrange;
+        this.xscale = 1 / this.xrange;
 
     this.yrange = this.maxyval - this.minyval;
     if (this.yrange == 0)
         this.yscale = 1.0;
     else
-        this.yscale = 1/this.yrange;
+        this.yscale = 1 / this.yrange;
 };
 
-PlotKit.Layout.prototype._uniqueXValues = function() {
+PlotKit.Layout.prototype._uniqueXValues = function () {
     var collapse = PlotKit.Base.collapse;
     var map = MochiKit.Base.map;
     var uniq = PlotKit.Base.uniq;
@@ -315,7 +305,7 @@ PlotKit.Layout.prototype._uniqueXValues = function() {
 };
 
 // Create the bars
-PlotKit.Layout.prototype._evaluateBarCharts = function() {
+PlotKit.Layout.prototype._evaluateBarCharts = function () {
     var keys = MochiKit.Base.keys;
     var items = MochiKit.Base.items;
 
@@ -325,7 +315,7 @@ PlotKit.Layout.prototype._evaluateBarCharts = function() {
     var xdelta = 10000000;
     var xvalues = this._uniqueXValues();
     for (var i = 1; i < xvalues.length; i++) {
-        xdelta = Math.min(Math.abs(xvalues[i] - xvalues[i-1]), xdelta);
+        xdelta = Math.min(Math.abs(xvalues[i] - xvalues[i - 1]), xdelta);
     }
 
     var barWidth = 0;
@@ -337,15 +327,14 @@ PlotKit.Layout.prototype._evaluateBarCharts = function() {
         this.xscale = 1.0;
         this.minxval = xvalues[0];
         barWidth = 1.0 * this.options.barWidthFillFraction;
-        barWidthForSet = barWidth/setCount;
-        barMargin = (1.0 - this.options.barWidthFillFraction)/2;
-    }
-    else {
+        barWidthForSet = barWidth / setCount;
+        barMargin = (1.0 - this.options.barWidthFillFraction) / 2;
+    } else {
         // readjust xscale to fix with bar charts
-        this.xscale = (1.0 - xdelta/this.xrange)/this.xrange;
+        this.xscale = (1.0 - xdelta / this.xrange) / this.xrange;
         barWidth = xdelta * this.xscale * this.options.barWidthFillFraction;
         barWidthForSet = barWidth / setCount;
-        barMargin = xdelta * this.xscale * (1.0 - this.options.barWidthFillFraction)/2;
+        barMargin = xdelta * this.xscale * (1.0 - this.options.barWidthFillFraction) / 2;
     }
 
     this.minxdelta = xdelta; // need this for tick positions
@@ -374,7 +363,7 @@ PlotKit.Layout.prototype._evaluateBarCharts = function() {
 
 
 // Create the line charts
-PlotKit.Layout.prototype._evaluateLineCharts = function() {
+PlotKit.Layout.prototype._evaluateLineCharts = function () {
     var keys = MochiKit.Base.keys;
     var items = MochiKit.Base.items;
 
@@ -385,7 +374,9 @@ PlotKit.Layout.prototype._evaluateLineCharts = function() {
     var i = 0;
     for (var setName in this.datasets) {
         var dataset = this.datasets[setName];
-        dataset.sort(function(a, b) { return compare(parseFloat(a[0]), parseFloat(b[0])); });
+        dataset.sort(function (a, b) {
+            return compare(parseFloat(a[0]), parseFloat(b[0]));
+        });
         for (var j = 0; j < dataset.length; j++) {
             var item = dataset[j];
             var point = {
@@ -402,7 +393,7 @@ PlotKit.Layout.prototype._evaluateLineCharts = function() {
 };
 
 // Create the pie charts
-PlotKit.Layout.prototype._evaluatePieCharts = function() {
+PlotKit.Layout.prototype._evaluatePieCharts = function () {
     var items = MochiKit.Base.items;
     var sum = MochiKit.Iter.sum;
     var getter = MochiKit.Base.itemgetter;
@@ -417,28 +408,29 @@ PlotKit.Layout.prototype._evaluatePieCharts = function() {
     var currentAngle = 0.0;
     for (var i = 0; i < dataset.length; i++) {
         var fraction = dataset[i][1] / total;
-		var startAngle = currentAngle * Math.PI * 2;
-		var endAngle = (currentAngle + fraction) * Math.PI * 2;
-			
-        var slice = {fraction: fraction,
-                     xval: dataset[i][0],
-                     yval: dataset[i][1],
-                     startAngle: startAngle,
-                     endAngle: endAngle
+        var startAngle = currentAngle * Math.PI * 2;
+        var endAngle = (currentAngle + fraction) * Math.PI * 2;
+
+        var slice = {
+            fraction: fraction,
+            xval: dataset[i][0],
+            yval: dataset[i][1],
+            startAngle: startAngle,
+            endAngle: endAngle
         };
         this.slices.push(slice);
         currentAngle += fraction;
     }
 };
 
-PlotKit.Layout.prototype._evaluateLineTicksForXAxis = function() {
+PlotKit.Layout.prototype._evaluateLineTicksForXAxis = function () {
     var isNil = MochiKit.Base.isUndefinedOrNull;
-    
+
     if (this.options.xTicks) {
         // we use use specified ticks with optional labels
 
         this.xticks = new Array();
-        var makeTicks = function(tick) {
+        var makeTicks = function (tick) {
             var label = tick.label;
             if (isNil(label))
                 label = tick.v.toString();
@@ -446,8 +438,7 @@ PlotKit.Layout.prototype._evaluateLineTicksForXAxis = function() {
             this.xticks.push([pos, label]);
         };
         MochiKit.Iter.forEach(this.options.xTicks, bind(makeTicks, this));
-    }
-    else if (this.options.xNumberOfTicks) {
+    } else if (this.options.xNumberOfTicks) {
         // we use defined number of ticks as hint to auto generate
         var xvalues = this._uniqueXValues();
         var roughSeparation = this.xrange / this.options.xNumberOfTicks;
@@ -468,13 +459,13 @@ PlotKit.Layout.prototype._evaluateLineTicksForXAxis = function() {
     }
 };
 
-PlotKit.Layout.prototype._evaluateLineTicksForYAxis = function() {
+PlotKit.Layout.prototype._evaluateLineTicksForYAxis = function () {
     var isNil = MochiKit.Base.isUndefinedOrNull;
 
 
     if (this.options.yTicks) {
         this.yticks = new Array();
-        var makeTicks = function(tick) {
+        var makeTicks = function (tick) {
             var label = tick.label;
             if (isNil(label))
                 label = tick.v.toString();
@@ -484,17 +475,16 @@ PlotKit.Layout.prototype._evaluateLineTicksForYAxis = function() {
             this.yticks.push([pos, label]);
         };
         MochiKit.Iter.forEach(this.options.yTicks, bind(makeTicks, this));
-    }
-    else if (this.options.yNumberOfTicks) {
+    } else if (this.options.yNumberOfTicks) {
         // We use the optionally defined number of ticks as a guide        
         this.yticks = new Array();
 
         // if we get this separation right, we'll have good looking graphs
         var roundInt = PlotKit.Base.roundInterval;
         var prec = this.options.yTickPrecision;
-        var roughSeparation = roundInt(this.yrange, 
-                                       this.options.yNumberOfTicks,
-                                       this.options.yTickPrecision);
+        var roughSeparation = roundInt(this.yrange,
+            this.options.yNumberOfTicks,
+            this.options.yTickPrecision);
 
         for (var i = 0; i <= this.options.yNumberOfTicks; i++) {
             var yval = this.minyval + (i * roughSeparation);
@@ -504,54 +494,53 @@ PlotKit.Layout.prototype._evaluateLineTicksForYAxis = function() {
     }
 };
 
-PlotKit.Layout.prototype._evaluateLineTicks = function() {
+PlotKit.Layout.prototype._evaluateLineTicks = function () {
     this._evaluateLineTicksForXAxis();
     this._evaluateLineTicksForYAxis();
 };
 
-PlotKit.Layout.prototype._evaluateBarTicks = function() {
+PlotKit.Layout.prototype._evaluateBarTicks = function () {
     this._evaluateLineTicks();
-    var centerInBar = function(tick) {
-        return [tick[0] + (this.minxdelta * this.xscale)/2, tick[1]];
+    var centerInBar = function (tick) {
+        return [tick[0] + (this.minxdelta * this.xscale) / 2, tick[1]];
     };
     this.xticks = MochiKit.Base.map(bind(centerInBar, this), this.xticks);
 };
 
-PlotKit.Layout.prototype._evaluatePieTicks = function() {
+PlotKit.Layout.prototype._evaluatePieTicks = function () {
     var isNil = MochiKit.Base.isUndefinedOrNull;
-	var formatter = MochiKit.Format.numberFormatter("#%");
+    var formatter = MochiKit.Format.numberFormatter("#%");
 
     this.xticks = new Array();
-	if (this.options.xTicks) {
-		// make a lookup dict for x->slice values
-		var lookup = new Array();
-		for (var i = 0; i < this.slices.length; i++) {
-			lookup[this.slices[i].xval] = this.slices[i];
-		}
-		
-		for (var i =0; i < this.options.xTicks.length; i++) {
-			var tick = this.options.xTicks[i];
-			var slice = lookup[tick.v]; 
+    if (this.options.xTicks) {
+        // make a lookup dict for x->slice values
+        var lookup = new Array();
+        for (var i = 0; i < this.slices.length; i++) {
+            lookup[this.slices[i].xval] = this.slices[i];
+        }
+
+        for (var i = 0; i < this.options.xTicks.length; i++) {
+            var tick = this.options.xTicks[i];
+            var slice = lookup[tick.v];
             var label = tick.label;
-			if (slice) {
+            if (slice) {
                 if (isNil(label))
                     label = tick.v.toString();
-				label += " (" + formatter(slice.fraction) + ")";
-				this.xticks.push([tick.v, label]);
-			}
-		}
-	}
-	else {
-		// we make our own labels from all the slices
-		for (var i =0; i < this.slices.length; i++) {
-			var slice = this.slices[i];
-			var label = slice.xval + " (" + formatter(slice.fraction) + ")";
-			this.xticks.push([slice.xval, label]);
-		}
-	}
+                label += " (" + formatter(slice.fraction) + ")";
+                this.xticks.push([tick.v, label]);
+            }
+        }
+    } else {
+        // we make our own labels from all the slices
+        for (var i = 0; i < this.slices.length; i++) {
+            var slice = this.slices[i];
+            var label = slice.xval + " (" + formatter(slice.fraction) + ")";
+            this.xticks.push([slice.xval, label]);
+        }
+    }
 };
 
-PlotKit.Layout.prototype._regenerateHitTestCache = function() {
+PlotKit.Layout.prototype._regenerateHitTestCache = function () {
     this.hitTestCache.xvalues = this._uniqueXValues();
     this.hitTestCache.xlookup = new Array();
     this.hitTestCache.x2maxy = new Array();
@@ -569,7 +558,7 @@ PlotKit.Layout.prototype._regenerateHitTestCache = function() {
             var yval = dataset[j][1];
             if (this.hitTestCache.xlookup[xval])
                 this.hitTestCache.xlookup[xval].push([yval, setNames[i]]);
-            else 
+            else
                 this.hitTestCache.xlookup[xval] = [[yval, setNames[i]]];
         }
     }

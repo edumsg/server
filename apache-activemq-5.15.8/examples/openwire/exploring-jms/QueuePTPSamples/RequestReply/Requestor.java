@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,11 +66,11 @@ Suggested demonstration:
        java Replier -u toLower -m lowercase
 
 */
+
 import org.apache.activemq.*;
 
 
-public class Requestor
-{
+public class Requestor {
     private static final String DEFAULT_BROKER_NAME = "tcp://localhost:61616";
     private static final String DEFAULT_USER_NAME = "SampleRequestor";
     private static final String DEFAULT_PASSWORD = "password";
@@ -80,109 +80,14 @@ public class Requestor
     private javax.jms.QueueSession session = null;
     private javax.jms.QueueRequestor requestor = null;
 
-    /** Create JMS client for sending messages. */
-    private void start ( String broker, String username, String password, String sQueue)
-    {
-        // Create a connection.
-        try
-        {
-            javax.jms.QueueConnectionFactory factory;
-            factory = new ActiveMQConnectionFactory(username, password, broker);
-            connect = factory.createQueueConnection (username, password);
-            session = connect.createQueueSession(false,javax.jms.Session.AUTO_ACKNOWLEDGE);
-        }
-        catch (javax.jms.JMSException jmse)
-        {
-            System.err.println("error: Cannot connect to Broker - " + broker);
-            jmse.printStackTrace();
-            System.exit(1);
-        }
-
-        // Create the Queue and QueueRequestor for sending requests.
-        javax.jms.Queue queue = null;
-        try
-        {
-            queue = session.createQueue (sQueue);
-            requestor = new javax.jms.QueueRequestor(session, queue);
-
-            // Now that all setup is complete, start the Connection.
-            connect.start();
-        }
-        catch (javax.jms.JMSException jmse)
-        {
-            jmse.printStackTrace();
-            exit();
-        }
-
-        try
-        {
-            // Read all standard input and send it as a message.
-            java.io.BufferedReader stdin =
-                new java.io.BufferedReader( new java.io.InputStreamReader( System.in ) );
-            System.out.println ("\nRequestor application:\n"
-			            					+ "============================\n"
-			            					+ "The application user " + username + " connects to the broker at " + DEFAULT_BROKER_NAME + ".\n"
-											+ "The application uses a QueueRequestor to on the " + DEFAULT_QUEUE + " queue."
-											+ "The Replier application gets the message, and transforms it."
-			                                + "The Requestor application displays the result.\n\n"
-			                                + "Type some mixed case text, and then press Enter to make a request.\n");
-            while ( true )
-            {
-                String s = stdin.readLine();
-
-                if ( s == null )
-                    exit();
-                else if ( s.length() > 0 )
-                {
-                    javax.jms.TextMessage msg = session.createTextMessage();
-                    msg.setText( username + ": " + s );
-                    // Instead of sending, we will use the QueueRequestor.
-                    javax.jms.Message response = requestor.request(msg);
-                    // The message should be a TextMessage.  Just report it.
-                    javax.jms.TextMessage textMessage = (javax.jms.TextMessage) response;
-                    System.out.println( "[Reply] " + textMessage.getText() );
-                }
-            }
-        }
-        catch ( java.io.IOException ioe )
-        {
-            ioe.printStackTrace();
-        }
-        catch ( javax.jms.JMSException jmse )
-        {
-            jmse.printStackTrace();
-        }
-    }
-
-    /** Cleanup resources cleanly and exit. */
-    private void exit()
-    {
-        try
-        {
-            requestor.close();
-            connect.close();
-        }
-        catch (javax.jms.JMSException jmse)
-        {
-            jmse.printStackTrace();
-        }
-
-        System.exit(0);
-    }
-
-    //
-    // NOTE: the remainder of this sample deals with reading arguments
-    // and does not utilize any JMS classes or code.
-    //
-
     /** Main program entry point. */
     public static void main(String argv[]) {
 
         // Values to be read from parameters
-        String broker    = DEFAULT_BROKER_NAME;
-        String username  = DEFAULT_USER_NAME;
-        String password  = DEFAULT_PASSWORD;
-        String queue     = DEFAULT_QUEUE;
+        String broker = DEFAULT_BROKER_NAME;
+        String username = DEFAULT_USER_NAME;
+        String password = DEFAULT_PASSWORD;
+        String queue = DEFAULT_QUEUE;
 
         // Check parameters
         for (int i = 0; i < argv.length; i++) {
@@ -190,7 +95,7 @@ public class Requestor
 
 
             if (arg.equals("-b")) {
-                if (i == argv.length - 1 || argv[i+1].startsWith("-")) {
+                if (i == argv.length - 1 || argv[i + 1].startsWith("-")) {
                     System.err.println("error: missing broker name:port");
                     System.exit(1);
                 }
@@ -199,7 +104,7 @@ public class Requestor
             }
 
             if (arg.equals("-u")) {
-                if (i == argv.length - 1 || argv[i+1].startsWith("-")) {
+                if (i == argv.length - 1 || argv[i + 1].startsWith("-")) {
                     System.err.println("error: missing user name");
                     System.exit(1);
                 }
@@ -208,7 +113,7 @@ public class Requestor
             }
 
             if (arg.equals("-p")) {
-                if (i == argv.length - 1 || argv[i+1].startsWith("-")) {
+                if (i == argv.length - 1 || argv[i + 1].startsWith("-")) {
                     System.err.println("error: missing password");
                     System.exit(1);
                 }
@@ -217,7 +122,7 @@ public class Requestor
             }
 
             if (arg.equals("-qs")) {
-                if (i == argv.length - 1 || argv[i+1].startsWith("-")) {
+                if (i == argv.length - 1 || argv[i + 1].startsWith("-")) {
                     System.err.println("error: missing queue");
                     System.exit(1);
                 }
@@ -231,14 +136,14 @@ public class Requestor
             }
 
             // Invalid argument
-            System.err.println ("error: unexpected argument: "+arg);
+            System.err.println("error: unexpected argument: " + arg);
             printUsage();
             System.exit(1);
         }
 
         // Start the JMS client for sending requests.
         Requestor requestor = new Requestor();
-        requestor.start (broker, username, password, queue);
+        requestor.start(broker, username, password, queue);
 
     }
 
@@ -249,15 +154,92 @@ public class Requestor
         use.append("usage: java Requestor (options) ...\n\n");
         use.append("options:\n");
         use.append("  -b name:port Specify name:port of broker.\n");
-        use.append("               Default broker: "+DEFAULT_BROKER_NAME+"\n");
+        use.append("               Default broker: " + DEFAULT_BROKER_NAME + "\n");
         use.append("  -u name      Specify unique user name.\n");
-        use.append("               Default broker: "+DEFAULT_USER_NAME+"\n");
+        use.append("               Default broker: " + DEFAULT_USER_NAME + "\n");
         use.append("  -p password  Specify password for user.\n");
-        use.append("               Default password: "+DEFAULT_PASSWORD+"\n");
+        use.append("               Default password: " + DEFAULT_PASSWORD + "\n");
         use.append("  -qs queue    Specify name of queue for sending.\n");
-        use.append("               Default queue: "+DEFAULT_QUEUE+"\n");
+        use.append("               Default queue: " + DEFAULT_QUEUE + "\n");
         use.append("  -h           This help screen.\n");
-        System.err.println (use);
+        System.err.println(use);
+    }
+
+    //
+    // NOTE: the remainder of this sample deals with reading arguments
+    // and does not utilize any JMS classes or code.
+    //
+
+    /** Create JMS client for sending messages. */
+    private void start(String broker, String username, String password, String sQueue) {
+        // Create a connection.
+        try {
+            javax.jms.QueueConnectionFactory factory;
+            factory = new ActiveMQConnectionFactory(username, password, broker);
+            connect = factory.createQueueConnection(username, password);
+            session = connect.createQueueSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
+        } catch (javax.jms.JMSException jmse) {
+            System.err.println("error: Cannot connect to Broker - " + broker);
+            jmse.printStackTrace();
+            System.exit(1);
+        }
+
+        // Create the Queue and QueueRequestor for sending requests.
+        javax.jms.Queue queue = null;
+        try {
+            queue = session.createQueue(sQueue);
+            requestor = new javax.jms.QueueRequestor(session, queue);
+
+            // Now that all setup is complete, start the Connection.
+            connect.start();
+        } catch (javax.jms.JMSException jmse) {
+            jmse.printStackTrace();
+            exit();
+        }
+
+        try {
+            // Read all standard input and send it as a message.
+            java.io.BufferedReader stdin =
+                    new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+            System.out.println("\nRequestor application:\n"
+                    + "============================\n"
+                    + "The application user " + username + " connects to the broker at " + DEFAULT_BROKER_NAME + ".\n"
+                    + "The application uses a QueueRequestor to on the " + DEFAULT_QUEUE + " queue."
+                    + "The Replier application gets the message, and transforms it."
+                    + "The Requestor application displays the result.\n\n"
+                    + "Type some mixed case text, and then press Enter to make a request.\n");
+            while (true) {
+                String s = stdin.readLine();
+
+                if (s == null)
+                    exit();
+                else if (s.length() > 0) {
+                    javax.jms.TextMessage msg = session.createTextMessage();
+                    msg.setText(username + ": " + s);
+                    // Instead of sending, we will use the QueueRequestor.
+                    javax.jms.Message response = requestor.request(msg);
+                    // The message should be a TextMessage.  Just report it.
+                    javax.jms.TextMessage textMessage = (javax.jms.TextMessage) response;
+                    System.out.println("[Reply] " + textMessage.getText());
+                }
+            }
+        } catch (java.io.IOException ioe) {
+            ioe.printStackTrace();
+        } catch (javax.jms.JMSException jmse) {
+            jmse.printStackTrace();
+        }
+    }
+
+    /** Cleanup resources cleanly and exit. */
+    private void exit() {
+        try {
+            requestor.close();
+            connect.close();
+        } catch (javax.jms.JMSException jmse) {
+            jmse.printStackTrace();
+        }
+
+        System.exit(0);
     }
 
 }

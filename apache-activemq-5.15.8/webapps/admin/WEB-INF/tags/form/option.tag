@@ -14,7 +14,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 --%>
-<%@ attribute name="name" type="java.lang.String" required="true"  %>
-<%@ attribute name="value" type="java.lang.String" required="true"  %>
-<%@ attribute name="label" type="java.lang.String" required="true"  %>
+<%@ attribute name="name" type="java.lang.String" required="true" %>
+<%@ attribute name="value" type="java.lang.String" required="true" %>
+<%@ attribute name="label" type="java.lang.String" required="true" %>
 <option ${param[name] == value ? 'selected' : ''} value="${value}">${label}</option>

@@ -5,15 +5,16 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,17 +33,18 @@ import org.apache.activemq.util.IndentPrinter;
 
 /**
  * A simple tool for publishing messages
- * 
- * 
+ *
+ *
  */
 public class ProducerTool extends Thread {
 
+    private static int parallelThreads = 1;
+    private static Object lockResults = new Object();
     private Destination destination;
     private int messageCount = 10;
     private long sleepTime;
     private boolean verbose = true;
     private int messageSize = 255;
-    private static int parallelThreads = 1;
     private long timeToLive;
     private String user = ActiveMQConnection.DEFAULT_USER;
     private String password = ActiveMQConnection.DEFAULT_PASSWORD;
@@ -52,7 +54,6 @@ public class ProducerTool extends Thread {
     private boolean transacted;
     private boolean persistent;
     private long batch = 10;
-    private static Object lockResults = new Object();
 
     public static void main(String[] args) {
         ArrayList<ProducerTool> threads = new ArrayList();

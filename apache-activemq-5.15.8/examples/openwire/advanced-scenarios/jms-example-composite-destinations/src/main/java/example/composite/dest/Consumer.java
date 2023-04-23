@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,7 +34,7 @@ public class Consumer {
         if (args.length > 0) {
             url = args[0].trim();
         }
-        System.out.println("\nWaiting to receive messages... will timeout after " + TIMEOUT / 1000 +"s");
+        System.out.println("\nWaiting to receive messages... will timeout after " + TIMEOUT / 1000 + "s");
         ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("admin", "password", url);
         Connection connection = null;
 
@@ -107,8 +107,7 @@ public class Consumer {
 
         } catch (Exception e) {
             System.out.println("Caught exception!");
-        }
-        finally {
+        } finally {
             if (connection != null) {
                 try {
                     connection.close();

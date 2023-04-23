@@ -17,10 +17,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 import edumsg.redis.ListCache;
-import edumsg.redis.UserCache;
 import edumsg.redis.TweetsCache;
+import edumsg.redis.UserCache;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
@@ -30,8 +29,12 @@ import java.sql.Types;
 import java.util.logging.Logger;
 
 public class FavoriteCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(FavoriteCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(FavoriteCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -82,7 +85,7 @@ public class FavoriteCommand extends Command implements Runnable {
 //                    System.out.println("invalidated");
                     TweetsCache.tweetCache.set("get_replies:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry4 =   ListCache.listCache.get("get_list_feeds:" + map.get("session_id"));
+                String cacheEntry4 = ListCache.listCache.get("get_list_feeds:" + map.get("session_id"));
                 if (cacheEntry4 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry4);
                     cacheEntryJson.put("cacheStatus", "invalid");
@@ -113,11 +116,7 @@ public class FavoriteCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //LOGGER.log(Level.OFF, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn,null);
+            PostgresConnection.disconnect(null, proc, dbConn, null);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

@@ -23,8 +23,6 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.ssl.SslContext;
 
-import java.net.InetSocketAddress;
-
 public class HttpSnoopClientInitializer extends ChannelInitializer<SocketChannel> {
 
     private final SslContext sslCtx;

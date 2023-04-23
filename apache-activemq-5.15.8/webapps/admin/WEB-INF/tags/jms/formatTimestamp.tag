@@ -14,16 +14,16 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 --%>
-<%@ attribute name="timestamp" type="java.lang.String"%>
+<%@ attribute name="timestamp" type="java.lang.String" %>
 <%@ tag import="java.util.Date" %>
 <%@ tag import="java.text.SimpleDateFormat" %>
 <%
-	if (timestamp != null) { 
-		long time = Long.parseLong(timestamp);
-		Date date =  new Date(time);
-		
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS z");		
+    if (timestamp != null) {
+        long time = Long.parseLong(timestamp);
+        Date date = new Date(time);
 
-		out.println(formatter.format(date));
-  	}
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS z");
+
+        out.println(formatter.format(date));
+    }
 %>

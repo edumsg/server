@@ -28,8 +28,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GetListCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(CreateListCommand.class.getName());
     private static double classVersion = 1.3;
+    private final Logger LOGGER = Logger.getLogger(CreateListCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -39,9 +43,9 @@ public class GetListCommand extends Command implements Runnable {
             dbConn.setAutoCommit(true);
             Statement query = dbConn.createStatement();
             query.setPoolable(true);
-            set = query.executeQuery(String.format("SELECT * FROM get_list(%s)",map.get("list_id")));
+            set = query.executeQuery(String.format("SELECT * FROM get_list(%s)", map.get("list_id")));
             List l = new List();
-            while(set.next()){
+            while (set.next()) {
                 l.setName(set.getString("name"));
                 l.setDescription(set.getString("description"));
 
@@ -81,9 +85,5 @@ public class GetListCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

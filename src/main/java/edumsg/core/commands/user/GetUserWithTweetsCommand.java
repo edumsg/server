@@ -27,8 +27,12 @@ import java.sql.Types;
 import java.util.logging.Logger;
 
 public class GetUserWithTweetsCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -87,7 +91,6 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
                 user.setProtectedTweets(protected_tweets);
 
 
-
                 Integer tweet_id = set.getInt(16);
                 String tweet = set.getString(17);
                 Timestamp tweet_created_at = set.getTimestamp(19);
@@ -140,9 +143,5 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn, null);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

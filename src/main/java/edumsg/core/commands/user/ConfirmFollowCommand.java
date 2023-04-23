@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 import edumsg.redis.ListCache;
 import edumsg.redis.UserCache;
 import org.json.JSONObject;
@@ -28,8 +27,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ConfirmFollowCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(ConfirmFollowCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(ConfirmFollowCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -53,7 +56,7 @@ public class ConfirmFollowCommand extends Command implements Runnable {
 
             try {
                 CommandsHelp.submit(map.get("app"),
-                mapper.writeValueAsString(root),map.get("correlation_id"), LOGGER);
+                        mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
                 String cacheEntry = UserCache.userCache.get("user_tweets:" + map.get("session_id"));
                 if (cacheEntry != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry);
@@ -82,7 +85,7 @@ public class ConfirmFollowCommand extends Command implements Runnable {
 //                    System.out.println("invalidated");
                     UserCache.userCache.set("following:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry4 =   ListCache.listCache.get("get_list_feeds:" + map.get("session_id"));
+                String cacheEntry4 = ListCache.listCache.get("get_list_feeds:" + map.get("session_id"));
                 if (cacheEntry4 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry4);
                     cacheEntryJson.put("cacheStatus", "invalid");
@@ -101,14 +104,10 @@ public class ConfirmFollowCommand extends Command implements Runnable {
 //            }
 
         } catch (SQLException e) {
-            CommandsHelp.handleError(map.get("app"), map.get("method"),e.getMessage(), map.get("correlation_id"), LOGGER);
+            CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn,null);
+            PostgresConnection.disconnect(null, proc, dbConn, null);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

@@ -21,7 +21,6 @@ import javax.jms.TextMessage;
 import java.util.concurrent.Callable;
 
 
-
 public class NettyNotifier implements Callable<String> {
 
     private EduMsgNettyServerHandler serverHandler;

@@ -15,10 +15,10 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<web-app xmlns="http://java.sun.com/xml/ns/javaee"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-      version="3.0"> 
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
 
     <display-name>Apache ActiveMQ REST API</display-name>
 
@@ -55,10 +55,10 @@
         -->
         <!-- turn off returning exceptions and stacktraces from jolokia -->
         <init-param>
-          <param-name>allowErrorDetails</param-name>
-          <param-value>false</param-value>
+            <param-name>allowErrorDetails</param-name>
+            <param-value>false</param-value>
         </init-param>
-        <load-on-startup>1</load-on-startup> 
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>

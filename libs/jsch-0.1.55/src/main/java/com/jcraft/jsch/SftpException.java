@@ -29,23 +29,27 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-public class SftpException extends Exception{
-  //private static final long serialVersionUID=-5616888495583253811L;
-  public int id;
-  private Throwable cause=null;
-  public SftpException (int id, String message) {
-    super(message);
-    this.id=id;
-  }
-  public SftpException (int id, String message, Throwable e) {
-    super(message);
-    this.id=id;
-    this.cause=e;
-  }
-  public String toString(){
-    return id+": "+getMessage();
-  }
-  public Throwable getCause(){
-    return this.cause;
-  }
+public class SftpException extends Exception {
+    //private static final long serialVersionUID=-5616888495583253811L;
+    public int id;
+    private Throwable cause = null;
+
+    public SftpException(int id, String message) {
+        super(message);
+        this.id = id;
+    }
+
+    public SftpException(int id, String message, Throwable e) {
+        super(message);
+        this.id = id;
+        this.cause = e;
+    }
+
+    public String toString() {
+        return id + ": " + getMessage();
+    }
+
+    public Throwable getCause() {
+        return this.cause;
+    }
 }

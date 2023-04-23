@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 import edumsg.redis.ListCache;
 import edumsg.redis.TweetsCache;
 import edumsg.redis.UserCache;
@@ -19,10 +18,13 @@ import java.util.logging.Logger;
 /**
  * Created by Omar on 7/3/2016.
  */
-public class ReplyCommand extends Command implements Runnable
-{
-    private final Logger LOGGER = Logger.getLogger(NewTweetCommand.class.getName());
+public class ReplyCommand extends Command implements Runnable {
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(NewTweetCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -111,9 +113,5 @@ public class ReplyCommand extends Command implements Runnable
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

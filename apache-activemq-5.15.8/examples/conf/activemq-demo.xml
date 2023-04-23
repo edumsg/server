@@ -22,11 +22,10 @@
     e.g. $ bin/activemq console xbean:examples/conf/activemq-demo.xml
  -->
 <beans
-  xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.springframework.org/schema/beans"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
     <!--
         Allows us to use system properties as variables in this configuration
@@ -103,24 +102,24 @@
             http://activemq.apache.org/networks-of-brokers.html
         -->
         <!-- networkConnectors-->
-            <!--
-                This connector automatically discovers the other brokers using
-                IP multicast. Such discovery is possible only because the
-                openwire transport connector is advertised via the default IP
-                multicast group. For more information on multicast, see:
+        <!--
+            This connector automatically discovers the other brokers using
+            IP multicast. Such discovery is possible only because the
+            openwire transport connector is advertised via the default IP
+            multicast group. For more information on multicast, see:
 
-                http://activemq.apache.org/multicast-transport-reference.html
+            http://activemq.apache.org/multicast-transport-reference.html
 
-            <networkConnector name="default-nc" uri="multicast://default"/>
-            -->
+        <networkConnector name="default-nc" uri="multicast://default"/>
+        -->
 
-            <!--
-                Example of a static configuration. For more information, see:
+        <!--
+            Example of a static configuration. For more information, see:
 
-                http://activemq.apache.org/static-transport-reference.html
+            http://activemq.apache.org/static-transport-reference.html
 
-            <networkConnector name="host1 and host2" uri="static://(tcp://host1:61616,tcp://host2:61616)"/>
-            -->
+        <networkConnector name="host1 and host2" uri="static://(tcp://host1:61616,tcp://host2:61616)"/>
+        -->
         <!-- /networkConnectors-->
 
         <!--
@@ -131,7 +130,8 @@
             http://activemq.apache.org/persistence.html
         -->
         <persistenceAdapter>
-             <kahaDB directory="${activemq.data}/dynamic-broker1/kahadb" indexWriteBatchSize="1000" enableIndexWriteAsync="true" enableJournalDiskSyncs="false" />
+            <kahaDB directory="${activemq.data}/dynamic-broker1/kahadb" indexWriteBatchSize="1000"
+                    enableIndexWriteAsync="true" enableJournalDiskSyncs="false"/>
         </persistenceAdapter>
 
         <!--
@@ -160,8 +160,8 @@
         -->
         <sslContext>
             <sslContext keyStore="file:${activemq.conf}/broker.ks"
-              keyStorePassword="password" trustStore="file:${activemq.conf}/broker.ts"
-              trustStorePassword="password"/>
+                        keyStorePassword="password" trustStore="file:${activemq.conf}/broker.ts"
+                        trustStorePassword="password"/>
         </sslContext>
 
 
@@ -172,17 +172,17 @@
             http://activemq.apache.org/producer-flow-control.html
         -->
         <systemUsage>
-          <systemUsage>
-            <memoryUsage>
-              <memoryUsage limit="20 mb" />
-            </memoryUsage>
-            <storeUsage>
-              <storeUsage limit="1 gb" />
-            </storeUsage>
-            <tempUsage>
-              <tempUsage limit="100 mb" />
-            </tempUsage>
-          </systemUsage>
+            <systemUsage>
+                <memoryUsage>
+                    <memoryUsage limit="20 mb"/>
+                </memoryUsage>
+                <storeUsage>
+                    <storeUsage limit="1 gb"/>
+                </storeUsage>
+                <tempUsage>
+                    <tempUsage limit="100 mb"/>
+                </tempUsage>
+            </systemUsage>
         </systemUsage>
 
 
@@ -202,12 +202,13 @@
             <!-- Create a STOMP transport for STOMP clients. -->
             <transportConnector name="stomp" uri="stomp://localhost:61613"/>
             <!-- Create a Websocket transport for the websocket dmeo -->
-            <transportConnector name="ws" uri="ws://localhost:61614/" />
+            <transportConnector name="ws" uri="ws://localhost:61614/"/>
         </transportConnectors>
 
         <!-- destroy the spring context on shutdown to stop jetty -->
         <shutdownHooks>
-            <bean xmlns="http://www.springframework.org/schema/beans" class="org.apache.activemq.hooks.SpringContextHook" />
+            <bean xmlns="http://www.springframework.org/schema/beans"
+                  class="org.apache.activemq.hooks.SpringContextHook"/>
         </shutdownHooks>
 
     </broker>

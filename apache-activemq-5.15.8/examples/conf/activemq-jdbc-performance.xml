@@ -29,54 +29,53 @@
     e.g. $ bin/activemq console xbean:examples/conf/activemq-jdbc-performance.xml
  -->
 <beans
-  xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.springframework.org/schema/beans"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
-  <!-- Allows us to use system properties as variables in this configuration file -->
-  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-      <property name="locations">
-          <value>file:${activemq.conf}/credentials.properties</value>
-      </property>
-  </bean>
+    <!-- Allows us to use system properties as variables in this configuration file -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <value>file:${activemq.conf}/credentials.properties</value>
+        </property>
+    </bean>
 
-  <broker useJmx="true" brokerName="jdbcBroker" xmlns="http://activemq.apache.org/schema/core">
+    <broker useJmx="true" brokerName="jdbcBroker" xmlns="http://activemq.apache.org/schema/core">
 
         <destinationPolicy>
             <policyMap>
-              <policyEntries>
-                <policyEntry topic=">" expireMessagesPeriod="0" prioritizedMessages="false">
-                </policyEntry>
-                <policyEntry queue=">" expireMessagesPeriod="0" prioritizedMessages="false">
-                </policyEntry>
-              </policyEntries>
+                <policyEntries>
+                    <policyEntry topic=">" expireMessagesPeriod="0" prioritizedMessages="false">
+                    </policyEntry>
+                    <policyEntry queue=">" expireMessagesPeriod="0" prioritizedMessages="false">
+                    </policyEntry>
+                </policyEntries>
             </policyMap>
         </destinationPolicy>
 
-    <!--
-        See more database locker options at http://activemq.apache.org/pluggable-storage-lockers.html
-    -->
-    <persistenceAdapter>
-       <!--  for mysql-ds below, add attribute: dataSource="#mysql-ds" -->
-       <jdbcPersistenceAdapter dataDirectory="${activemq.data}" cleanupPeriod="0" />
-    </persistenceAdapter>
+        <!--
+            See more database locker options at http://activemq.apache.org/pluggable-storage-lockers.html
+        -->
+        <persistenceAdapter>
+            <!--  for mysql-ds below, add attribute: dataSource="#mysql-ds" -->
+            <jdbcPersistenceAdapter dataDirectory="${activemq.data}" cleanupPeriod="0"/>
+        </persistenceAdapter>
 
-    <transportConnectors>
-       <transportConnector name="openwire" uri="tcp://0.0.0.0:61616"/>
-    </transportConnectors>
-  </broker>
+        <transportConnectors>
+            <transportConnector name="openwire" uri="tcp://0.0.0.0:61616"/>
+        </transportConnectors>
+    </broker>
 
 
-
-  <!-- MySql DataSource Sample Setup -->
-  <bean id="mysql-ds" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-    <property name="url" value="jdbc:mysql://localhost/activemq?relaxAutoCommit=true"/>
-    <property name="username" value="root"/>
-    <property name="password" value="root"/>
-    <property name="maxTotal" value="200"/>
-    <property name="poolPreparedStatements" value="true"/>
-  </bean>
+    <!-- MySql DataSource Sample Setup -->
+    <bean id="mysql-ds" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost/activemq?relaxAutoCommit=true"/>
+        <property name="username" value="root"/>
+        <property name="password" value="root"/>
+        <property name="maxTotal" value="200"/>
+        <property name="poolPreparedStatements" value="true"/>
+    </bean>
 
 </beans>

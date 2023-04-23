@@ -18,63 +18,64 @@
 <%@include file="WEB-INF/jspf/headertags.jspf" %>
 <html>
 <head>
-<c:set var="pageTitle" value="Topics"/>
+    <c:set var="pageTitle" value="Topics"/>
 
-<%@include file="decorators/head.jsp" %>
+    <%@include file="decorators/head.jsp" %>
 </head>
 <body>
 
 <%@include file="decorators/header.jsp" %>
 
 <div>
-<form action="createDestination.action" method="post">
-    <input type="hidden" name="JMSDestinationType" value="topic"/>
-    <input type="hidden" name="secret" value="<c:out value='${sessionScope["secret"]}'/>"/>
+    <form action="createDestination.action" method="post">
+        <input type="hidden" name="JMSDestinationType" value="topic"/>
+        <input type="hidden" name="secret" value="<c:out value='${sessionScope["secret"]}'/>"/>
 
-    <label name="destination">Topic Name</label>
-    <input type="text" name="JMSDestination" value=""/>
+        <label name="destination">Topic Name</label>
+        <input type="text" name="JMSDestination" value=""/>
 
-    <input type="submit" value="Create"/>
-</form>
+        <input type="submit" value="Create"/>
+    </form>
 </div>
 
 <h2>Topics</h2>
 
 <table id="topics" class="sortable autostripe">
-<thead>
-<tr>
-<th>Name</th>
-<th>Number Of Consumers</th>
-<th>Messages Enqueued</th>
-<th>Messages Dequeued</th>
-<th>Operations</th>
-</tr>
-</thead>
-<tbody>
-<c:forEach items="${requestContext.brokerQuery.topics}" var="row">
-<tr>
-<td><a href="<c:url value="send.jsp">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Number Of Consumers</th>
+        <th>Messages Enqueued</th>
+        <th>Messages Dequeued</th>
+        <th>Operations</th>
+    </tr>
+    </thead>
+    <tbody>
+    <c:forEach items="${requestContext.brokerQuery.topics}" var="row">
+        <tr>
+            <td><a href="<c:url value="send.jsp">
                         <c:param name="JMSDestination" value="${row.name}" />
-                        <c:param name="JMSDestinationType" value="topic"/></c:url>"><form:tooltip text="${row.name}" length="50"/></a></td>
-<td><c:out value="${row.consumerCount}" /></td>
-<td><c:out value="${row.enqueueCount}" /></td>
-<td><c:out value="${row.dequeueCount}" /></td>
-<td>
-    <a href="<c:url value="send.jsp">
+                        <c:param name="JMSDestinationType" value="topic"/></c:url>"><form:tooltip text="${row.name}"
+                                                                                                  length="50"/></a></td>
+            <td><c:out value="${row.consumerCount}"/></td>
+            <td><c:out value="${row.enqueueCount}"/></td>
+            <td><c:out value="${row.dequeueCount}"/></td>
+            <td>
+                <a href="<c:url value="send.jsp">
                         <c:param name="JMSDestination" value="${row.name}" />
                         <c:param name="JMSDestinationType" value="topic"/></c:url>">Send To</a>
-    <a href="<c:url value="topicSubscribers.jsp">
+                <a href="<c:url value="topicSubscribers.jsp">
                         <c:param name="JMSDestination" value="${row.name}" /></c:url>">Active Subscribers</a><br/>
-    <a href="<c:url value="topicProducers.jsp">
+                <a href="<c:url value="topicProducers.jsp">
                         <c:param name="JMSDestination" value="${row.name}" /></c:url>">Active Producers</a><br/>
-    <a href="<c:url value="deleteDestination.action">
+                <a href="<c:url value="deleteDestination.action">
                    <c:param name="JMSDestination" value="${row.name}" />
                    <c:param name="JMSDestinationType" value="topic"/>
                    <c:param name="secret" value='${sessionScope["secret"]}'/></c:url>">Delete</a>
-</td>
-</tr>
-</c:forEach>
-</tbody>
+            </td>
+        </tr>
+    </c:forEach>
+    </tbody>
 </table>
 
 <%@include file="decorators/footer.jsp" %>

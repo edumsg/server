@@ -7,7 +7,7 @@ This example demos using wildcards for consuming messages from hierarchies of de
 ## Prereqs
 
 - Install Java SDK
-- Install [Maven](http://maven.apache.org/download.html) 
+- Install [Maven](http://maven.apache.org/download.html)
 
 ## Building
 

@@ -26,8 +26,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CreateListCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(CreateListCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(CreateListCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -41,13 +45,13 @@ public class CreateListCommand extends Command implements Runnable {
             set = query.executeQuery(String.format("SELECT * FROM create_list('%s','%s','%s', %s, now()::timestamp)",
                     map.get("name"), map.get("description"), map.get("session_id"), map.get("private")));
 
-            while(set.next()){
-                details.put("list_id", set.getInt("id")+"");
+            while (set.next()) {
+                details.put("list_id", set.getInt("id") + "");
                 details.put("name", set.getString("name"));
                 details.put("description", set.getString("description"));
                 details.put("private", set.getBoolean("private") + "");
                 details.put("creator_id", set.getString("creator_id"));
-                details.put("created_at", set.getTimestamp("created_at")+"");
+                details.put("created_at", set.getTimestamp("created_at") + "");
                 //Cache.createList(set.getInt("id") + "", details);
             }
 
@@ -83,9 +87,5 @@ public class CreateListCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

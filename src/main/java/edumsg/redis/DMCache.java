@@ -7,8 +7,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static edumsg.redis.Cache.redisPool;
-
 /**
  * Created by ahmed on 5/8/16.
  */
@@ -17,7 +15,7 @@ public class DMCache extends Cache {
     public static Jedis dmCache = edumsg.redis.Cache.getRedisPoolResource();
     private static Pipeline dmPipeline = dmCache.pipelined();
 
-    public static void dmBgSave(){
+    public static void dmBgSave() {
         Runnable runnable = () -> {
             String res;
             res = dmCache.bgsave();

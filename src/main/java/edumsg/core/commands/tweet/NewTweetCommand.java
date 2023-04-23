@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 import edumsg.redis.ListCache;
 import edumsg.redis.TweetsCache;
 import edumsg.redis.UserCache;
@@ -30,8 +29,12 @@ import java.sql.Statement;
 import java.util.logging.Logger;
 
 public class NewTweetCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(NewTweetCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(NewTweetCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -53,14 +56,14 @@ public class NewTweetCommand extends Command implements Runnable {
 
             }
             String id = null;
-            while(set.next()) {
-                System.out.println("creator_id..." + set.getInt("creator_id") );
+            while (set.next()) {
+                System.out.println("creator_id..." + set.getInt("creator_id"));
                 id = set.getInt("id") + "";
                 details.put("id", id);
                 details.put("tweet_text", set.getString("tweet_text"));
                 details.put("creator_id", set.getInt("creator_id") + "");
                 details.put("image_url", set.getString("image_url"));
-                details.put("created_at", set.getTimestamp("created_at")+"");
+                details.put("created_at", set.getTimestamp("created_at") + "");
                 //Cache.cacheTweet(set.getInt("id")+"", details);
                 //Cache.cacheUserTweet(map.get("creator_id"),set.getInt("id")+"");
                 root.put("id", set.getInt("id"));
@@ -136,9 +139,5 @@ public class NewTweetCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

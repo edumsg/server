@@ -17,7 +17,6 @@ import edumsg.core.commands.list.*;
 import edumsg.core.commands.tweet.*;
 import edumsg.core.commands.user.*;
 
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -26,7 +25,8 @@ import java.util.concurrent.ConcurrentMap;
 public class CommandsMap {
     private static ConcurrentMap<String, Class<?>> cmdMap;
     private static ConcurrentMap<String, Class<?>> MapMap;
-//Each new function you create, you must add it below
+
+    //Each new function you create, you must add it below
     public static void instantiate() {
         cmdMap = new ConcurrentHashMap<>();
         cmdMap.put("register", RegisterCommand.class);
@@ -67,7 +67,6 @@ public class CommandsMap {
         cmdMap.put("user_with_tweets", GetUserWithTweetsCommand.class);
 
 
-
         cmdMap.put("create_dm", CreateDmCommand.class);
         cmdMap.put("create_dm2", CreateDm2Command.class);
         cmdMap.put("delete_dm", DeleteDmCommand.class);
@@ -91,21 +90,25 @@ public class CommandsMap {
         cmdMap.put("get_list_feeds", GetListFeedsCommand.class);
         cmdMap.put("get_list", GetListCommand.class);
     }
+
     public static Class<?> queryClass(String cmd) {
         return cmdMap.get(cmd);
     }
-    public static void replace(String key , Class cls){
+
+    public static void replace(String key, Class cls) {
         cmdMap.put(key, cls);
         System.out.println("replaced");
     }
-    public static String map (String key){
-        for (Map.Entry<String, Class<?> > entry : cmdMap.entrySet()) {
-        if(entry.getValue().toString().equals(key))
-            return entry.getKey();
+
+    public static String map(String key) {
+        for (Map.Entry<String, Class<?>> entry : cmdMap.entrySet()) {
+            if (entry.getValue().toString().equals(key))
+                return entry.getKey();
         }
         return "error";
     }
-    public static Class<?> getClass (String key){
+
+    public static Class<?> getClass(String key) {
         return cmdMap.get(key);
     }
 }

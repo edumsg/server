@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,6 +31,7 @@ public class Subscriber implements MessageListener {
 
 
     private final CountDownLatch countDownLatch;
+
     public Subscriber(CountDownLatch latch) {
         countDownLatch = latch;
     }
@@ -56,7 +57,7 @@ public class Subscriber implements MessageListener {
             Session session = connection.createSession(NON_TRANSACTED, Session.AUTO_ACKNOWLEDGE);
             Topic destination = session.createTopic("test-topic");
 
-            MessageConsumer consumer = session.createDurableSubscriber(destination, clientId) ;
+            MessageConsumer consumer = session.createDurableSubscriber(destination, clientId);
             consumer.setMessageListener(new Subscriber(latch));
 
             latch.await();
@@ -65,8 +66,7 @@ public class Subscriber implements MessageListener {
 
         } catch (Exception e) {
             System.out.println("Caught exception!");
-        }
-        finally {
+        } finally {
             if (connection != null) {
                 try {
                     connection.close();
@@ -85,9 +85,8 @@ public class Subscriber implements MessageListener {
                 if ("END".equalsIgnoreCase(text)) {
                     System.out.println("Received END message!");
                     countDownLatch.countDown();
-                }
-                else {
-                    System.out.println("Received message:" +text);
+                } else {
+                    System.out.println("Received message:" + text);
                 }
             }
         } catch (JMSException e) {

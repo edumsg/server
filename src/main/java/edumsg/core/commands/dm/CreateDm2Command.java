@@ -26,10 +26,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CreateDm2Command extends Command implements Runnable {
+    private static double classVersion = 1.0;
     private final Logger LOGGER = Logger.getLogger(CreateDmCommand.class
             .getName());
-    private static double classVersion = 1.0;
 
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -53,7 +56,7 @@ public class CreateDm2Command extends Command implements Runnable {
             proc.execute();
 
             boolean sent = proc.getBoolean(1);
-            System.out.println("Result = "+map.get("conv_id"));
+            System.out.println("Result = " + map.get("conv_id"));
             if (sent) {
                 root.put("app", map.get("app"));
                 root.put("method", map.get("method"));
@@ -103,9 +106,5 @@ public class CreateDm2Command extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

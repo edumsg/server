@@ -3,7 +3,6 @@ Prereqs
 
 These examples use the [ActiveMQ-CPP](http://activemq.apache.org/cms) C++ library,
 
-
 1. [Download the latest release from the ActiveMQ-CPP website)
 2. [Build and Install](http://activemq.apache.org/cms/building.html)
 
@@ -20,7 +19,7 @@ Running the Examples
 ====================
 
 Note: You may need to update set an environment variable so that the
-activemq-cpp shared libraries can be loaded.  For example on my Ubuntu
+activemq-cpp shared libraries can be loaded. For example on my Ubuntu
 system I had to add the following to my profile:
 
     export LD_LIBRARY_PATH=/usr/local/lib

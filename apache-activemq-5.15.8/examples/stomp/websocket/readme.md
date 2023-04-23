@@ -1,7 +1,7 @@
 ## Overview
 
-This is an example of how use the 
-['stomp-websocket'](https://github.com/jmesnil/stomp-websocket) 
+This is an example of how use the
+['stomp-websocket'](https://github.com/jmesnil/stomp-websocket)
 JavaScript APIs with the ActiveMQ message broker.
 
 ## Prereqs

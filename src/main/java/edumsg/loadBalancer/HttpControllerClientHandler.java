@@ -34,6 +34,10 @@ public class HttpControllerClientHandler extends SimpleChannelInboundHandler<Htt
 
     private static String response;
 
+    public static String getRes() {
+        return response;
+    }
+
     @Override
     public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
 
@@ -51,28 +55,28 @@ public class HttpControllerClientHandler extends SimpleChannelInboundHandler<Htt
 
         if (msg instanceof DefaultLastHttpContent) {
 
-            DefaultLastHttpContent HttpLastContent = (DefaultLastHttpContent)msg;
+            DefaultLastHttpContent HttpLastContent = (DefaultLastHttpContent) msg;
             ByteBuf lastContent = HttpLastContent.content();
-            response =response + lastContent.toString(CharsetUtil.UTF_8);
+            response = response + lastContent.toString(CharsetUtil.UTF_8);
             // release the thread waiting for this response
             systemStatus.latch.countDown();
             System.out.println("response for command execution..." + response);
             // after the command is applied successfully we will reflect its effect to the load balancer
             JSONObject resJson = new JSONObject(response);
-            if(resJson.getString("code").equals("200")){
-                switch (resJson.getString("command")){
-                    case "newInstance" :
-                        Calculation.new_instance(resJson.getString("app").split("_")[0],resJson.getString("msg"));
+            if (resJson.getString("code").equals("200")) {
+                switch (resJson.getString("command")) {
+                    case "newInstance":
+                        Calculation.new_instance(resJson.getString("app").split("_")[0], resJson.getString("msg"));
                         //System.out.println("instances after migration..."+Calculation.getUserInstances().size());
                         //System.out.println("instances after migration..."+HttpSnoopClient.getServerInstances());
                         break;
                     case "start":
-                        Calculation.reflect_command(resJson.getString("app"),true);
+                        Calculation.reflect_command(resJson.getString("app"), true);
                         break;
-                    case "stop" :
-                        Calculation.reflect_command(resJson.getString("app"),false);
+                    case "stop":
+                        Calculation.reflect_command(resJson.getString("app"), false);
                         break;
-                    case "updateClass" :
+                    case "updateClass":
                         FileUtils.cleanDirectory(new File("C:\\Users\\OS\\Desktop\\Edumsg-comp\\update"));
                         break;
                 }
@@ -85,12 +89,6 @@ public class HttpControllerClientHandler extends SimpleChannelInboundHandler<Htt
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
-    }
-
-
-
-    public static String getRes() {
-        return response;
     }
 
 }

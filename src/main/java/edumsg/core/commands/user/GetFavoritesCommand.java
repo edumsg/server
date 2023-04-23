@@ -27,8 +27,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GetFavoritesCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(GetFavoritesCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(GetFavoritesCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() throws Exception {
@@ -97,11 +101,7 @@ public class GetFavoritesCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(set, proc, dbConn,null);
+            PostgresConnection.disconnect(set, proc, dbConn, null);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

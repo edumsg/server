@@ -16,21 +16,17 @@
 -->
 
 
-
-
-
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns='http://www.w3.org/1999/xhtml'>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type"/>
     <title>Apache ActiveMQ - Login</title>
-    <style type="text/css" media="screen">
+    <style media="screen" type="text/css">
         @import url('styles/type-settings.css');
         @import url('styles/site.css');
     </style>
-
 
 
 </head>
@@ -54,11 +50,11 @@
                     <!-- Banner -->
                     <div id="asf_logo">
                         <div id="activemq_logo">
-                            <a style="float:left; width:280px;display:block;text-indent:-5000px;text-decoration:none;line-height:60px; margin-top:10px; margin-left:100px;"
-                               href="http://activemq.apache.org/"
+                            <a href="http://activemq.apache.org/"
+                               style="float:left; width:280px;display:block;text-indent:-5000px;text-decoration:none;line-height:60px; margin-top:10px; margin-left:100px;"
                                title="The most popular and powerful open source Message Broker">ActiveMQ</a>
-                            <a style="float:right; width:210px;display:block;text-indent:-5000px;text-decoration:none;line-height:60px; margin-top:15px; margin-right:10px;"
-                               href="http://www.apache.org/" title="The Apache Software Foundation">ASF</a>
+                            <a href="http://www.apache.org/"
+                               style="float:right; width:210px;display:block;text-indent:-5000px;text-decoration:none;line-height:60px; margin-top:15px; margin-right:10px;" title="The Apache Software Foundation">ASF</a>
                         </div>
                     </div>
 
@@ -72,28 +68,30 @@
                         </div>
                     </div>
 
-					<div class="body-content">
-						<form id="loginForm" method="post" action="j_security_check">
-							<div class="navigation">
-		                    	<div class="navigation_top">
-		                        	<div class="navigation_bottom" id="loginForm">
-		                        		<div>
-								        	<label for="user">User</label>
-								        	<input id="user" name="j_username" maxlength="25" type="text" size="12" value="" autofocus="autofocus"/>
-								        </div>
-								        <div>	
-							        		<label for="pass">Password</label>
-						        			<input id="pass" name="j_password" maxlength="25" type="password" size="12" value=""/>
-						        		</div>
-						        		<div>
-						        			<label for="submit">&nbsp;</label>
-						        			<input name="submit" type="submit" value="Login"/>
-						        		</div>										        
-									</div>
-								</div>			
-		                     </div>
-						</form>
-					</div>
+                    <div class="body-content">
+                        <form action="j_security_check" id="loginForm" method="post">
+                            <div class="navigation">
+                                <div class="navigation_top">
+                                    <div class="navigation_bottom" id="loginForm">
+                                        <div>
+                                            <label for="user">User</label>
+                                            <input autofocus="autofocus" id="user" maxlength="25" name="j_username" size="12"
+                                                   type="text" value=""/>
+                                        </div>
+                                        <div>
+                                            <label for="pass">Password</label>
+                                            <input id="pass" maxlength="25" name="j_password" size="12" type="password"
+                                                   value=""/>
+                                        </div>
+                                        <div>
+                                            <label for="submit">&nbsp;</label>
+                                            <input name="submit" type="submit" value="Login"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
 
                     <div class="bottom_red_bar"></div>
                 </div>

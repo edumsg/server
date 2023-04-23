@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,21 +38,19 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
  * A simple tool for consuming messages
- * 
- * 
+ *
+ *
  */
 public class ConsumerTool extends Thread implements MessageListener, ExceptionListener {
 
+    private static int parallelThreads = 1;
     private boolean running;
-
     private Session session;
     private Destination destination;
     private MessageProducer replyProducer;
-
     private boolean pauseBeforeShutdown = false;
     private boolean verbose = true;
     private int maxiumMessages;
-    private static int parallelThreads = 1;
     private String subject = "TOOL.DEFAULT";
     private boolean topic;
     private String user = ActiveMQConnection.DEFAULT_USER;
@@ -65,8 +63,8 @@ public class ConsumerTool extends Thread implements MessageListener, ExceptionLi
     private String consumerName = "James";
     private long sleepTime;
     private long receiveTimeOut;
-	private long batch = 10; // Default batch size for CLIENT_ACKNOWLEDGEMENT or SESSION_TRANSACTED
-	private long messagesReceived = 0;
+    private long batch = 10; // Default batch size for CLIENT_ACKNOWLEDGEMENT or SESSION_TRANSACTED
+    private long messagesReceived = 0;
 
     public static void main(String[] args) {
         ArrayList<ConsumerTool> threads = new ArrayList();
@@ -164,7 +162,7 @@ public class ConsumerTool extends Thread implements MessageListener, ExceptionLi
 
     public void onMessage(Message message) {
 
-		messagesReceived++;
+        messagesReceived++;
 
         try {
 
@@ -190,15 +188,15 @@ public class ConsumerTool extends Thread implements MessageListener, ExceptionLi
             }
 
             if (transacted) {
-				if ((messagesReceived % batch) == 0) {
-					System.out.println("Commiting transaction for last " + batch + " messages; messages so far = " + messagesReceived);
-					session.commit();
-				}
+                if ((messagesReceived % batch) == 0) {
+                    System.out.println("Commiting transaction for last " + batch + " messages; messages so far = " + messagesReceived);
+                    session.commit();
+                }
             } else if (ackMode == Session.CLIENT_ACKNOWLEDGE) {
-				if ((messagesReceived % batch) == 0) {
-					System.out.println("Acknowledging last " + batch + " messages; messages so far = " + messagesReceived);
-					message.acknowledge();
-				}
+                if ((messagesReceived % batch) == 0) {
+                    System.out.println("Acknowledging last " + batch + " messages; messages so far = " + messagesReceived);
+                    message.acknowledge();
+                }
             }
 
         } catch (JMSException e) {
@@ -228,7 +226,7 @@ public class ConsumerTool extends Thread implements MessageListener, ExceptionLi
         System.out.println("[" + this.getName() + "] We are about to wait until we consume: " + maxiumMessages
                 + " message(s) then we will shutdown");
 
-        for (int i = 0; i < maxiumMessages && isRunning();) {
+        for (int i = 0; i < maxiumMessages && isRunning(); ) {
             Message message = consumer.receive(1000);
             if (message != null) {
                 i++;

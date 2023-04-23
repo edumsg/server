@@ -27,17 +27,17 @@ public class EduMsgController {
         final SslContext sslCtx;
         if (SSL) {
             SelfSignedCertificate ssc = new SelfSignedCertificate();
-            sslCtx =  SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
+            sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
         } else {
             sslCtx = null;
         }
 
         // Configure the server.
-        EventLoopGroup acceptorGroup  = new NioEventLoopGroup(1);
-        EventLoopGroup handlerGroup  = new NioEventLoopGroup();
+        EventLoopGroup acceptorGroup = new NioEventLoopGroup(1);
+        EventLoopGroup handlerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap bs = new ServerBootstrap();
-            bs.group(acceptorGroup, handlerGroup )
+            bs.group(acceptorGroup, handlerGroup)
                     .channel(NioServerSocketChannel.class)
                     .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new EduMsgControllerInitializer(sslCtx));
@@ -47,23 +47,24 @@ public class EduMsgController {
                     + (SSL ? "https" : "http") + "://127.0.0.1:" + PORT + '/');
 
             ch.closeFuture().sync();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Controller is not running");
         }
     }
+
     private static int getPort() {
         int PORT;
         try {
             PORT = Integer.parseInt(System.getenv("PORT"));
-        } catch ( Exception e ) {
+        } catch (Exception e) {
 
-                PORT = Integer.parseInt(System.getProperty("port", SSL ? "8443" : "9090"));
+            PORT = Integer.parseInt(System.getProperty("port", SSL ? "8443" : "9090"));
         }
         return PORT;
     }
-    public static void getHostDetails () {
+
+    public static void getHostDetails() {
         InetAddress localHost;
         try {
             localHost = InetAddress.getLocalHost();

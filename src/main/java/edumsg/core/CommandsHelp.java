@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 public class CommandsHelp {
 
     private static int cur_instance;
+
     static {
         try {
             cur_instance = config.getInstance_num();

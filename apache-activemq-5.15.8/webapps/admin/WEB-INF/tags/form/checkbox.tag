@@ -14,5 +14,5 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 --%>
-<%@ attribute name="name" type="java.lang.String" required="true"  %>
- <input type="checkbox" name="${name}" value="true" ${param[name] ? 'checked' : ''}/>
+<%@ attribute name="name" type="java.lang.String" required="true" %>
+<input type="checkbox" name="${name}" value="true" ${param[name] ? 'checked' : ''}/>

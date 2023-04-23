@@ -55,8 +55,7 @@ import org.apache.activemq.*;
 
 
 public class HierarchicalChat
-    implements javax.jms.MessageListener
-{
+        implements javax.jms.MessageListener {
     private static final String DEFAULT_PUBLISHER_TOPIC = "jms.samples.hierarchicalchat";
     private static final String DEFAULT_SUBSCRIBER_TOPIC = "jms.samples.*";
     private static final String DEFAULT_SUBSCRIBER_ROOT = "jms.samples";
@@ -69,128 +68,9 @@ public class HierarchicalChat
     private javax.jms.Session subSession = null;
     private javax.jms.MessageProducer publisher = null;
 
-    /** Create JMS client for publishing and subscribing to messages. */
-    private void chatter( String broker, String username, String password, String pubTopicname, String subTopicname)
-    {
-
-        // Create a connection.
-        try
-        {
-            javax.jms.ConnectionFactory factory;
-            factory = new ActiveMQConnectionFactory(username, password, broker);
-            connect = factory.createConnection (username, password);
-            pubSession = connect.createSession(false,javax.jms.Session.AUTO_ACKNOWLEDGE);
-            subSession = connect.createSession(false,javax.jms.Session.AUTO_ACKNOWLEDGE);
-        }
-        catch (javax.jms.JMSException jmse)
-        {
-            System.err.println("error: Cannot connect to Broker - " + broker);
-            jmse.printStackTrace();
-            System.exit(1);
-        }
-
-        // Create Publisher and Subscriber to 'chat' topics
-        // Note that the publish and subscribe topics are different.
-        try
-        {
-            javax.jms.Topic subscriberTopic = pubSession.createTopic (subTopicname);
-            javax.jms.MessageConsumer subscriber = subSession.createConsumer(subscriberTopic, null, false);
-            subscriber.setMessageListener(this);
-            javax.jms.Topic publisherTopic = pubSession.createTopic (pubTopicname);
-            publisher = pubSession.createProducer(publisherTopic);
-            // Now that setup is complete, start the Connection
-            connect.start();
-        }
-        catch (javax.jms.JMSException jmse)
-        {
-            jmse.printStackTrace();
-        }
-        try
-        {
-            // Read all standard input and send it as a message.
-            java.io.BufferedReader stdin =
-                new java.io.BufferedReader( new java.io.InputStreamReader( System.in ) );
-                        System.out.println("\nHierarchicalChat application:\n"
-			            					+ "============================\n"
-			            					+ "The application user " + username + " connects to the broker at " + DEFAULT_BROKER_NAME + ".\n"
-											+ "The application will publish messages to the " + DEFAULT_PUBLISHER_TOPIC + " topic." + ".\n"
-			                                + "The application also subscribes to topics using the wildcard syntax " + DEFAULT_SUBSCRIBER_TOPIC 
-											+ " so that it can receive all messages to " + DEFAULT_SUBSCRIBER_ROOT + " and its subtopics.\n\n"
-			                                + "Type some text, and then press Enter to publish a TextMesssage from " + username + ".\n");
-            while ( true )
-            {
-                String s = stdin.readLine();
-
-                if ( s == null )
-                    exit();
-                else if ( s.length() > 0 )
-                {
-                    javax.jms.TextMessage msg = pubSession.createTextMessage();
-                    msg.setText( username + ": " + s );
-                    publisher.send( msg );
-                }
-            }
-        }
-        catch ( java.io.IOException ioe )
-        {
-            ioe.printStackTrace();
-        }
-        catch ( javax.jms.JMSException jmse )
-        {
-            jmse.printStackTrace();
-        }
-    }
-
     /**
-     * Handle the message
-     * (as specified in the javax.jms.MessageListener interface).
+     * Main program entry point.
      */
-    public void onMessage( javax.jms.Message aMessage)
-    {
-        try
-        {
-            // Cast the message as a text message.
-            javax.jms.TextMessage textMessage = (javax.jms.TextMessage) aMessage;
-
-            // This handler reads a single String from the
-            // message and prints it to the standard output.
-            try
-            {
-                String string = textMessage.getText();
-                System.out.println( string );
-            }
-            catch (javax.jms.JMSException jmse)
-            {
-                jmse.printStackTrace();
-            }
-        }
-        catch (java.lang.RuntimeException rte)
-        {
-            rte.printStackTrace();
-        }
-    }
-
-    /** Cleanup resources and then exit. */
-    private void exit()
-    {
-        try
-        {
-            connect.close();
-        }
-        catch (javax.jms.JMSException jmse)
-        {
-            jmse.printStackTrace();
-        }
-
-        System.exit(0);
-    }
-
-    //
-    // NOTE: the remainder of this sample deals with reading arguments
-    // and does not utilize any JMS classes or code.
-    //
-
-    /** Main program entry point. */
     public static void main(String argv[]) {
 
         // Is there anything to do?
@@ -200,9 +80,9 @@ public class HierarchicalChat
         }
 
         // Values to be read from parameters
-        String broker    = DEFAULT_BROKER_NAME;
-        String username  = null;
-        String password  = DEFAULT_PASSWORD;
+        String broker = DEFAULT_BROKER_NAME;
+        String username = null;
+        String password = DEFAULT_PASSWORD;
         String pubTopicname = DEFAULT_PUBLISHER_TOPIC;
         String subTopicname = DEFAULT_SUBSCRIBER_TOPIC;
 
@@ -212,13 +92,12 @@ public class HierarchicalChat
 
             // Options
             if (!arg.startsWith("-")) {
-                System.err.println ("error: unexpected argument - "+arg);
+                System.err.println("error: unexpected argument - " + arg);
                 printUsage();
                 System.exit(1);
-            }
-            else {
+            } else {
                 if (arg.equals("-b")) {
-                    if (i == argv.length - 1 || argv[i+1].startsWith("-")) {
+                    if (i == argv.length - 1 || argv[i + 1].startsWith("-")) {
                         System.err.println("error: missing broker name:port");
                         System.exit(1);
                     }
@@ -227,7 +106,7 @@ public class HierarchicalChat
                 }
 
                 if (arg.equals("-u")) {
-                    if (i == argv.length - 1 || argv[i+1].startsWith("-")) {
+                    if (i == argv.length - 1 || argv[i + 1].startsWith("-")) {
                         System.err.println("error: missing user name");
                         System.exit(1);
                     }
@@ -236,7 +115,7 @@ public class HierarchicalChat
                 }
 
                 if (arg.equals("-p")) {
-                    if (i == argv.length - 1 || argv[i+1].startsWith("-")) {
+                    if (i == argv.length - 1 || argv[i + 1].startsWith("-")) {
                         System.err.println("error: missing password");
                         System.exit(1);
                     }
@@ -244,7 +123,7 @@ public class HierarchicalChat
                     continue;
                 }
                 if (arg.equals("-t")) {
-                    if (i == argv.length - 1 || argv[i+1].startsWith("-")) {
+                    if (i == argv.length - 1 || argv[i + 1].startsWith("-")) {
                         System.err.println("error: missing publisher topic name");
                         System.exit(1);
                     }
@@ -253,7 +132,7 @@ public class HierarchicalChat
                 }
 
                 if (arg.equals("-s")) {
-                    if (i == argv.length - 1 || argv[i+1].startsWith("-")) {
+                    if (i == argv.length - 1 || argv[i + 1].startsWith("-")) {
                         System.err.println("error: missing subscriber topic name");
                         System.exit(1);
                     }
@@ -270,33 +149,135 @@ public class HierarchicalChat
 
         // Check values read in.
         if (username == null) {
-            System.err.println ("error: user name must be supplied");
+            System.err.println("error: user name must be supplied");
             printUsage();
         }
 
         // Start the JMS client for the "chat".
         HierarchicalChat chat = new HierarchicalChat();
-        chat.chatter (broker, username, password, pubTopicname, subTopicname);
+        chat.chatter(broker, username, password, pubTopicname, subTopicname);
 
     }
 
-    /** Prints the usage. */
+    /**
+     * Prints the usage.
+     */
     private static void printUsage() {
 
         StringBuffer use = new StringBuffer();
         use.append("usage: java HierarchicalChat (options) ...\n\n");
         use.append("options:\n");
         use.append("  -b name:port          Specify name:port of broker.\n");
-        use.append("                        Default broker: "+DEFAULT_BROKER_NAME+"\n");
+        use.append("                        Default broker: " + DEFAULT_BROKER_NAME + "\n");
         use.append("  -u name               Specify unique user name. (Required)\n");
         use.append("  -p password           Specify password for user.\n");
-        use.append("                        Default password: "+DEFAULT_PASSWORD+"\n");
+        use.append("                        Default password: " + DEFAULT_PASSWORD + "\n");
         use.append("  -t pubTopicname       name of topic to which to publish.\n");
-        use.append("                        Default publisher topic name: "+DEFAULT_PUBLISHER_TOPIC+"\n");
+        use.append("                        Default publisher topic name: " + DEFAULT_PUBLISHER_TOPIC + "\n");
         use.append("  -s subTopicname       Specify subscriber topic name.\n");
-        use.append("                        name of topic to which to subscribe: "+DEFAULT_SUBSCRIBER_TOPIC+"\n");
+        use.append("                        name of topic to which to subscribe: " + DEFAULT_SUBSCRIBER_TOPIC + "\n");
         use.append("  -h                    This help screen.\n");
-        System.err.println (use);
+        System.err.println(use);
+    }
+
+    /**
+     * Create JMS client for publishing and subscribing to messages.
+     */
+    private void chatter(String broker, String username, String password, String pubTopicname, String subTopicname) {
+
+        // Create a connection.
+        try {
+            javax.jms.ConnectionFactory factory;
+            factory = new ActiveMQConnectionFactory(username, password, broker);
+            connect = factory.createConnection(username, password);
+            pubSession = connect.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
+            subSession = connect.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
+        } catch (javax.jms.JMSException jmse) {
+            System.err.println("error: Cannot connect to Broker - " + broker);
+            jmse.printStackTrace();
+            System.exit(1);
+        }
+
+        // Create Publisher and Subscriber to 'chat' topics
+        // Note that the publish and subscribe topics are different.
+        try {
+            javax.jms.Topic subscriberTopic = pubSession.createTopic(subTopicname);
+            javax.jms.MessageConsumer subscriber = subSession.createConsumer(subscriberTopic, null, false);
+            subscriber.setMessageListener(this);
+            javax.jms.Topic publisherTopic = pubSession.createTopic(pubTopicname);
+            publisher = pubSession.createProducer(publisherTopic);
+            // Now that setup is complete, start the Connection
+            connect.start();
+        } catch (javax.jms.JMSException jmse) {
+            jmse.printStackTrace();
+        }
+        try {
+            // Read all standard input and send it as a message.
+            java.io.BufferedReader stdin =
+                    new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+            System.out.println("\nHierarchicalChat application:\n"
+                    + "============================\n"
+                    + "The application user " + username + " connects to the broker at " + DEFAULT_BROKER_NAME + ".\n"
+                    + "The application will publish messages to the " + DEFAULT_PUBLISHER_TOPIC + " topic." + ".\n"
+                    + "The application also subscribes to topics using the wildcard syntax " + DEFAULT_SUBSCRIBER_TOPIC
+                    + " so that it can receive all messages to " + DEFAULT_SUBSCRIBER_ROOT + " and its subtopics.\n\n"
+                    + "Type some text, and then press Enter to publish a TextMesssage from " + username + ".\n");
+            while (true) {
+                String s = stdin.readLine();
+
+                if (s == null)
+                    exit();
+                else if (s.length() > 0) {
+                    javax.jms.TextMessage msg = pubSession.createTextMessage();
+                    msg.setText(username + ": " + s);
+                    publisher.send(msg);
+                }
+            }
+        } catch (java.io.IOException ioe) {
+            ioe.printStackTrace();
+        } catch (javax.jms.JMSException jmse) {
+            jmse.printStackTrace();
+        }
+    }
+
+    //
+    // NOTE: the remainder of this sample deals with reading arguments
+    // and does not utilize any JMS classes or code.
+    //
+
+    /**
+     * Handle the message
+     * (as specified in the javax.jms.MessageListener interface).
+     */
+    public void onMessage(javax.jms.Message aMessage) {
+        try {
+            // Cast the message as a text message.
+            javax.jms.TextMessage textMessage = (javax.jms.TextMessage) aMessage;
+
+            // This handler reads a single String from the
+            // message and prints it to the standard output.
+            try {
+                String string = textMessage.getText();
+                System.out.println(string);
+            } catch (javax.jms.JMSException jmse) {
+                jmse.printStackTrace();
+            }
+        } catch (java.lang.RuntimeException rte) {
+            rte.printStackTrace();
+        }
+    }
+
+    /**
+     * Cleanup resources and then exit.
+     */
+    private void exit() {
+        try {
+            connect.close();
+        } catch (javax.jms.JMSException jmse) {
+            jmse.printStackTrace();
+        }
+
+        System.exit(0);
     }
 
 }

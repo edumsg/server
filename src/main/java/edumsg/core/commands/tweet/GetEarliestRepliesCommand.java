@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import edumsg.core.*;
 import edumsg.core.commands.user.GetUserCommand;
-import edumsg.redis.Cache;
 import edumsg.redis.TweetsCache;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
@@ -22,10 +21,13 @@ import java.util.logging.Logger;
 /**
  * Created by omarelhagin on 13/3/16.
  */
-public class GetEarliestRepliesCommand extends Command implements Runnable
-{
-    private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
+public class GetEarliestRepliesCommand extends Command implements Runnable {
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -104,9 +106,5 @@ public class GetEarliestRepliesCommand extends Command implements Runnable
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

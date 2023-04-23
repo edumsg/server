@@ -17,97 +17,97 @@
 -->
 <project name="transactions" default="help" basedir=".">
 
-    <property name="class.dir" value="target/classes" />
-    <property name="activemq.home" value="../../.." />
+    <property name="class.dir" value="target/classes"/>
+    <property name="activemq.home" value="../../.."/>
 
     <!-- example program defaults -->
-    <property name="url" value="tcp://localhost:61616" />
+    <property name="url" value="tcp://localhost:61616"/>
     <target name="help">
         <echo>
-      For the full demo:
-         ant transactions_demo -Durl=tcp://hostname:1234
-      For the indicual components:
-         ant retailer -Durl=tcp://hostname:1234
-         ant vendor -Durl=tcp://hostname:1234
-         ant hdsupplier -Durl=tcp://hostname:1234
-         ant monitorsupplier -Durl=tcp://hostname:1234
+            For the full demo:
+            ant transactions_demo -Durl=tcp://hostname:1234
+            For the indicual components:
+            ant retailer -Durl=tcp://hostname:1234
+            ant vendor -Durl=tcp://hostname:1234
+            ant hdsupplier -Durl=tcp://hostname:1234
+            ant monitorsupplier -Durl=tcp://hostname:1234
         </echo>
     </target>
 
     <target name="clean">
-        <delete dir="target" quiet="true" />
-        <delete dir="${class.dir}" quiet="true" />
+        <delete dir="target" quiet="true"/>
+        <delete dir="${class.dir}" quiet="true"/>
     </target>
 
     <target name="init">
-        <mkdir dir="${class.dir}" />
+        <mkdir dir="${class.dir}"/>
 
         <path id="javac.classpath">
-            <pathelement path="${class.dir}" />
-            <pathelement path="../conf" />
+            <pathelement path="${class.dir}"/>
+            <pathelement path="../conf"/>
             <fileset dir="${activemq.home}/lib">
-                <include name="**/*.jar" />
+                <include name="**/*.jar"/>
             </fileset>
         </path>
     </target>
 
     <target name="compile" depends="init" description="Compile all Java">
         <javac srcdir="src" destdir="${class.dir}" debug="true">
-            <classpath refid="javac.classpath" />
+            <classpath refid="javac.classpath"/>
         </javac>
     </target>
 
     <target name="transactions_demo" depends="compile" description="Runs the full demo">
         <java classname="TransactionsDemo" fork="yes">
-            <classpath refid="javac.classpath" />
-            <jvmarg value="-server" />
+            <classpath refid="javac.classpath"/>
+            <jvmarg value="-server"/>
             <sysproperty key="activemq.home" value="${activemq.home}"/>
-            <arg value="${url}" />
-            <arg value="${user}" />
-            <arg value="${password}" />
+            <arg value="${url}"/>
+            <arg value="${user}"/>
+            <arg value="${password}"/>
         </java>
     </target>
 
     <target name="retailer" depends="compile" description="Runs the retailer">
         <java classname="Retailer" fork="yes">
-            <classpath refid="javac.classpath" />
-            <jvmarg value="-server" />
+            <classpath refid="javac.classpath"/>
+            <jvmarg value="-server"/>
             <sysproperty key="activemq.home" value="${activemq.home}"/>
-            <arg value="${url}" />
-            <arg value="${user}" />
-            <arg value="${password}" />
+            <arg value="${url}"/>
+            <arg value="${user}"/>
+            <arg value="${password}"/>
         </java>
     </target>
     <target name="vendor" depends="compile" description="Runs the vendor">
         <java classname="Vendor" fork="yes">
-            <classpath refid="javac.classpath" />
-            <jvmarg value="-server" />
+            <classpath refid="javac.classpath"/>
+            <jvmarg value="-server"/>
             <sysproperty key="activemq.home" value="${activemq.home}"/>
-            <arg value="${url}" />
-            <arg value="${user}" />
-            <arg value="${password}" />
+            <arg value="${url}"/>
+            <arg value="${user}"/>
+            <arg value="${password}"/>
         </java>
     </target>
     <target name="hdsupplier" depends="compile" description="Runs the Hard Drive Supplier">
         <java classname="Supplier" fork="yes">
-            <classpath refid="javac.classpath" />
-            <jvmarg value="-server" />
+            <classpath refid="javac.classpath"/>
+            <jvmarg value="-server"/>
             <sysproperty key="activemq.home" value="${activemq.home}"/>
-            <arg value="HardDrive" />
-            <arg value="${url}" />
-            <arg value="${user}" />
-            <arg value="${password}" />
+            <arg value="HardDrive"/>
+            <arg value="${url}"/>
+            <arg value="${user}"/>
+            <arg value="${password}"/>
         </java>
     </target>
     <target name="monitorsupplier" depends="compile" description="Runs the Monitor Supplier">
         <java classname="Supplier" fork="yes">
-            <classpath refid="javac.classpath" />
-            <jvmarg value="-server" />
+            <classpath refid="javac.classpath"/>
+            <jvmarg value="-server"/>
             <sysproperty key="activemq.home" value="${activemq.home}"/>
-            <arg value="Monitor" />
-            <arg value="${url}" />
-            <arg value="${user}" />
-            <arg value="${password}" />
+            <arg value="Monitor"/>
+            <arg value="${url}"/>
+            <arg value="${user}"/>
+            <arg value="${password}"/>
         </java>
     </target>
 </project>

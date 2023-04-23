@@ -18,9 +18,9 @@
 <%@include file="WEB-INF/jspf/headertags.jspf" %>
 <html>
 <head>
-<c:set var="pageTitle" value="Messages Scheduled for Future Delivery"/>
+    <c:set var="pageTitle" value="Messages Scheduled for Future Delivery"/>
 
-<%@include file="decorators/head.jsp" %>
+    <%@include file="decorators/head.jsp" %>
 </head>
 <body>
 
@@ -30,45 +30,45 @@
 <c:choose>
 <c:when test="${requestContext.brokerQuery.jobSchedulerStarted}">
 <div style="margin-top: 5em">
-	<table id="Jobs" class="sortable autostripe">
-	<thead>
-		<tr>
-			<th>Job ID</th>
-			<th>Cron Entry</th>
-			<th>next scheduled time</th>
-			<th>start</th>
-			<th>delay</th>
-			<th>period</th>
-			<th>repeat</th>
-			<th>Operations</th>
-		</tr>
-	</thead>
-	<tbody>
-		<c:forEach items="${requestContext.brokerQuery.scheduledJobs}"
-		var="row">
-		<tr>
-		 <td><c:out value="${row.jobId}"/></td>
-		 <td><c:out value="${row.cronEntry}"/></td>
-		 <td><c:out value="${row.nextExecutionTime}"/></td>
-		 <td><c:out value="${row.start}"/></td>
-		 <td><c:out value="${row.delay}"/></td>
-	 	 <td><c:out value="${row.period}"/></td>
-	     <td><c:out value="${row.repeat}"/></td>
-		<td>
-		    <a href="<c:url value="deleteJob.action?jobId=${row.jobId}&secret=${sessionScope['secret']}"/>">Delete</a>
-		</td>
-	    </tr>
-	</c:forEach>
-	</tbody>
-	</table>
-</c:when>
-<c:otherwise>
-<div style="margin-top: 5em">
-<p align="center">Scheduler not started!</p>
-</div>
-</c:otherwise>
-</c:choose>
-<%@include file="decorators/footer.jsp" %>
+    <table id="Jobs" class="sortable autostripe">
+        <thead>
+        <tr>
+            <th>Job ID</th>
+            <th>Cron Entry</th>
+            <th>next scheduled time</th>
+            <th>start</th>
+            <th>delay</th>
+            <th>period</th>
+            <th>repeat</th>
+            <th>Operations</th>
+        </tr>
+        </thead>
+        <tbody>
+        <c:forEach items="${requestContext.brokerQuery.scheduledJobs}"
+                   var="row">
+            <tr>
+                <td><c:out value="${row.jobId}"/></td>
+                <td><c:out value="${row.cronEntry}"/></td>
+                <td><c:out value="${row.nextExecutionTime}"/></td>
+                <td><c:out value="${row.start}"/></td>
+                <td><c:out value="${row.delay}"/></td>
+                <td><c:out value="${row.period}"/></td>
+                <td><c:out value="${row.repeat}"/></td>
+                <td>
+                    <a href="<c:url value="deleteJob.action?jobId=${row.jobId}&secret=${sessionScope['secret']}"/>">Delete</a>
+                </td>
+            </tr>
+        </c:forEach>
+        </tbody>
+    </table>
+    </c:when>
+    <c:otherwise>
+    <div style="margin-top: 5em">
+        <p align="center">Scheduler not started!</p>
+    </div>
+    </c:otherwise>
+    </c:choose>
+    <%@include file="decorators/footer.jsp" %>
 
 </body>
 </html>

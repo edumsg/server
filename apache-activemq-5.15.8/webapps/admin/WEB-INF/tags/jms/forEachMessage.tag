@@ -14,21 +14,21 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 --%>
-<%@ attribute name="var" type="java.lang.String" required="true"  %>
-<%@ attribute name="queueBrowser" type="javax.jms.QueueBrowser" required="true"  %>
+<%@ attribute name="var" type="java.lang.String" required="true" %>
+<%@ attribute name="queueBrowser" type="javax.jms.QueueBrowser" required="true" %>
 <%@ tag import="java.util.Enumeration" %>
 <%@ tag import="javax.jms.Message" %>
 <%
 
-	Enumeration iter = queueBrowser.getEnumeration();
-	while (iter.hasMoreElements()) {
-	    Message message = (Message) iter.nextElement();
-	    if (message != null) {
-	    		request.setAttribute(var, message);
+    Enumeration iter = queueBrowser.getEnumeration();
+    while (iter.hasMoreElements()) {
+        Message message = (Message) iter.nextElement();
+        if (message != null) {
+            request.setAttribute(var, message);
 %>
 <jsp:doBody/>
 <%
-			}
-	}
+        }
+    }
 %>       
     

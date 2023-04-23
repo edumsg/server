@@ -13,7 +13,6 @@ IN THE SOFTWARE.
 package edumsg.activemq;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.broker.Broker;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -32,10 +31,10 @@ public class ActiveMQConfig {
         int PORT = 61616;
         try {
             String activeMQenv = (System.getenv("ACTIVEMQ_PORT"));
-            if ( activeMQenv != null ) {
+            if (activeMQenv != null) {
                 PORT = Integer.parseInt(activeMQenv);
             }
-        } catch ( Exception e ) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.err.println("No ActiveMq Env Set");
         }
@@ -50,6 +49,7 @@ public class ActiveMQConfig {
         }
         return connection;
     }
+
     public void start() throws JMSException {
         connection.start();
     }

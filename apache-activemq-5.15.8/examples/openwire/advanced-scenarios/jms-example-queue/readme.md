@@ -7,7 +7,7 @@ This example does basic point-to-point messaging using Queues
 ## Prereqs
 
 - Install Java SDK
-- Install [Maven](http://maven.apache.org/download.html) 
+- Install [Maven](http://maven.apache.org/download.html)
 
 ## Building
 

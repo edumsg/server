@@ -28,24 +28,28 @@ public class config {
                 matcher = pattern.matcher(lines.get(i));
                 if (matcher.find()) {
                     instance_num = Integer.parseInt(matcher.group(1));
-                } }
+                }
+            }
 
-                if (lines.get(i).contains("instance_user")) {
-                    matcher = pattern.matcher(lines.get(i));
-                    if (matcher.find()) {
-                        instance_user = matcher.group(1);
-                    } }
+            if (lines.get(i).contains("instance_user")) {
+                matcher = pattern.matcher(lines.get(i));
+                if (matcher.find()) {
+                    instance_user = matcher.group(1);
+                }
+            }
             if (lines.get(i).contains("instance_host")) {
                 matcher = pattern.matcher(lines.get(i));
                 if (matcher.find()) {
                     instance_host = matcher.group(1);
-                } }
+                }
+            }
             if (lines.get(i).contains("instance_pass")) {
                 matcher = pattern.matcher(lines.get(i));
                 if (matcher.find()) {
                     instance_pass = matcher.group(1);
-                } }
+                }
             }
+        }
     }
 
     public static int getInstance_num() throws Exception {

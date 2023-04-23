@@ -29,10 +29,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jcraft.jsch;
 
-public interface Compression{
-  static public final int INFLATER=0;
-  static public final int DEFLATER=1;
-  void init(int type, int level);
-  byte[] compress(byte[] buf, int start, int[] len);
-  byte[] uncompress(byte[] buf, int start, int[] len);
+public interface Compression {
+    static public final int INFLATER = 0;
+    static public final int DEFLATER = 1;
+
+    void init(int type, int level);
+
+    byte[] compress(byte[] buf, int start, int[] len);
+
+    byte[] uncompress(byte[] buf, int start, int[] len);
 }

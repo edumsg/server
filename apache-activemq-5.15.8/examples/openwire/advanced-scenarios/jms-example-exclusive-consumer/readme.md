@@ -7,7 +7,7 @@ This example demos using exclusive consumers (one single consumer)
 ## Prereqs
 
 - Install Java SDK
-- Install [Maven](http://maven.apache.org/download.html) 
+- Install [Maven](http://maven.apache.org/download.html)
 
 ## Building
 

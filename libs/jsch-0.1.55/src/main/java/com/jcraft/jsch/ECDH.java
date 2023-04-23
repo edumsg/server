@@ -30,8 +30,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.jcraft.jsch;
 
 public interface ECDH {
-  void init(int size) throws Exception;
-  byte[] getSecret(byte[] r, byte[] s) throws Exception;
-  byte[] getQ() throws Exception;
-  boolean validate(byte[] r, byte[] s) throws Exception;
+    void init(int size) throws Exception;
+
+    byte[] getSecret(byte[] r, byte[] s) throws Exception;
+
+    byte[] getQ() throws Exception;
+
+    boolean validate(byte[] r, byte[] s) throws Exception;
 }

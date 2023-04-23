@@ -16,26 +16,24 @@
 -->
 <!-- START SNIPPET: xbean -->
 <beans
-  xmlns="http://www.springframework.org/schema/beans"
-  xmlns:amq="http://activemq.apache.org/schema/core"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.springframework.org/schema/beans"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
-  
-  <broker xmlns="http://activemq.apache.org/schema/core" useJmx="false">
 
-    <persistenceFactory>
-      <journalPersistenceAdapterFactory journalLogFiles="5" dataDirectory="../data"/>
-    </persistenceFactory>
-  
-    <transportConnectors>
-      <transportConnector uri="tcp://localhost:61616"/>      
-      <transportConnector uri="stomp://localhost:61613"/>
-    </transportConnectors>
-        
-  </broker>
-  
+    <broker xmlns="http://activemq.apache.org/schema/core" useJmx="false">
+
+        <persistenceFactory>
+            <journalPersistenceAdapterFactory journalLogFiles="5" dataDirectory="../data"/>
+        </persistenceFactory>
+
+        <transportConnectors>
+            <transportConnector uri="tcp://localhost:61616"/>
+            <transportConnector uri="stomp://localhost:61613"/>
+        </transportConnectors>
+
+    </broker>
+
 </beans>
-<!-- END SNIPPET: xbean -->
+        <!-- END SNIPPET: xbean -->

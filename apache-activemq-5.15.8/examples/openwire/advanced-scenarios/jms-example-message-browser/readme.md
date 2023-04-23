@@ -7,7 +7,7 @@ This example demos how to browse a queue without consuming from it
 ## Prereqs
 
 - Install Java SDK
-- Install [Maven](http://maven.apache.org/download.html) 
+- Install [Maven](http://maven.apache.org/download.html)
 
 ## Building
 
@@ -21,8 +21,8 @@ Run these steps in order:
 
 1. In one terminal window run:
 
-    mvn -Pproducer
+   mvn -Pproducer
 
 2. In another terminal window run:
 
-    mvn -Pbrowser
+   mvn -Pbrowser

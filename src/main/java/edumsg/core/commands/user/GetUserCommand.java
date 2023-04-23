@@ -29,8 +29,12 @@ import java.sql.Types;
 import java.util.logging.Logger;
 
 public class GetUserCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
 
@@ -112,8 +116,8 @@ public class GetUserCommand extends Command implements Runnable {
             root.set("user", child);
             try {
                 CommandsHelp.submit(map.get("app"),
-                mapper.writeValueAsString(root),
-                map.get("correlation_id"), LOGGER);
+                        mapper.writeValueAsString(root),
+                        map.get("correlation_id"), LOGGER);
             } catch (JsonGenerationException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
@@ -130,11 +134,7 @@ public class GetUserCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(set, proc, dbConn,null);
+            PostgresConnection.disconnect(set, proc, dbConn, null);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

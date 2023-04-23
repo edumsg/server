@@ -31,16 +31,15 @@
     in separate consoles
  -->
 <beans
-  xmlns="http://www.springframework.org/schema/beans"
-  xmlns:amq="http://activemq.apache.org/schema/core"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd
-  http://activemq.apache.org/camel/schema/spring http://activemq.apache.org/camel/schema/spring/camel-spring.xsd">
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.springframework.org/schema/beans"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
 
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="dynamic-broker2" dataDirectory="${activemq.data}">
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="dynamic-broker2"
+            dataDirectory="${activemq.data}">
 
         <!-- Destination specific policies using destination names or wildcards -->
         <destinationPolicy>
@@ -48,7 +47,7 @@
                 <policyEntries>
                     <policyEntry queue=">" producerFlowControl="true" memoryLimit="20mb">
                         <deadLetterStrategy>
-                          <individualDeadLetterStrategy queuePrefix="DLQ." useQueueForQueueMessages="true" />
+                            <individualDeadLetterStrategy queuePrefix="DLQ." useQueueForQueueMessages="true"/>
                         </deadLetterStrategy>
                     </policyEntry>
                     <policyEntry topic=">" producerFlowControl="true" memoryLimit="20mb">
@@ -69,16 +68,16 @@
             http://activemq.apache.org/multicast-transport-reference.html
         -->
         <networkConnectors>
-          <networkConnector uri="multicast://default"
-            dynamicOnly="true"
-            networkTTL="3"
-            prefetchSize="1"
-            decreaseNetworkConsumerPriority="true" />
+            <networkConnector uri="multicast://default"
+                              dynamicOnly="true"
+                              networkTTL="3"
+                              prefetchSize="1"
+                              decreaseNetworkConsumerPriority="true"/>
         </networkConnectors>
 
 
         <persistenceAdapter>
-            <kahaDB directory="${activemq.data}/dynamic-broker2/kahadb" />
+            <kahaDB directory="${activemq.data}/dynamic-broker2/kahadb"/>
         </persistenceAdapter>
 
         <!--  The maximum amount of space the broker will use before slowing down producers -->
@@ -101,7 +100,7 @@
             Configure discovery URI to use multicast protocol
         -->
         <transportConnectors>
-            <transportConnector name="openwire" uri="tcp://0.0.0.0:61618" discoveryUri="multicast://default" />
+            <transportConnector name="openwire" uri="tcp://0.0.0.0:61618" discoveryUri="multicast://default"/>
         </transportConnectors>
 
     </broker>

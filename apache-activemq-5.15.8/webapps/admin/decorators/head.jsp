@@ -17,20 +17,20 @@
     limitations under the License.
 --%>
 
-    <title><c:out value="${requestContext.brokerQuery.brokerAdmin.brokerName} : ${pageTitle}" /></title>
+<title><c:out value="${requestContext.brokerQuery.brokerAdmin.brokerName} : ${pageTitle}"/></title>
 
-    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-    <style type="text/css" media="screen">
-        @import url('${pageContext.request.contextPath}/styles/sorttable.css');
-        @import url('${pageContext.request.contextPath}/styles/type-settings.css');
-        @import url('${pageContext.request.contextPath}/styles/site.css');
-        @import url('${pageContext.request.contextPath}/styles/prettify.css');
-    </style>
-    <c:if test="${!disableJavaScript}">
-        <script type='text/javascript' src='${pageContext.request.contextPath}/js/common.js'></script>
-        <script type='text/javascript' src='${pageContext.request.contextPath}/js/css.js'></script>
-        <script type='text/javascript' src='${pageContext.request.contextPath}/js/standardista-table-sorting.js'></script>
-        <script type='text/javascript' src='${pageContext.request.contextPath}/js/prettify.js'></script>
-        <script>addEvent(window, 'load', prettyPrint)</script>
-    </c:if>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<style type="text/css" media="screen">
+    @import url('${pageContext.request.contextPath}/styles/sorttable.css');
+    @import url('${pageContext.request.contextPath}/styles/type-settings.css');
+    @import url('${pageContext.request.contextPath}/styles/site.css');
+    @import url('${pageContext.request.contextPath}/styles/prettify.css');
+</style>
+<c:if test="${!disableJavaScript}">
+    <script type='text/javascript' src='${pageContext.request.contextPath}/js/common.js'></script>
+    <script type='text/javascript' src='${pageContext.request.contextPath}/js/css.js'></script>
+    <script type='text/javascript' src='${pageContext.request.contextPath}/js/standardista-table-sorting.js'></script>
+    <script type='text/javascript' src='${pageContext.request.contextPath}/js/prettify.js'></script>
+    <script>addEvent(window, 'load', prettyPrint)</script>
+</c:if>
 

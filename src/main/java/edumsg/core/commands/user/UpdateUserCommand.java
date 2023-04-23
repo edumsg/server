@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 import edumsg.redis.ListCache;
 import edumsg.redis.UserCache;
 import org.json.JSONObject;
@@ -32,8 +31,12 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 public class UpdateUserCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(UpdateUserCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(UpdateUserCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -98,7 +101,7 @@ public class UpdateUserCommand extends Command implements Runnable {
 //                    System.out.println("invalidated");
                     UserCache.userCache.set("get_user:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry4 =   ListCache.listCache.get("get_list_feeds:" + map.get("session_id"));
+                String cacheEntry4 = ListCache.listCache.get("get_list_feeds:" + map.get("session_id"));
                 if (cacheEntry4 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry4);
                     cacheEntryJson.put("cacheStatus", "invalid");
@@ -131,11 +134,7 @@ public class UpdateUserCommand extends Command implements Runnable {
             CommandsHelp.handleError(app, method, e.getMessage(), correlationID, LOGGER);
             //Logger.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn,null);
+            PostgresConnection.disconnect(null, proc, dbConn, null);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

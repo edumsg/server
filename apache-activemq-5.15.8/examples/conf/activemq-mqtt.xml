@@ -31,16 +31,16 @@
     e.g. $ bin/activemq console xbean:examples/conf/activemq-mqtt.xml
  -->
 <beans
-  xmlns="http://www.springframework.org/schema/beans"
-  xmlns:amq="http://activemq.apache.org/schema/core"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.springframework.org/schema/beans"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
     <!-- Allows us to use system properties as variables in this configuration file -->
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
 
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="${activemq.data}" useJmx="false" advisorySupport="false">
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="${activemq.data}"
+            useJmx="false" advisorySupport="false">
 
         <!--
             Turn on optimizedDispatch
@@ -50,7 +50,7 @@
         <destinationPolicy>
             <policyMap>
                 <policyEntries>
-                    <policyEntry queue=">" optimizedDispatch="true" />
+                    <policyEntry queue=">" optimizedDispatch="true"/>
                 </policyEntries>
             </policyMap>
         </destinationPolicy>
@@ -62,7 +62,8 @@
             http://activemq.apache.org/jmx.html
         -->
         <managementContext>
-            <managementContext createConnector="false" suppressMBean="endpoint=dynamicProducer,endpoint=Consumer,connectionName=*,destinationName=ActiveMQ.Advisory.*"/>
+            <managementContext createConnector="false"
+                               suppressMBean="endpoint=dynamicProducer,endpoint=Consumer,connectionName=*,destinationName=ActiveMQ.Advisory.*"/>
         </managementContext>
 
         <!--
@@ -85,7 +86,8 @@
 
         -->
         <transportConnectors>
-            <transportConnector name="mqtt+nio" uri="mqtt+nio://0.0.0.0:1883?transport.subscriptionStrategy=mqtt-virtual-topic-subscriptions"/>
+            <transportConnector name="mqtt+nio"
+                                uri="mqtt+nio://0.0.0.0:1883?transport.subscriptionStrategy=mqtt-virtual-topic-subscriptions"/>
         </transportConnectors>
 
     </broker>

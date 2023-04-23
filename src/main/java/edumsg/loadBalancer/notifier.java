@@ -19,9 +19,9 @@ import java.util.concurrent.CountDownLatch;
 public class notifier implements Callable<String> {
 
 
+    public CountDownLatch latch;
     private loadBalancerServerHandler loadBalancer;
-    private String response ;
-    public CountDownLatch latch ;
+    private String response;
 
 
     public notifier(loadBalancerServerHandler balancer) {
@@ -30,10 +30,10 @@ public class notifier implements Callable<String> {
 
     @Override
     public String call() throws Exception {
-       // create latch with count 1 to await the call method until the response is sent back from the main server
+        // create latch with count 1 to await the call method until the response is sent back from the main server
         latch = new CountDownLatch((1));
-        HttpSnoopClientHandler.add_notifier(loadBalancer.getId(),this);
-        HttpSnoopClient.serverCluster(loadBalancer.getByteBuf(),loadBalancer.getId());
+        HttpSnoopClientHandler.add_notifier(loadBalancer.getId(), this);
+        HttpSnoopClient.serverCluster(loadBalancer.getByteBuf(), loadBalancer.getId());
         latch.await();
         return response;
     }

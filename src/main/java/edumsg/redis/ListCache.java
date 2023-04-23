@@ -8,14 +8,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static edumsg.redis.Cache.redisPool;
-
 public class ListCache extends Cache {
     //new instance of shared pool to support multithreaded environments
     public static Jedis listCache = edumsg.redis.Cache.getRedisPoolResource();
     private static Pipeline listPipeline = listCache.pipelined();
 
-    public static void listBgSave(){
+    public static void listBgSave() {
         Runnable runnable = () -> {
             String res;
             res = listCache.bgsave();

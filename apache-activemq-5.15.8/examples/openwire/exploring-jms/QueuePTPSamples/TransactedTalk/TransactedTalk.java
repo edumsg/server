@@ -59,189 +59,19 @@ Suggested demonstration:
 import org.apache.activemq.*;
 
 public class TransactedTalk
-    implements javax.jms.MessageListener
-{
+        implements javax.jms.MessageListener {
     private static final String DEFAULT_BROKER_NAME = "tcp://localhost:61616";
     private static final String DEFAULT_PASSWORD = "password";
-    private static final int    MESSAGE_LIFESPAN = 1800000;  // milliseconds (30 minutes)
+    private static final int MESSAGE_LIFESPAN = 1800000;  // milliseconds (30 minutes)
 
     private javax.jms.Connection connect = null;
     private javax.jms.Session sendSession = null;
     private javax.jms.Session receiveSession = null;
     private javax.jms.MessageProducer sender = null;
 
-
-
-
-    /** Create JMS client for sending and receiving messages. */
-    private void talker( String broker, String username, String password, String rQueue, String sQueue)
-    {
-        // Create a connection.
-        try
-        {
-            javax.jms.ConnectionFactory factory;
-            factory = new ActiveMQConnectionFactory(username, password, broker);
-            connect = factory.createConnection (username, password);
-            // We want to be able up commit/rollback messages sent,
-            // but not affect messages received.  Therefore, we need two sessions.
-            sendSession = connect.createSession(true,javax.jms.Session.AUTO_ACKNOWLEDGE);
-            receiveSession = connect.createSession(false,javax.jms.Session.AUTO_ACKNOWLEDGE);
-        }
-        catch (javax.jms.JMSException jmse)
-        {
-            System.err.println("error: Cannot connect to Broker - " + broker);
-            jmse.printStackTrace();
-            System.exit(1);
-        }
-
-        // Create Sender and Receiver 'Talk' queues
-        try
-        {
-            if (sQueue != null)
-            {
-                javax.jms.Queue sendQueue = sendSession.createQueue (sQueue);
-                sender = sendSession.createProducer(sendQueue);
-            }
-            if (rQueue != null)
-            {
-                javax.jms.Queue receiveQueue = receiveSession.createQueue (rQueue);
-                javax.jms.MessageConsumer qReceiver = receiveSession.createConsumer(receiveQueue);
-                qReceiver.setMessageListener(this);
-                // Now that 'receive' setup is complete, start the Connection
-                connect.start();
-            }
-        }
-        catch (javax.jms.JMSException jmse)
-        {
-            jmse.printStackTrace();
-            exit();
-        }
-
-        try
-        {
-            if (rQueue != null)
-               System.out.println ("");
-            else
-               System.out.println ("\nNo receiving queue specified.\n");
-
-            // Read all standard input and send it as a message.
-            java.io.BufferedReader stdin =
-                new java.io.BufferedReader( new java.io.InputStreamReader( System.in ) );
-
-            if (sQueue != null){
-                    System.out.println ("TransactedTalk application:");
-	                System.out.println ("===========================" );
-                    System.out.println ("The application user " + username + " connects to the broker at " + DEFAULT_BROKER_NAME + ".");
-					System.out.println ("The application will stage messages to " + sQueue + " until you either commit them or roll them back.");
-				    System.out.println ("The application receives messages on " + rQueue + " to consume any committed messages sent there.\n");
-                    System.out.println ("1. Enter text to send and then press Enter to stage the message.");
-                    System.out.println ("2. Add a few messages to the transaction batch.");
-                    System.out.println ("3. Then, either:");
-                    System.out.println ("     o Enter the text 'COMMIT', and press Enter to send all the staged messages.");
-                    System.out.println ("     o Enter the text 'CANCEL', and press Enter to drop the staged messages waiting to be sent.");
-            }
-            else
-                System.out.println ("\nPress CTRL-C to exit.\n");
-
-            while ( true )
-            {
-                String s = stdin.readLine();
-
-                if ( s == null )
-                    exit();
-                else if (s.trim().equals("CANCEL"))
-                {
-                    // Rollback the messages. A new transaction is implicitly
-                    // started for following messages.
-                    System.out.print ("Cancelling messages...");
-                    sendSession.rollback();
-                    System.out.println ("Staged messages have been cleared.");
-                }
-                else if ( s.length() > 0 && sQueue != null)
-                {
-                    javax.jms.TextMessage msg = sendSession.createTextMessage();
-                    msg.setText( username + ": " + s );
-                    // Queues usually are used for PERSISTENT messages.
-                    // Hold messages for 30 minutes (1,800,000 millisecs).
-                    sender.send( msg,
-                                 javax.jms.DeliveryMode.PERSISTENT,
-                                 javax.jms.Message.DEFAULT_PRIORITY,
-                                 MESSAGE_LIFESPAN);
-                    // See if we should send the messages
-                    if (s.trim().equals("COMMIT"))
-                    {
-                        // Commit (send) the messages. A new transaction is
-                        // implicitly  started for following messages.
-                        System.out.print ("Committing messages...");
-                        sendSession.commit();
-                        System.out.println ("Staged messages have all been sent.");
-                    }
-                }
-            }
-        }
-        catch ( java.io.IOException ioe )
-        {
-            ioe.printStackTrace();
-        }
-        catch ( javax.jms.JMSException jmse )
-        {
-            jmse.printStackTrace();
-        }
-        // Close the connection.
-        exit();
-    }
-
     /**
-     * Handle the message
-     * (as specified in the javax.jms.MessageListener interface).
+     * Main program entry point.
      */
-    public void onMessage( javax.jms.Message aMessage)
-    {
-        try
-        {
-            // Cast the message as a text message.
-            javax.jms.TextMessage textMessage = (javax.jms.TextMessage) aMessage;
-
-            // This handler reads a single String from the
-            // message and prints it to the standard output.
-            try
-            {
-                String string = textMessage.getText();
-                System.out.println( string );
-            }
-            catch (javax.jms.JMSException jmse)
-            {
-                jmse.printStackTrace();
-            }
-        }
-        catch (java.lang.RuntimeException rte)
-        {
-            rte.printStackTrace();
-        }
-    }
-
-    /** Cleanup resources and then exit. */
-    private void exit()
-    {
-        try
-        {
-            sendSession.rollback(); // Rollback any uncommitted messages.
-            connect.close();
-        }
-        catch (javax.jms.JMSException jmse)
-        {
-            jmse.printStackTrace();
-        }
-
-        System.exit(0);
-    }
-
-    //
-    // NOTE: the remainder of this sample deals with reading arguments
-    // and does not utilize any JMS classes or code.
-    //
-
-    /** Main program entry point. */
     public static void main(String argv[]) {
 
         // Is there anything to do?
@@ -251,11 +81,11 @@ public class TransactedTalk
         }
 
         // Values to be read from parameters
-        String broker    	= DEFAULT_BROKER_NAME;
-        String username  	= null;
-        String password  	= DEFAULT_PASSWORD;
-        String qSender		= null;
-        String qReceiver	= null;
+        String broker = DEFAULT_BROKER_NAME;
+        String username = null;
+        String password = DEFAULT_PASSWORD;
+        String qSender = null;
+        String qReceiver = null;
 
         // Check parameters
         for (int i = 0; i < argv.length; i++) {
@@ -263,13 +93,12 @@ public class TransactedTalk
 
             // Options
             if (!arg.startsWith("-")) {
-                System.err.println ("error: unexpected argument - "+arg);
+                System.err.println("error: unexpected argument - " + arg);
                 printUsage();
                 System.exit(1);
-            }
-            else {
+            } else {
                 if (arg.equals("-b")) {
-                    if (i == argv.length - 1 || argv[i+1].startsWith("-")) {
+                    if (i == argv.length - 1 || argv[i + 1].startsWith("-")) {
                         System.err.println("error: missing broker name:port");
                         System.exit(1);
                     }
@@ -278,7 +107,7 @@ public class TransactedTalk
                 }
 
                 if (arg.equals("-u")) {
-                    if (i == argv.length - 1 || argv[i+1].startsWith("-")) {
+                    if (i == argv.length - 1 || argv[i + 1].startsWith("-")) {
                         System.err.println("error: missing user name");
                         System.exit(1);
                     }
@@ -287,7 +116,7 @@ public class TransactedTalk
                 }
 
                 if (arg.equals("-p")) {
-                    if (i == argv.length - 1 || argv[i+1].startsWith("-")) {
+                    if (i == argv.length - 1 || argv[i + 1].startsWith("-")) {
                         System.err.println("error: missing password");
                         System.exit(1);
                     }
@@ -296,7 +125,7 @@ public class TransactedTalk
                 }
 
                 if (arg.equals("-qr")) {
-                    if (i == argv.length - 1 || argv[i+1].startsWith("-")) {
+                    if (i == argv.length - 1 || argv[i + 1].startsWith("-")) {
                         System.err.println("error: missing receive queue parameter");
                         System.exit(1);
                     }
@@ -305,7 +134,7 @@ public class TransactedTalk
                 }
 
                 if (arg.equals("-qs")) {
-                    if (i == argv.length - 1 || argv[i+1].startsWith("-")) {
+                    if (i == argv.length - 1 || argv[i + 1].startsWith("-")) {
                         System.err.println("error: missing send queue parameter");
                         System.exit(1);
                     }
@@ -323,38 +152,181 @@ public class TransactedTalk
 
         // Check values read in.
         if (username == null) {
-            System.err.println ("error: user name must be supplied");
+            System.err.println("error: user name must be supplied");
             printUsage();
             System.exit(1);
         }
 
         if (qReceiver == null && qSender == null) {
-            System.err.println ("error: receive queue, or send queue, must be supplied");
+            System.err.println("error: receive queue, or send queue, must be supplied");
             printUsage();
             System.exit(1);
         }
 
         // Start the JMS client for the "Talk".
         TransactedTalk tranTalk = new TransactedTalk();
-        tranTalk.talker (broker, username, password, qReceiver, qSender);
+        tranTalk.talker(broker, username, password, qReceiver, qSender);
 
     }
 
-    /** Prints the usage. */
+    /**
+     * Prints the usage.
+     */
     private static void printUsage() {
 
         StringBuffer use = new StringBuffer();
         use.append("usage: java TransactedTalk (options) ...\n\n");
         use.append("options:\n");
         use.append("  -b name:port Specify name:port of broker.\n");
-        use.append("               Default broker: "+DEFAULT_BROKER_NAME+"\n");
+        use.append("               Default broker: " + DEFAULT_BROKER_NAME + "\n");
         use.append("  -u name      Specify unique user name. (Required)\n");
         use.append("  -p password  Specify password for user.\n");
-        use.append("               Default password: "+DEFAULT_PASSWORD+"\n");
+        use.append("               Default password: " + DEFAULT_PASSWORD + "\n");
         use.append("  -qr queue    Specify queue for receiving messages.\n");
         use.append("  -qs queue    Specify queue for sending messages.\n");
         use.append("  -h           This help screen.\n");
-        System.err.println (use);
+        System.err.println(use);
+    }
+
+    /**
+     * Create JMS client for sending and receiving messages.
+     */
+    private void talker(String broker, String username, String password, String rQueue, String sQueue) {
+        // Create a connection.
+        try {
+            javax.jms.ConnectionFactory factory;
+            factory = new ActiveMQConnectionFactory(username, password, broker);
+            connect = factory.createConnection(username, password);
+            // We want to be able up commit/rollback messages sent,
+            // but not affect messages received.  Therefore, we need two sessions.
+            sendSession = connect.createSession(true, javax.jms.Session.AUTO_ACKNOWLEDGE);
+            receiveSession = connect.createSession(false, javax.jms.Session.AUTO_ACKNOWLEDGE);
+        } catch (javax.jms.JMSException jmse) {
+            System.err.println("error: Cannot connect to Broker - " + broker);
+            jmse.printStackTrace();
+            System.exit(1);
+        }
+
+        // Create Sender and Receiver 'Talk' queues
+        try {
+            if (sQueue != null) {
+                javax.jms.Queue sendQueue = sendSession.createQueue(sQueue);
+                sender = sendSession.createProducer(sendQueue);
+            }
+            if (rQueue != null) {
+                javax.jms.Queue receiveQueue = receiveSession.createQueue(rQueue);
+                javax.jms.MessageConsumer qReceiver = receiveSession.createConsumer(receiveQueue);
+                qReceiver.setMessageListener(this);
+                // Now that 'receive' setup is complete, start the Connection
+                connect.start();
+            }
+        } catch (javax.jms.JMSException jmse) {
+            jmse.printStackTrace();
+            exit();
+        }
+
+        try {
+            if (rQueue != null)
+                System.out.println("");
+            else
+                System.out.println("\nNo receiving queue specified.\n");
+
+            // Read all standard input and send it as a message.
+            java.io.BufferedReader stdin =
+                    new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+
+            if (sQueue != null) {
+                System.out.println("TransactedTalk application:");
+                System.out.println("===========================");
+                System.out.println("The application user " + username + " connects to the broker at " + DEFAULT_BROKER_NAME + ".");
+                System.out.println("The application will stage messages to " + sQueue + " until you either commit them or roll them back.");
+                System.out.println("The application receives messages on " + rQueue + " to consume any committed messages sent there.\n");
+                System.out.println("1. Enter text to send and then press Enter to stage the message.");
+                System.out.println("2. Add a few messages to the transaction batch.");
+                System.out.println("3. Then, either:");
+                System.out.println("     o Enter the text 'COMMIT', and press Enter to send all the staged messages.");
+                System.out.println("     o Enter the text 'CANCEL', and press Enter to drop the staged messages waiting to be sent.");
+            } else
+                System.out.println("\nPress CTRL-C to exit.\n");
+
+            while (true) {
+                String s = stdin.readLine();
+
+                if (s == null)
+                    exit();
+                else if (s.trim().equals("CANCEL")) {
+                    // Rollback the messages. A new transaction is implicitly
+                    // started for following messages.
+                    System.out.print("Cancelling messages...");
+                    sendSession.rollback();
+                    System.out.println("Staged messages have been cleared.");
+                } else if (s.length() > 0 && sQueue != null) {
+                    javax.jms.TextMessage msg = sendSession.createTextMessage();
+                    msg.setText(username + ": " + s);
+                    // Queues usually are used for PERSISTENT messages.
+                    // Hold messages for 30 minutes (1,800,000 millisecs).
+                    sender.send(msg,
+                            javax.jms.DeliveryMode.PERSISTENT,
+                            javax.jms.Message.DEFAULT_PRIORITY,
+                            MESSAGE_LIFESPAN);
+                    // See if we should send the messages
+                    if (s.trim().equals("COMMIT")) {
+                        // Commit (send) the messages. A new transaction is
+                        // implicitly  started for following messages.
+                        System.out.print("Committing messages...");
+                        sendSession.commit();
+                        System.out.println("Staged messages have all been sent.");
+                    }
+                }
+            }
+        } catch (java.io.IOException ioe) {
+            ioe.printStackTrace();
+        } catch (javax.jms.JMSException jmse) {
+            jmse.printStackTrace();
+        }
+        // Close the connection.
+        exit();
+    }
+
+    //
+    // NOTE: the remainder of this sample deals with reading arguments
+    // and does not utilize any JMS classes or code.
+    //
+
+    /**
+     * Handle the message
+     * (as specified in the javax.jms.MessageListener interface).
+     */
+    public void onMessage(javax.jms.Message aMessage) {
+        try {
+            // Cast the message as a text message.
+            javax.jms.TextMessage textMessage = (javax.jms.TextMessage) aMessage;
+
+            // This handler reads a single String from the
+            // message and prints it to the standard output.
+            try {
+                String string = textMessage.getText();
+                System.out.println(string);
+            } catch (javax.jms.JMSException jmse) {
+                jmse.printStackTrace();
+            }
+        } catch (java.lang.RuntimeException rte) {
+            rte.printStackTrace();
+        }
+    }
+
+    /**
+     * Cleanup resources and then exit.
+     */
+    private void exit() {
+        try {
+            sendSession.rollback(); // Rollback any uncommitted messages.
+            connect.close();
+        } catch (javax.jms.JMSException jmse) {
+            jmse.printStackTrace();
+        }
+
+        System.exit(0);
     }
 
 }

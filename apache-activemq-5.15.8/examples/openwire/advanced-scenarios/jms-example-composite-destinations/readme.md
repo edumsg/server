@@ -7,7 +7,7 @@ This example demonstrates how to use composite destinations for both sending and
 ## Prereqs
 
 - Install Java SDK
-- Install [Maven](http://maven.apache.org/download.html) 
+- Install [Maven](http://maven.apache.org/download.html)
 
 ## Building
 
@@ -26,6 +26,7 @@ In another terminal window run:
     mvn -P producer
 
 ## What to look for
+
 In the console of the producer, you should see log messages indicating messages have been successfully sent
 to the broker.
 

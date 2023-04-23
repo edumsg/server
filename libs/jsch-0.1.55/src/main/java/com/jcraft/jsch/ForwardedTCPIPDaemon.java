@@ -28,9 +28,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 package com.jcraft.jsch;
+
 import java.io.*;
 
-public interface ForwardedTCPIPDaemon extends Runnable{
-  void setChannel(ChannelForwardedTCPIP channel, InputStream in, OutputStream out);
-  void setArg(Object[] arg);
+public interface ForwardedTCPIPDaemon extends Runnable {
+    void setChannel(ChannelForwardedTCPIP channel, InputStream in, OutputStream out);
+
+    void setArg(Object[] arg);
 }
