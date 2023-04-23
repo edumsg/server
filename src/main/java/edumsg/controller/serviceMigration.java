@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import static edumsg.shared.controllerResponse.controllerHandleError;
-
 
 public class serviceMigration {
     private static int counter = 1;
@@ -93,7 +91,8 @@ public class serviceMigration {
             session.disconnect();
             System.out.println(" session discounected...");
         } catch (Exception e) {
-            controllerHandleError(app_type, 1, "newInstance", e.getMessage() + ":failed to migrate new instance", correlationId, log);
+            // TODO: 23/04/2023 handle error 
+            //controllerHandleError(app_type, 1, "newInstance", e.getMessage() + ":failed to migrate new instance", correlationId, log);
         }
     }
 

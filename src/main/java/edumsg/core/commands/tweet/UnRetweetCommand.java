@@ -17,10 +17,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import edumsg.NodeManager.Main;
+import edumsg.NodeManager.MyObjectMapper;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.shared.MyObjectMapper;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 

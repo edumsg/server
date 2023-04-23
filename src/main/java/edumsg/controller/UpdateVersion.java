@@ -17,7 +17,6 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static edumsg.shared.controllerResponse.controllerHandleError;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class UpdateVersion {
@@ -52,8 +51,8 @@ public class UpdateVersion {
                 }
             }
         } catch (Exception e) {
-            controllerHandleError(app_type, 1, "updateClass", e.getMessage() + ": failed to update class version", correlationId, log
-            );
+            // TODO: 23/04/2023 handle error 
+            //controllerHandleError(app_type, 1, "updateClass", e.getMessage() + ": failed to update class version", correlationId, log);
         }
 
     }

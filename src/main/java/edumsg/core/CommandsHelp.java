@@ -14,9 +14,9 @@ package edumsg.core;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import edumsg.NodeManager.MyObjectMapper;
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Producer;
-import edumsg.shared.MyObjectMapper;
 
 import java.io.IOException;
 import java.util.logging.Logger;

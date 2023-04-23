@@ -1,16 +1,4 @@
-/*
-EduMsg is made available under the OSI-approved MIT license.
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
-to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-IN THE SOFTWARE.
-*/
-
-package edumsg.netty;
+package edumsg.NodeManager.NettyInstance;
 
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Producer;
@@ -33,10 +21,9 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-public class EduMsgNettyServerHandler extends
+public class MainServerHandler extends
         SimpleChannelInboundHandler<Object> {
-
-    Logger log = Logger.getLogger(EduMsgNettyServer.class.getName());
+    Logger log = Logger.getLogger(MainServerInstance.class.getName());
     ExecutorService executorService = Executors.newCachedThreadPool();
     private HttpRequest request;
     private String requestBody;
@@ -87,7 +74,7 @@ public class EduMsgNettyServerHandler extends
         JSONObject requestJson = new JSONObject(requestBody);
         // get the name of intended queue where we will direct this request
         String Queue = requestJson.getString("queue") + "_" + cur_instance;
-        NettyNotifier notifier = new NettyNotifier(this, Queue);
+        MainServerNotifier notifier = new MainServerNotifier(this, Queue);
         System.out.println("Request Body: " + requestBody);
         sendMessageToActiveMQ(requestBody, Queue);
 

@@ -10,26 +10,27 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 IN THE SOFTWARE.
 */
 
-package edumsg.netty;
+package edumsg.NodeManager.NettyInstance;
 
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Consumer;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 import java.util.concurrent.Callable;
 
 
-public class NettyNotifier implements Callable<String> {
+public class MainServerNotifier implements Callable<String> {
 
-    private EduMsgNettyServerHandler serverHandler;
+    private MainServerHandler serverHandler;
 
     private String responseBody;
     private String queueName;
 
-    public NettyNotifier(EduMsgNettyServerHandler serverHandler,
-                         String queueName) {
+    public MainServerNotifier(MainServerHandler serverHandler,
+                              String queueName) {
         this.serverHandler = serverHandler;
         this.setQueueName(queueName);
     }
@@ -40,7 +41,7 @@ public class NettyNotifier implements Callable<String> {
         try {
             ActiveMQConfig activeMQConfig = new ActiveMQConfig(getQueueName()
                     .toUpperCase() + ".OUTQUEUE");
-            Consumer consumer = new Consumer(activeMQConfig, serverHandler.getCorrelationId());
+            Consumer consumer = new Consumer(activeMQConfig, (MessageListener) null);
             // wait until the response sent from the micro-services
             Message message = consumer.getConsumer().receive();
             String msgTxt = ((TextMessage) message).getText();
@@ -57,11 +58,11 @@ public class NettyNotifier implements Callable<String> {
         }
     }
 
-    public EduMsgNettyServerHandler getServerHandler() {
+    public MainServerHandler getServerHandler() {
         return serverHandler;
     }
 
-    public void setServerHandler(EduMsgNettyServerHandler serverHandler) {
+    public void setServerHandler(MainServerHandler serverHandler) {
         this.serverHandler = serverHandler;
     }
 

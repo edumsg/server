@@ -1,10 +1,12 @@
-package edumsg.NodeManager;
+package edumsg.NodeManager.AppInstances;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import edumsg.NodeManager.JsonMapper;
+import edumsg.NodeManager.MyObjectMapper;
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Consumer;
 import edumsg.activemq.Producer;
@@ -16,10 +18,6 @@ import edumsg.core.PostgresConnection;
 import edumsg.core.config;
 import edumsg.logger.MyLogger;
 import edumsg.redis.Cache;
-import edumsg.shared.JsonMapper;
-import edumsg.shared.MyObjectMapper;
-import edumsg.shared.UserMain;
-import edumsg.shared.controllerResponse;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.json.JSONException;
@@ -33,7 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 abstract public class RunnableInstance implements Runnable, MessageListener {
-    private final Logger LOGGER = Logger.getLogger(UserMain.class.getName());
+    private final Logger LOGGER;
     private Thread thread;
     private WorkerPool pool = new WorkerPool();
     private PostgresConnection db = new PostgresConnection();
@@ -45,7 +43,9 @@ abstract public class RunnableInstance implements Runnable, MessageListener {
     private String app;
     private Cache cache;
 
-    public RunnableInstance(String app, Cache cache) {
+    public RunnableInstance(String app, Cache cache, String className) {
+        LOGGER = Logger.getLogger(className);
+
         this.app = app;
         this.cache = cache;
         this.thread = new Thread(this);
@@ -212,9 +212,9 @@ abstract public class RunnableInstance implements Runnable, MessageListener {
         }
 
         // assign the consumers for all queues and topics that will serve the user application
-        consumer = new Consumer(new ActiveMQConfig(app.toUpperCase() + "_" + cur_instance + ".INQUEUE"), app.toUpperCase());
-        cons_ctrl = new Consumer(new ActiveMQConfig(app.toUpperCase() + "_" + cur_instance + "_CONTROLLER.INQUEUE"), app.toUpperCase());
-        new subscriber(new ActiveMQConfig(app.toUpperCase() + "_"), app.toUpperCase());
+        consumer = new Consumer(new ActiveMQConfig(app.toUpperCase() + "_" + cur_instance + ".INQUEUE"), this);
+        cons_ctrl = new Consumer(new ActiveMQConfig(app.toUpperCase() + "_" + cur_instance + "_CONTROLLER.INQUEUE"), this);
+        new subscriber(new ActiveMQConfig(app.toUpperCase() + "_"), this);
     }
 
     @Override
@@ -250,13 +250,13 @@ abstract public class RunnableInstance implements Runnable, MessageListener {
 
     public void start() {
         // restart the app by create new queue
-        consumer = new Consumer(new ActiveMQConfig(app.toUpperCase() + "_" + cur_instance + ".INQUEUE"), app.toUpperCase());
+        consumer = new Consumer(new ActiveMQConfig(app.toUpperCase() + "_" + cur_instance + ".INQUEUE"), this);
         run = true;
     }
 
     public void exit() throws JMSException, JsonProcessingException {
         // send the response first then we close activemq conn before we peacefully exit the app
-        controllerResponse.controllerSubmit(app.toUpperCase(), cur_instance, app.toLowerCase() + " app shutdown successfully", "shut down", null, LOGGER);
+        this.controllerSubmit(app.toLowerCase() + " app shutdown successfully", "shut down", null);
         cons_ctrl.getConsumer().close();
         Connection conn = cons_ctrl.getConn();
         ((ActiveMQConnection) conn).destroyDestination((ActiveMQDestination) cons_ctrl.getQueue());

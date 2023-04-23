@@ -10,7 +10,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 IN THE SOFTWARE.
 */
 
-package edumsg.shared;
+package edumsg.NodeManager;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;
