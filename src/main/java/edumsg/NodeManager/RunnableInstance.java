@@ -1,12 +1,10 @@
-package edumsg.NodeManager.AppInstances;
+package edumsg.NodeManager;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import edumsg.NodeManager.JsonMapper;
-import edumsg.NodeManager.MyObjectMapper;
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Consumer;
 import edumsg.activemq.Producer;
@@ -30,8 +28,8 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-abstract public class RunnableInstance implements Runnable, MessageListener {
-    private final Logger LOGGER;
+public class RunnableInstance implements Runnable, MessageListener {
+    private final Logger LOGGER = Logger.getLogger(RunnableInstance.class.getName());
     private Thread thread;
     private WorkerPool pool = new WorkerPool();
     private PostgresConnection db = new PostgresConnection();
@@ -43,11 +41,10 @@ abstract public class RunnableInstance implements Runnable, MessageListener {
     private String app;
     private Cache cache;
 
-    public RunnableInstance(String app, Cache cache, String className) {
-        LOGGER = Logger.getLogger(className);
+    public RunnableInstance(String app) {
 
         this.app = app;
-        this.cache = cache;
+        this.cache = Main.cacheMap.get(app.toLowerCase());
         this.thread = new Thread(this);
         this.thread.start();
     }

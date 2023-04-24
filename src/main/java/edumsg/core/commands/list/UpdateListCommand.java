@@ -18,6 +18,7 @@ import edumsg.NodeManager.Main;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
+import edumsg.redis.ListCache;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
@@ -77,33 +78,33 @@ public class UpdateListCommand extends Command implements Runnable {
             try {
                 CommandsHelp.submit(app, mapper.writeValueAsString(root),
                         correlationID, LOGGER);
-                String cacheEntry = Main.listCache.jedisCache.get("get_list:" + map.get("session_id"));
+                String cacheEntry = ((ListCache) Main.cacheMap.get("list")).jedisCache.get("get_list:" + map.get("session_id"));
                 if (cacheEntry != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    Main.listCache.jedisCache.set("get_list:" + map.get("session_id"), cacheEntryJson.toString());
+                    ((ListCache) Main.cacheMap.get("list")).jedisCache.set("get_list:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry1 = Main.listCache.jedisCache.get("get_list_feeds:" + map.get("session_id"));
+                String cacheEntry1 = ((ListCache) Main.cacheMap.get("list")).jedisCache.get("get_list_feeds:" + map.get("session_id"));
                 if (cacheEntry1 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    Main.listCache.jedisCache.set("get_list_feeds:" + map.get("session_id"), cacheEntryJson.toString());
+                    ((ListCache) Main.cacheMap.get("list")).jedisCache.set("get_list_feeds:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry2 = Main.listCache.jedisCache.get("list_members:" + map.get("session_id"));
+                String cacheEntry2 = ((ListCache) Main.cacheMap.get("list")).jedisCache.get("list_members:" + map.get("session_id"));
                 if (cacheEntry2 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry2);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    Main.listCache.jedisCache.set("list_members:" + map.get("session_id"), cacheEntryJson.toString());
+                    ((ListCache) Main.cacheMap.get("list")).jedisCache.set("list_members:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry3 = Main.listCache.jedisCache.get("list_subscribers:" + map.get("session_id"));
+                String cacheEntry3 = ((ListCache) Main.cacheMap.get("list")).jedisCache.get("list_subscribers:" + map.get("session_id"));
                 if (cacheEntry3 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry3);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    Main.listCache.jedisCache.set("list_subscribers:" + map.get("session_id"), cacheEntryJson.toString());
+                    ((ListCache) Main.cacheMap.get("list")).jedisCache.set("list_subscribers:" + map.get("session_id"), cacheEntryJson.toString());
                 }
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);

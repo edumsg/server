@@ -1,28 +1,30 @@
 package edumsg.NodeManager;
 
-import edumsg.NodeManager.AppInstances.DMRunnableInstance;
-import edumsg.NodeManager.AppInstances.ListRunnableInstance;
-import edumsg.NodeManager.AppInstances.TweetRunnableInstance;
-import edumsg.NodeManager.AppInstances.UserRunnableInstance;
 import edumsg.NodeManager.NettyInstance.MainServerInstance;
-import edumsg.redis.DMCache;
-import edumsg.redis.ListCache;
-import edumsg.redis.TweetCache;
-import edumsg.redis.UserCache;
+import edumsg.redis.*;
+
+import java.util.HashMap;
 
 public class Main {
-    public static UserCache userCache = new UserCache();
-    public static DMCache dmCache = new DMCache();
+    public static HashMap<String, Cache> cacheMap = new HashMap<String, Cache>();
+    public static HashMap<String, RunnableInstance> runnableInstanceHashMap;
 
-    public static ListCache listCache = new ListCache();
-
-    public static TweetCache tweetCache = new TweetCache(Main.userCache);
+    static {
+        cacheMap.put("user", new UserCache());
+        cacheMap.put("dm", new DMCache());
+        cacheMap.put("list", new ListCache());
+        cacheMap.put("tweet", new TweetCache((UserCache) cacheMap.get("user")));
+    }
 
     public static void main(String[] args) {
-        new UserRunnableInstance();
-        new TweetRunnableInstance();
-        new DMRunnableInstance();
-        new ListRunnableInstance();
+        new RunnableInstance("user");
+        new RunnableInstance("dm");
+        new RunnableInstance("tweet");
+        new RunnableInstance("list");
         new MainServerInstance();
+    }
+
+    public static void addNewInstance(String app) {
+
     }
 }

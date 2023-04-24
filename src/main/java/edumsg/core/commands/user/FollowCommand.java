@@ -18,6 +18,8 @@ import edumsg.NodeManager.Main;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
+import edumsg.redis.ListCache;
+import edumsg.redis.UserCache;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
@@ -59,40 +61,40 @@ public class FollowCommand extends Command implements Runnable {
                 CommandsHelp.submit(map.get("app"),
                         mapper.writeValueAsString(root),
                         map.get("correlation_id"), LOGGER);
-                String cacheEntry = Main.userCache.jedisCache.get("user_tweets:" + map.get("session_id"));
+                String cacheEntry = ((UserCache) Main.cacheMap.get("user")).jedisCache.get("user_tweets:" + map.get("session_id"));
                 if (cacheEntry != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    Main.userCache.jedisCache.set("user_tweets:" + map.get("session_id"), cacheEntryJson.toString());
+                    ((UserCache) Main.cacheMap.get("user")).jedisCache.set("user_tweets:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry1 = Main.userCache.jedisCache.get("timeline:" + map.get("session_id"));
+                String cacheEntry1 = ((UserCache) Main.cacheMap.get("user")).jedisCache.get("timeline:" + map.get("session_id"));
                 if (cacheEntry1 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    Main.userCache.jedisCache.set("timeline:" + map.get("session_id"), cacheEntryJson.toString());
+                    ((UserCache) Main.cacheMap.get("user")).jedisCache.set("timeline:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry2 = Main.userCache.jedisCache.get("followers:" + map.get("session_id"));
+                String cacheEntry2 = ((UserCache) Main.cacheMap.get("user")).jedisCache.get("followers:" + map.get("session_id"));
                 if (cacheEntry2 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry2);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    Main.userCache.jedisCache.set("followers:" + map.get("session_id"), cacheEntryJson.toString());
+                    ((UserCache) Main.cacheMap.get("user")).jedisCache.set("followers:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry3 = Main.userCache.jedisCache.get("following:" + map.get("session_id"));
+                String cacheEntry3 = ((UserCache) Main.cacheMap.get("user")).jedisCache.get("following:" + map.get("session_id"));
                 if (cacheEntry3 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry3);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    Main.userCache.jedisCache.set("following:" + map.get("session_id"), cacheEntryJson.toString());
+                    ((UserCache) Main.cacheMap.get("user")).jedisCache.set("following:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry4 = Main.listCache.jedisCache.get("get_list_feeds:" + map.get("session_id"));
+                String cacheEntry4 = ((ListCache) Main.cacheMap.get("list")).jedisCache.get("get_list_feeds:" + map.get("session_id"));
                 if (cacheEntry4 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry4);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    Main.listCache.jedisCache.set("get_list_feeds:" + map.get("session_id"), cacheEntryJson.toString());
+                    ((ListCache) Main.cacheMap.get("list")).jedisCache.set("get_list_feeds:" + map.get("session_id"), cacheEntryJson.toString());
                 }
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
