@@ -30,7 +30,6 @@ import java.util.logging.Logger;
 
 public class RunnableInstance implements Runnable, MessageListener {
     private final Logger LOGGER = Logger.getLogger(RunnableInstance.class.getName());
-    private Thread thread;
     private WorkerPool pool = new WorkerPool();
     private PostgresConnection db = new PostgresConnection();
     private edumsg.logger.MyLogger MyLogger = new MyLogger();
@@ -42,11 +41,8 @@ public class RunnableInstance implements Runnable, MessageListener {
     private Cache cache;
 
     public RunnableInstance(String app) {
-
         this.app = app;
         this.cache = Main.cacheMap.get(app.toLowerCase());
-        this.thread = new Thread(this);
-        this.thread.start();
     }
 
     // send the response of command execution process to the controller

@@ -22,11 +22,8 @@ public class MainServerInstance implements Runnable {
     final boolean SSL = System.getProperty("ssl") != null;
 
     final int PORT = getPort();
-    private Thread thread;
 
     public MainServerInstance() {
-        thread = new Thread(this);
-        thread.start();
     }
 
     private int getPort() {
