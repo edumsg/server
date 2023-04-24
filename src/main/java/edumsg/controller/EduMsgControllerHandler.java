@@ -85,16 +85,31 @@ public class EduMsgControllerHandler extends
 
         // the command to create new micro-service instance
         if (command.equals("newInstance")) {
-            Runnable r = new Runnable() {
-                public void run() {
-                    try {
-                        serviceMigration newInstance = new serviceMigration();
-                        newInstance.setUp(app_type, app_num, correlationId, log);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+            Runnable r;
+            if (app_type.toLowerCase().equals("server")) {
+                r = new Runnable() {
+                    public void run() {
+                        try {
+                            MainServerMigration newInstance = new MainServerMigration();
+                            newInstance.setUp(app_num, correlationId, log);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            };
+                };
+            } else {
+                r = new Runnable() {
+                    public void run() {
+                        try {
+                            serviceMigration newInstance = new serviceMigration();
+                            newInstance.setUp(app_type, app_num, correlationId, log);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+            }
+
             executorService.submit(r);
         } else {
             // the command to update update class version in all running micro-service instance
