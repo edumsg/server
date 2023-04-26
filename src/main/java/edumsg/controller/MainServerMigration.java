@@ -64,10 +64,10 @@ public class MainServerMigration {
             zipping();
             scpToServer();
             unzipCommand();
-//            install();
-//            run(run_class);
+            install();
+            run();
             session.disconnect();
-            System.out.println(" session discounected...");
+            System.out.println(" session disconnected...");
         } catch (Exception e) {
             // TODO: 23/04/2023 handle error
             //controllerHandleError(app_type, 1, "newInstance", e.getMessage() + ":failed to migrate new instance", correlationId, log);
@@ -135,9 +135,10 @@ public class MainServerMigration {
     public void install() throws IOException, JSchException {
         String Command1 = "sudo apt-get -y install openjdk-8-jdk";
         String Command2 = "sudo apt install redis-tools -y";
+        String Command3 = "sudo apt install redis-server -y";
 
         Channel channel = session.openChannel("exec");
-        ((ChannelExec) channel).setCommand("sudo -S -p '' " + Command1 + "&&" + Command2);
+        ((ChannelExec) channel).setCommand("sudo -S -p '' " + Command1 + "&&" + Command2 + "&&" + Command3);
         channel.setInputStream(null);
         ((ChannelExec) channel).setErrStream(System.err);
         ((ChannelExec) channel).setPty(true);
@@ -153,20 +154,14 @@ public class MainServerMigration {
     }
 
     // execute commands in the remote machine terminal to run the micro-service
-    public void run(String run_class) throws IOException, JSchException {
+    public void run() throws IOException, JSchException {
         String Command1 = "cd ~";
-        //String Command2 = "cd Desktop/" + app.toLowerCase() + "/src/main/java";
-        String Command3 = "javac -cp .:./jars/* edumsg/*/*.java";
-        String Command4;
-        if (run_class.equals("EduMsgNettyServer")) {
-            Command4 = "java -cp .:./jars/* edumsg/netty/" + run_class;
-        } else {
-            Command4 = "java -cp .:./jars/* edumsg/shared/" + run_class;
-        }
+        String Command2 = "cd Desktop/Server";
+        String Command3 = "mvn exec:java -Dexec.mainClass=\"edumsg.NodeManager.Main\"";
 
 
         Channel channel = session.openChannel("exec");
-        //((ChannelExec) channel).setCommand(Command1 + "&&" + Command2 + "&&" + Command3 + "&&" + Command4);
+        ((ChannelExec) channel).setCommand(Command1 + "&&" + Command2 + "&&" + Command3);
         channel.setInputStream(null);
         ((ChannelExec) channel).setErrStream(System.err);
         ((ChannelExec) channel).setPty(true);
