@@ -134,8 +134,8 @@ public class MainServerMigration {
     // install all required packages and libraries on the remote machine
     public void install() throws IOException, JSchException {
         String Command1 = "sudo apt-get -y install openjdk-8-jdk";
-        String Command2 = "sudo apt install redis-tools -y";
-        String Command3 = "sudo apt install redis-server -y";
+        String Command2 = "docker run -p 61616:61616 -p 8161:8161 rmohr/activemq";
+        String Command3 = "docker run -p 6379:6379 redis";
 
         Channel channel = session.openChannel("exec");
         ((ChannelExec) channel).setCommand("sudo -S -p '' " + Command1 + "&&" + Command2 + "&&" + Command3);

@@ -14,7 +14,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 
-public class serviceMigration {
+public class ServiceMigration {
     private static int counter = 1;
     private String user;
     private String password;
@@ -47,7 +47,7 @@ public class serviceMigration {
     }
 
     public static void setCounter(int counter) {
-        serviceMigration.counter = counter;
+        ServiceMigration.counter = counter;
     }
 
     public void setUp(String app_type, int cur_instance, String correlationId, Logger log) throws IOException {

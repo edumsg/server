@@ -101,7 +101,7 @@ public class EduMsgControllerHandler extends
                 r = new Runnable() {
                     public void run() {
                         try {
-                            serviceMigration newInstance = new serviceMigration();
+                            ServiceMigration newInstance = new ServiceMigration();
                             newInstance.setUp(app_type, app_num, correlationId, log);
                         } catch (IOException e) {
                             e.printStackTrace();

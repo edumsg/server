@@ -36,9 +36,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.46</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/netty-all-4.1.46.Final.jar</systemPath>
+            <version>4.1.38.Final</version>
         </dependency>
 
         <dependency>

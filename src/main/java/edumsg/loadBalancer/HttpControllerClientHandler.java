@@ -67,8 +67,9 @@ public class HttpControllerClientHandler extends SimpleChannelInboundHandler<Htt
                 switch (resJson.getString("command")) {
                     case "newInstance":
                         Calculation.new_instance(resJson.getString("app").split("_")[0], resJson.getString("msg"));
-                        //System.out.println("instances after migration..."+Calculation.getUserInstances().size());
-                        //System.out.println("instances after migration..."+HttpSnoopClient.getServerInstances());
+                        System.out.println("instances after migration..." + Calculation.getUserInstances().size());
+                        System.out.println("instances after migration..." + HttpSnoopClient.getServerInstances());
+                        System.out.println(resJson.getString("msg"));
                         break;
                     case "start":
                         Calculation.reflect_command(resJson.getString("app"), true);
