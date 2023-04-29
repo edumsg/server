@@ -25,9 +25,6 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.util.CharsetUtil;
 import org.json.JSONObject;
-import org.zeroturnaround.zip.commons.FileUtils;
-
-import java.io.File;
 
 
 public class HttpControllerClientHandler extends SimpleChannelInboundHandler<HttpObject> {
@@ -78,7 +75,7 @@ public class HttpControllerClientHandler extends SimpleChannelInboundHandler<Htt
                         Calculation.reflect_command(resJson.getString("app"), false);
                         break;
                     case "updateClass":
-                        FileUtils.cleanDirectory(new File("C:\\Users\\OS\\Desktop\\Edumsg-comp\\update"));
+                        //FileUtils.cleanDirectory(new File("C:\\Users\\OS\\Desktop\\Edumsg-comp\\update"));
                         break;
                 }
             }

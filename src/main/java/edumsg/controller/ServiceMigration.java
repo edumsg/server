@@ -2,14 +2,8 @@ package edumsg.controller;
 
 
 import com.jcraft.jsch.*;
-import org.zeroturnaround.zip.ZipUtil;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -83,9 +77,9 @@ public class ServiceMigration {
                     throw new IllegalStateException("Unexpected value: " + app_type.toUpperCase());
             }
             // steps to migrate the micro-service to the remote machine
-            zipping();
+            //zipping();
             scpToServer();
-            unzipCommand();
+            //unzipCommand();
             install();
             run(run_class);
             session.disconnect();
@@ -96,17 +90,6 @@ public class ServiceMigration {
         }
     }
 
-    public void zipping() throws IOException {
-
-        // write configuration file for the migrated the micro-service and put it in the package containing the source-code
-        File file = new File("C:\\Users\\OS\\Desktop\\Edumsg-comp\\Micro-services\\" + app + "\\" + app + "\\src\\main\\java\\config.conf");
-        List<String> lines = Arrays.asList("# config attributes", "instance_num = [" + instance + "]", "instance_user = [" + user + "]", "instance_host = [" + ip + "]", "instance_pass = [" + password + "]");
-        Files.write(Paths.get(file.getPath()), lines, StandardCharsets.UTF_8);
-
-        ZipUtil.pack(new File("C:\\Users\\OS\\Desktop\\Edumsg-comp\\Micro-services\\" + app), new File("C:\\Users\\OS\\Desktop\\Edumsg-comp\\Micro-services\\" + app + ".zip"));
-        System.out.println("zipped successfully");
-
-    }
 
     // open sftp channel to transfer the zip file to the remote machine
     public void scpToServer() throws JSchException, SftpException {
@@ -118,28 +101,7 @@ public class ServiceMigration {
         System.out.println("package sent...");
     }
 
-    // open exec channel to control the terminal on the remote machine
-    public void unzipCommand() throws IOException, JSchException {
-        String Command1 = "sudo apt-get install -y unzip";
-        String Command2 = "cd Desktop";
-        String Command3 = "unzip " + app + ".zip";
-
-        Channel channel = session.openChannel("exec");
-        ((ChannelExec) channel).setCommand("sudo -S -p '' " + Command1 + "&&" + Command2 + "&&" + Command3);
-        channel.setInputStream(null);
-        ((ChannelExec) channel).setErrStream(System.err);
-        ((ChannelExec) channel).setPty(true);
-        InputStream in = channel.getInputStream();
-        OutputStream out = channel.getOutputStream();
-        channel.connect();
-        out.write((password + "\n").getBytes());
-        out.flush();
-        byte[] tmp = new byte[1024];
-        print(in, tmp, channel);
-        channel.disconnect();
-
-    }
-
+   
     // install all required packages and libraries on the remote machine
     public void install() throws IOException, JSchException {
         String Command1 = "sudo apt-get -y install openjdk-8-jdk";

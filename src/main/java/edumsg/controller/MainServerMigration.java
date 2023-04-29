@@ -2,14 +2,8 @@ package edumsg.controller;
 
 
 import com.jcraft.jsch.*;
-import org.zeroturnaround.zip.ZipUtil;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -61,9 +55,7 @@ public class MainServerMigration {
             session.connect();
             System.out.println("Connection established.");
             // steps to migrate the micro-service to the remote machine
-            //zipping();
             scpToServer();
-            //unzipCommand();
             install();
             run();
             session.disconnect();
@@ -75,21 +67,17 @@ public class MainServerMigration {
         }
     }
 
-    public void zipping() throws IOException {
-
-        // write configuration file for the migrated the micro-service and put it in the package containing the source-code
-        File file = new File(System.getProperty("user.dir") + "\\config.conf");
-        List<String> lines = Arrays.asList("# config attributes", "instance_num = [" + instance + "]", "instance_user = [" + user + "]", "instance_host = [" + ip + "]", "instance_pass = [" + password + "]");
-        Files.write(Paths.get(file.getPath()), lines, StandardCharsets.UTF_8);
-        System.out.println(System.getProperty("user.dir") + "\\target\\TwitterBackend-1.0.jar");
-        ZipUtil.pack(new File(System.getProperty("user.dir") + "\\target\\TwitterBackend-1.0.jar"), new File(System.getProperty("user.dir") + ".zip"));
-        System.out.println("zipped successfully");
-
-    }
-
     // open sftp channel to transfer the zip file to the remote machine
-    public void scpToServer() throws JSchException, SftpException, IOException {
+    public void scpToServer() throws JSchException, SftpException, IOException, InterruptedException {
         //Creating and clearing a directory for the code
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.command("mvn.cmd", "package");
+        processBuilder.directory(new File(System.getProperty("user.dir")));
+        processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
+        Process process = processBuilder.start();
+        int exitCode = process.waitFor();
+        System.out.println("Exited with error code " + exitCode);
         Channel channel = session.openChannel("exec");
         ((ChannelExec) channel).setCommand("cd Desktop ; mkdir Server ; cd Server ; rm -rf .[^.]* *");
         channel.setInputStream(null);
@@ -112,31 +100,9 @@ public class MainServerMigration {
         System.out.println("package sent...");
     }
 
-    // open exec channel to control the terminal on the remote machine
-    public void unzipCommand() throws IOException, JSchException {
-        String Command1 = "sudo apt-get install -y unzip";
-        String Command2 = "cd Desktop ; cd Server";
-        String Command3 = "unzip server.zip";
-
-        Channel channel = session.openChannel("exec");
-        ((ChannelExec) channel).setCommand("sudo -S -p '' " + Command1 + ";" + Command2 + ";" + Command3);
-        channel.setInputStream(null);
-        ((ChannelExec) channel).setErrStream(System.err);
-        ((ChannelExec) channel).setPty(true);
-        InputStream in = channel.getInputStream();
-        OutputStream out = channel.getOutputStream();
-        channel.connect();
-        out.write((password + "\n").getBytes());
-        out.flush();
-        byte[] tmp = new byte[1024];
-        print(in, tmp, channel);
-        channel.disconnect();
-
-    }
-
     // install all required packages and libraries on the remote machine
     public void install() throws IOException, JSchException {
-        String Command1 = "sudo apt-get -y install openjdk-8-jdk";
+        String Command1 = "sudo apt-get -y install openjdk-19-jdk && sudo apt-get install openjdk-19-jre";
         String Command2 = "docker run -p 61616:61616 -p 8161:8161 rmohr/activemq";
         String Command3 = "docker run -p 6379:6379 redis";
 
