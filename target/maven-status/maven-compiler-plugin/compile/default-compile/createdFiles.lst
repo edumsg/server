@@ -41,7 +41,6 @@ edumsg\controller\notifier.class
 edumsg\loadBalancer\HttpControllerClientInitializer.class
 edumsg\core\commands\user\FollowCommand.class
 edumsg\activemq\subscriber.class
-edumsg\controller\EduMsgControllerHandler$1.class
 edumsg\redis\TweetCache$1.class
 edumsg\core\commands\user\LogoutCommand.class
 edumsg\core\commands\user\GetRetweetsCommand.class
@@ -70,7 +69,6 @@ edumsg\NodeManager\MyObjectMapper.class
 edumsg\core\commands\user\ReportUserCommand.class
 edumsg\NodeManager\NettyInstance\MainServerNotifier.class
 edumsg\redis\TweetCache.class
-edumsg\controller\EduMsgControllerHandler$2.class
 edumsg\core\commands\user\GetUsersCommand.class
 edumsg\core\commands\tweet\NewTweetCommand.class
 edumsg\core\commands\list\UpdateListCommand.class

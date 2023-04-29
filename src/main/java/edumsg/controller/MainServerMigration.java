@@ -4,12 +4,15 @@ package edumsg.controller;
 import com.jcraft.jsch.*;
 
 import java.io.*;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 
 public class MainServerMigration {
     private static int counter = 1;
+    private boolean done = false;
     private String user;
     private String password;
     private String ip;
@@ -17,8 +20,16 @@ public class MainServerMigration {
     private Session session;
     private int instance;
 
-    public static void print(InputStream in, byte[] tmp, Channel channel) throws IOException {
-        while (true) {
+    public static int getCounter() {
+        return counter;
+    }
+
+    public static void setCounter(int counter) {
+        MainServerMigration.counter = counter;
+    }
+
+    public void print(InputStream in, byte[] tmp, Channel channel) throws IOException {
+        while (!done) {
             while (in.available() > 0) {
                 int i = in.read(tmp, 0, 1024);
                 if (i < 0) break;
@@ -35,19 +46,41 @@ public class MainServerMigration {
         }
     }
 
-    public static int getCounter() {
-        return counter;
-    }
-
-    public static void setCounter(int counter) {
-        MainServerMigration.counter = counter;
-    }
-
     public void setUp(int cur_instance, String correlationId, Logger log) throws IOException {
         try {
             instance = cur_instance;
             server_props();     // get the info about the remote machine which will run the micro-service
             // create a session between the controller server and the remote machine
+            Runnable checker = new Runnable() {
+                int count = 6;
+
+                public void run() {
+                    while (count-- > 0) {
+                        try {
+                            InetAddress address = InetAddress.getByName(ip);
+                            Socket socket = new Socket(address, 8080);
+                            System.out.println("Server is reachable on port " + 8080);
+                            System.out.println(" session disconnected...");
+                            socket.close();
+                            break;
+                        } catch (Exception e) {
+                            try {
+                                Thread.sleep(10 * 1000);
+                            } catch (InterruptedException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
+                    }
+                    done = true;
+                    if (count == 0) {
+                        // TODO: 29/04/2023 handle error
+                    } else {
+
+                    }
+                }
+            };
+            Thread checkerThread = new Thread(checker);
+            checkerThread.start();
             JSch jsch = new JSch();
             session = jsch.getSession(user, ip, port);
             session.setPassword(password);
@@ -58,8 +91,7 @@ public class MainServerMigration {
             scpToServer();
             install();
             run();
-            session.disconnect();
-            System.out.println(" session disconnected...");
+            System.out.println("Mango");
         } catch (Exception e) {
             // TODO: 23/04/2023 handle error
             e.printStackTrace();
@@ -141,7 +173,7 @@ public class MainServerMigration {
         out.flush();
         byte[] tmp = new byte[1024];
         print(in, tmp, channel);
-        channel.disconnect();
+        //channel.disconnect();
 
     }
 

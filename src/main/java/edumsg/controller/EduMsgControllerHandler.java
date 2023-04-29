@@ -85,32 +85,9 @@ public class EduMsgControllerHandler extends
 
         // the command to create new micro-service instance
         if (command.equals("newInstance")) {
-            Runnable r;
-            if (app_type.toLowerCase().equals("server")) {
-                r = new Runnable() {
-                    public void run() {
-                        try {
-                            MainServerMigration newInstance = new MainServerMigration();
-                            newInstance.setUp(app_num, correlationId, log);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                };
-            } else {
-                r = new Runnable() {
-                    public void run() {
-                        try {
-                            ServiceMigration newInstance = new ServiceMigration();
-                            newInstance.setUp(app_type, app_num, correlationId, log);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                };
+            if (!app_type.toLowerCase().equals("server")) {
+                // TODO: 30/04/2023 new app instance
             }
-
-            executorService.submit(r);
         } else {
             // the command to update update class version in all running micro-service instance
             if (command.equals("updateClass")) {
@@ -124,10 +101,16 @@ public class EduMsgControllerHandler extends
                 sendMessageToActiveMQ(requestBody, Queue);
             }
         }
-        System.out.println("waiting...");
-
-        Future future = executorService.submit(notifier);
-        this.responseBody = (String) future.get();
+        if (!command.equals("newInstance")) {
+            System.out.println("Waiting...");
+            Future future = executorService.submit(notifier);
+            this.responseBody = (String) future.get();
+        } else {
+            NewInstanceNotifier instanceNotifier = new NewInstanceNotifier(app_num, this);
+            System.out.println("Waiting...");
+            Future future = executorService.submit(instanceNotifier);
+            this.responseBody = (String) future.get();
+        }
         System.out.println("-----------");
 
         JSONObject json = new JSONObject(responseBody);

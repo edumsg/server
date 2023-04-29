@@ -3,7 +3,6 @@ package edumsg.loadBalancer;
 
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.util.HashMap;
@@ -180,8 +179,7 @@ public class Calculation {
                 if (identifiers == null) {
                     host = "127.0.0.1";
                 } else {
-                    JSONObject Json = new JSONObject(identifiers);
-                    host = Json.getString("ip");
+                    host = identifiers;
                 }
                 applicationsInstance server = new applicationsInstance(host);
                 HttpSnoopClient.add_server_instance(server);
