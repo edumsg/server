@@ -46,6 +46,8 @@ Temporary Items
 /.idea
 *.class
 *.jar
+*.log.*
+*.log
 
 /.precomp
 

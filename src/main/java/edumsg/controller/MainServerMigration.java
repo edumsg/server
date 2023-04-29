@@ -61,15 +61,16 @@ public class MainServerMigration {
             session.connect();
             System.out.println("Connection established.");
             // steps to migrate the micro-service to the remote machine
-            zipping();
+            //zipping();
             scpToServer();
-            unzipCommand();
+            //unzipCommand();
             install();
             run();
             session.disconnect();
             System.out.println(" session disconnected...");
         } catch (Exception e) {
             // TODO: 23/04/2023 handle error
+            e.printStackTrace();
             //controllerHandleError(app_type, 1, "newInstance", e.getMessage() + ":failed to migrate new instance", correlationId, log);
         }
     }
@@ -80,8 +81,8 @@ public class MainServerMigration {
         File file = new File(System.getProperty("user.dir") + "\\config.conf");
         List<String> lines = Arrays.asList("# config attributes", "instance_num = [" + instance + "]", "instance_user = [" + user + "]", "instance_host = [" + ip + "]", "instance_pass = [" + password + "]");
         Files.write(Paths.get(file.getPath()), lines, StandardCharsets.UTF_8);
-
-        ZipUtil.pack(new File(System.getProperty("user.dir")), new File(System.getProperty("user.dir") + ".zip"));
+        System.out.println(System.getProperty("user.dir") + "\\target\\TwitterBackend-1.0.jar");
+        ZipUtil.pack(new File(System.getProperty("user.dir") + "\\target\\TwitterBackend-1.0.jar"), new File(System.getProperty("user.dir") + ".zip"));
         System.out.println("zipped successfully");
 
     }
@@ -104,7 +105,9 @@ public class MainServerMigration {
         channel.disconnect();
         ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
         sftpChannel.connect();
-        sftpChannel.put(System.getProperty("user.dir") + ".zip", "/home/" + user + "/Desktop/Server");
+        sftpChannel.put(System.getProperty("user.dir") + "\\target\\TwitterBackend-1.0.jar", "/home/" + user + "/Desktop/Server");
+        sftpChannel.put(System.getProperty("user.dir") + "\\Postgres.conf", "/home/" + user + "/Desktop/Server");
+        sftpChannel.put(System.getProperty("user.dir") + "\\logger.properties", "/home/" + user + "/Desktop/Server");
         sftpChannel.disconnect();
         System.out.println("package sent...");
     }
@@ -157,7 +160,7 @@ public class MainServerMigration {
     public void run() throws IOException, JSchException {
         String Command1 = "cd ~";
         String Command2 = "cd Desktop/Server";
-        String Command3 = "mvn exec:java -Dexec.mainClass=\"edumsg.NodeManager.Main\"";
+        String Command3 = "java -jar TwitterBackend-1.0.jar";
 
 
         Channel channel = session.openChannel("exec");

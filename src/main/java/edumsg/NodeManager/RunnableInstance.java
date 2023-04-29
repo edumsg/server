@@ -197,7 +197,7 @@ public class RunnableInstance implements Runnable, MessageListener {
         CommandsMap.instantiate();
         cache.BgSave();
         // set the initial logger path for the micro-service in the local disk
-        MyLogger.initialize(LOGGER, "C:\\Users\\ziads\\Desktop\\Bachelor\\logs");
+        MyLogger.initialize(LOGGER, System.getProperty("user.dir"));
         try {
             cur_instance = config.getInstance_num();
         } catch (Exception e) {

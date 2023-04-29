@@ -15,7 +15,7 @@ public class MyLogger {
         MyLogger = logger;
         try {
             // set the logging properties from a config file
-            LogManager.getLogManager().readConfiguration(new FileInputStream("src/main/java/edumsg/logger/logger.properties"));
+            LogManager.getLogManager().readConfiguration(new FileInputStream(System.getProperty("user.dir") + "/logger.properties"));
             logger.setLevel(Level.INFO);
             // create the directory when we will record the logs information
             File file = new File(path + "\\" + logger.getName());
