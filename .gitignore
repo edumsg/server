@@ -45,6 +45,7 @@ Temporary Items
 /Postgres.conf
 /.idea
 *.class
+*.jar
 
 /.precomp
 
