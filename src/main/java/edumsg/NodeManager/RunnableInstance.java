@@ -201,7 +201,7 @@ public class RunnableInstance implements Runnable, MessageListener {
         try {
             cur_instance = config.getInstance_num();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
         // assign the consumers for all queues and topics that will serve the user application

@@ -6,6 +6,11 @@ import com.jcraft.jsch.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -101,6 +106,9 @@ public class MainServerMigration {
 
     // open sftp channel to transfer the zip file to the remote machine
     public void scpToServer() throws JSchException, SftpException, IOException, InterruptedException {
+        File file = new File(System.getProperty("user.dir") + "\\newconfig.conf");
+        List<String> lines = Arrays.asList("# config attributes", "instance_num = [" + instance + "]", "instance_user = [" + user + "]", "instance_host = [" + ip + "]", "instance_pass = [" + password + "]");
+        Files.write(Paths.get(file.getPath()), lines, StandardCharsets.UTF_8);
         //Creating and clearing a directory for the code
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command("mvn.cmd", "package");
@@ -128,6 +136,8 @@ public class MainServerMigration {
         sftpChannel.put(System.getProperty("user.dir") + "\\target\\TwitterBackend-1.0.jar", "/home/" + user + "/Desktop/Server");
         sftpChannel.put(System.getProperty("user.dir") + "\\Postgres.conf", "/home/" + user + "/Desktop/Server");
         sftpChannel.put(System.getProperty("user.dir") + "\\logger.properties", "/home/" + user + "/Desktop/Server");
+        sftpChannel.put(System.getProperty("user.dir") + "\\newconfig.conf", "/home/" + user + "/Desktop/Server");
+
         sftpChannel.disconnect();
         System.out.println("package sent...");
     }
@@ -157,7 +167,7 @@ public class MainServerMigration {
     // execute commands in the remote machine terminal to run the micro-service
     public void run() throws IOException, JSchException {
         String Command1 = "cd ~";
-        String Command2 = "cd Desktop/Server";
+        String Command2 = "cd Desktop/Server && mv newconfig.conf config.conf";
         String Command3 = "java -jar TwitterBackend-1.0.jar";
 
 
