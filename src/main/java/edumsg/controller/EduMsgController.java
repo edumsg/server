@@ -17,6 +17,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.TreeSet;
 
@@ -25,6 +26,7 @@ public class EduMsgController {
 
     static final int PORT = getPort();
     static TreeSet<Host> hosts;
+    static HashMap<String, Host> hostMap = new HashMap<>();
 
     static {
         try {
@@ -48,6 +50,7 @@ public class EduMsgController {
             String password = props.getProperty("password" + i);
             Host host = new Host(ip, user, password);
             hosts.add(host);
+            hostMap.put(ip, host);
             i++;
         }
         return hosts;
