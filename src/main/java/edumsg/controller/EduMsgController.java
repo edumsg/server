@@ -12,14 +12,46 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import org.apache.log4j.Logger;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Properties;
+import java.util.TreeSet;
 
 public class EduMsgController {
     static final boolean SSL = System.getProperty("ssl") != null;
 
     static final int PORT = getPort();
+    static TreeSet<Host> hosts;
 
+    static {
+        try {
+            hosts = initializeHosts();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static TreeSet<Host> initializeHosts() throws IOException {
+        TreeSet<Host> hosts = new TreeSet<>();
+        File configFile = new File("IPs.properties");
+
+        FileReader reader = new FileReader(configFile);
+        Properties props = new Properties();
+        props.load(reader);
+        int i = 1;
+        while (props.getProperty("ip" + i) != null) {
+            String ip = props.getProperty("ip" + i);
+            String user = props.getProperty("user" + i);
+            String password = props.getProperty("password" + i);
+            Host host = new Host(ip, user, password);
+            hosts.add(host);
+            i++;
+        }
+        return hosts;
+    }
 
     public static void main(String[] args) throws Exception {
         getHostDetails();

@@ -1,5 +1,7 @@
 package edumsg.controller;
 
+import java.util.Objects;
+
 public class Host implements Comparable<Host> {
 
     private String ip;
@@ -7,7 +9,7 @@ public class Host implements Comparable<Host> {
     private String password;
     private int instancesCount;
 
-    public Host(String ip, String user, String password, int instancesCount) {
+    public Host(String ip, String user, String password) {
         this.ip = ip;
         this.user = user;
         this.password = password;
@@ -47,4 +49,15 @@ public class Host implements Comparable<Host> {
         return this.getInstancesCount() - host.getInstancesCount();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Host)) return false;
+        Host host = (Host) o;
+        return this.getIp().equals(host.getIp());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ip, user);
+    }
 }
