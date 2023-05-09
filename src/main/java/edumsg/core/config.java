@@ -13,6 +13,7 @@ public class config {
     public static String instance_user;
     public static String instance_host;
     public static String instance_pass;
+    public static String main_host;
 
     // configuration file to get the info related to each micro-service before running it
     public static void initialize() throws Exception {
@@ -49,6 +50,12 @@ public class config {
                     instance_pass = matcher.group(1);
                 }
             }
+            if (lines.get(i).contains("main_host")) {
+                matcher = pattern.matcher(lines.get(i));
+                if (matcher.find()) {
+                    main_host = matcher.group(1);
+                }
+            }
         }
     }
 
@@ -69,5 +76,10 @@ public class config {
 
     public static String getInstance_pass() {
         return instance_pass;
+    }
+
+    public static String getMain_host() throws Exception {
+        initialize();
+        return main_host;
     }
 }
