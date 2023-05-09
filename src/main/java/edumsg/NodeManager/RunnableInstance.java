@@ -13,7 +13,6 @@ import edumsg.concurrent.WorkerPool;
 import edumsg.core.Command;
 import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
-import edumsg.core.config;
 import edumsg.logger.MyLogger;
 import edumsg.redis.Cache;
 import org.apache.activemq.ActiveMQConnection;
@@ -30,19 +29,20 @@ import java.util.logging.Logger;
 
 public class RunnableInstance implements Runnable, MessageListener {
     private final Logger LOGGER = Logger.getLogger(RunnableInstance.class.getName());
+    private final int cur_instance;
     private WorkerPool pool = new WorkerPool();
     private PostgresConnection db = new PostgresConnection();
     private edumsg.logger.MyLogger MyLogger = new MyLogger();
-    private int cur_instance;
     private Consumer consumer;
     private Consumer cons_ctrl;
     private boolean run = true;
     private String app;
     private Cache cache;
 
-    public RunnableInstance(String app) {
+    public RunnableInstance(String app, int current_instance) {
         this.app = app;
         this.cache = Main.cacheMap.get(app.toLowerCase());
+        this.cur_instance = current_instance;
     }
 
     // send the response of command execution process to the controller
@@ -198,11 +198,6 @@ public class RunnableInstance implements Runnable, MessageListener {
         cache.BgSave();
         // set the initial logger path for the micro-service in the local disk
         MyLogger.initialize(LOGGER, System.getProperty("user.dir"));
-        try {
-            cur_instance = config.getInstance_num();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         // assign the consumers for all queues and topics that will serve the user application
         consumer = new Consumer(new ActiveMQConfig(app.toUpperCase() + "_" + cur_instance + ".INQUEUE"), this);
