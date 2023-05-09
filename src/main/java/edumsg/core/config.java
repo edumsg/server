@@ -15,6 +15,14 @@ public class config {
     public static String instance_pass;
     public static String main_host;
 
+    static {
+        try {
+            initialize();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     // configuration file to get the info related to each micro-service before running it
     public static void initialize() throws Exception {
         String file = System.getProperty("user.dir") + "/config.conf";
@@ -59,18 +67,15 @@ public class config {
         }
     }
 
-    public static int getInstance_num() throws Exception {
-        initialize();
+    public static int getInstance_num() {
         return instance_num;
     }
 
-    public static String getInstance_user() throws Exception {
-        initialize();
+    public static String getInstance_user() {
         return instance_user;
     }
 
-    public static String getInstance_host() throws Exception {
-        initialize();
+    public static String getInstance_host() {
         return instance_host;
     }
 
@@ -78,8 +83,7 @@ public class config {
         return instance_pass;
     }
 
-    public static String getMain_host() throws Exception {
-        initialize();
+    public static String getMain_host() {
         return main_host;
     }
 }

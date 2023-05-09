@@ -12,6 +12,7 @@ IN THE SOFTWARE.
 
 package edumsg.activemq;
 
+import edumsg.core.config;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.Connection;
@@ -19,7 +20,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 
 public class ActiveMQConfig {
-    private String url = getPort();
+    private String url = getUrl();
     private Connection connection;
     private String queueName;
 
@@ -27,7 +28,7 @@ public class ActiveMQConfig {
         this.queueName = queueName;
     }
 
-    private String getPort() {
+    private String getUrl() {
         int PORT = 61616;
         try {
             String activeMQenv = (System.getenv("ACTIVEMQ_PORT"));
@@ -38,7 +39,8 @@ public class ActiveMQConfig {
             e.printStackTrace();
             System.err.println("No ActiveMq Env Set");
         }
-        return "failover://tcp://localhost:" + PORT;
+        String host = config.getMain_host();
+        return "failover://tcp://" + host + ":" + PORT;
     }
 
     public Connection connect() throws JMSException {
