@@ -7,14 +7,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -28,7 +23,7 @@ public class applicationsInstance {
     private String password;
     private String id;
     private HashMap<Long, Long> app_response_time; // app_response_time used to save the response time for all completed requests through the previous 5 min
-    private int incomplite_req;
+    private int incomplete_req;
     private int max_capacity;
     private boolean run;
     private boolean in_service;
@@ -39,7 +34,8 @@ public class applicationsInstance {
     // the constructor for the 4 applications
     public applicationsInstance(String id, String identifiers) {
         if (identifiers == null) {
-            server_props();
+            this.ip = "localhost";
+            this.user = System.getProperty("user.name");
         } else {
             JSONObject Json = new JSONObject(identifiers);
             this.ip = Json.getString("ip");
@@ -48,7 +44,7 @@ public class applicationsInstance {
         }
         this.id = id;
         this.app_response_time = new HashMap<>();
-        this.incomplite_req = 0;
+        this.incomplete_req = 0;
         this.max_capacity = 100; // the max number that a miro-service can handle concurrently
         this.run = true;
         this.in_service = false;
@@ -128,25 +124,6 @@ public class applicationsInstance {
 
     }
 
-    // read the config file for the micro-services instance that will run locally
-    public void server_props() {
-        File configFile = new File("local.properties");
-        try {
-            FileReader reader = new FileReader(configFile);
-            Properties props = new Properties();
-            props.load(reader);
-            this.ip = props.getProperty("ip");
-            this.user = props.getProperty("user");
-            this.password = props.getProperty("password");
-
-            reader.close();
-        } catch (FileNotFoundException ex) {
-            // file does not exist
-        } catch (IOException ex) {
-            // I/O error
-        }
-    }
-
     // assign a thread for the methods that always run in the background
     public void runnable() {
         Runnable r = () -> {
@@ -165,15 +142,15 @@ public class applicationsInstance {
     }
 
     public void increase() {
-        incomplite_req = incomplite_req + 1;
+        incomplete_req = incomplete_req + 1;
     }
 
     public void decrease() {
-        incomplite_req = incomplite_req - 1;
+        incomplete_req = incomplete_req - 1;
     }
 
     public int getIncomplite_req() {
-        return incomplite_req;
+        return incomplete_req;
     }
 
     public String getIp() {
