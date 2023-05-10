@@ -188,7 +188,10 @@ public class PostgresConnection {
     }
 
     public void setDBHost(String host) {
-        DB_HOST = host;
+        if (host.contains("localhost"))
+            DB_HOST = "localhost";
+        else
+            DB_HOST = host;
     }
 
     public void setDBURL(String url) {
