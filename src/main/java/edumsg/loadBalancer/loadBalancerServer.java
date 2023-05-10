@@ -59,6 +59,7 @@ public class loadBalancerServer {
             // set up the channel to connect to the controller server
             HttpSnoopClient.ControllerChannel();
             Calculation.initial_instances();
+            systemStatus.command_format("newInstance", "user", 2, "0");
             ch.closeFuture().sync();
         } catch (Exception e) {
             e.printStackTrace();

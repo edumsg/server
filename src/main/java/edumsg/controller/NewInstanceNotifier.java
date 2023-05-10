@@ -12,41 +12,36 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 IN THE SOFTWARE.
 */
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.Properties;
 import java.util.concurrent.Callable;
-
-import static edumsg.controller.MainServerMigration.getCounter;
+import java.util.logging.Logger;
 
 
 public class NewInstanceNotifier implements Callable<String> {
 
-    private EduMsgControllerHandler controllerHandler;
     private int app_num;
+    private String correlationId;
+    private Logger log;
 
-    public NewInstanceNotifier(int app_num, EduMsgControllerHandler controllerHandler) {
+    private String app_type;
+
+    public NewInstanceNotifier(String app_type, int app_num, String correlationId, Logger log) {
         this.app_num = app_num;
-        this.controllerHandler = controllerHandler;
+        this.correlationId = correlationId;
+        this.log = log;
+        this.app_type = app_type.toLowerCase();
     }
 
     @Override
     public String call() {
         try {
 
-            MainServerMigration newInstance = new MainServerMigration();
-            newInstance.setUp(this.app_num, this.controllerHandler.getCorrelationId(), this.controllerHandler.log);
-            File configFile = new File("IPs.properties");
-
-            FileReader reader = new FileReader(configFile);
-            Properties props = new Properties();
-            props.load(reader);
-
-            String newIp = props.getProperty("ip" + (getCounter() - 1));
-            reader.close();
-            return "{app:  \"server_" + (getCounter() - 1) + " \",msg: \"" + newIp + "\",code: \"200\",command:\"newInstance\"}";
+            MainServerMigration mainServerMigration = new MainServerMigration();
+            mainServerMigration.setUp(app_type, app_num, correlationId, log);
+            String msg = "{App deployed successfully}";
+            String ip = mainServerMigration.getIp();
+            return "{app:  \"" + app_type + "_" + app_num + " \",msg: \"" + msg + "\",code: \"200\",command:\"newInstance\",ip:\"" + ip + "\"}";
 
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);

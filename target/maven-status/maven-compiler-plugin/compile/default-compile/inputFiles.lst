@@ -82,6 +82,7 @@ C:\Users\ziads\server\src\main\java\edumsg\NodeManager\MyObjectMapper.java
 C:\Users\ziads\server\src\main\java\edumsg\NodeManager\NettyInstance\MainServerInitializer.java
 C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\serverInstances.java
 C:\Users\ziads\server\src\main\java\edumsg\NodeManager\RunnableInstance.java
+C:\Users\ziads\server\src\main\java\edumsg\controller\Host.java
 C:\Users\ziads\server\src\main\java\edumsg\core\commands\dm\GetConversationsCommand.java
 C:\Users\ziads\server\src\main\java\edumsg\core\commands\dm\CreateConversationCommand.java
 C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\FollowCommand.java

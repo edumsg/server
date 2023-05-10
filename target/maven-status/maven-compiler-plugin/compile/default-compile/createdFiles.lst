@@ -11,6 +11,7 @@ edumsg\core\commands\user\FollowersCommand.class
 edumsg\core\commands\list\GetListFeedsCommand.class
 edumsg\core\commands\user\GetSubscribedListsCommand.class
 edumsg\redis\UserCache.class
+edumsg\controller\NewInstanceNotifier.class
 edumsg\redis\ListCache.class
 edumsg\core\commands\dm\CreateDm2Command.class
 edumsg\core\commands\user\LoginCommand.class
@@ -41,6 +42,7 @@ edumsg\controller\notifier.class
 edumsg\loadBalancer\HttpControllerClientInitializer.class
 edumsg\core\commands\user\FollowCommand.class
 edumsg\activemq\subscriber.class
+edumsg\controller\Host.class
 edumsg\redis\TweetCache$1.class
 edumsg\core\commands\user\LogoutCommand.class
 edumsg\core\commands\user\GetRetweetsCommand.class

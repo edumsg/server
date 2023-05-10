@@ -12,9 +12,9 @@ IN THE SOFTWARE.
 
 package edumsg.redis;
 
+import edumsg.core.config;
 import redis.clients.jedis.Jedis;
 
-import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
@@ -37,7 +37,6 @@ public class EduMsgRedis {
 
     private static Jedis getConnection() throws UnknownHostException {
         URI redisURI;
-        InetAddress localHost = InetAddress.getLocalHost();
         Jedis jedis = null;
         try {
             redisURI = new URI(System.getenv("REDIS_URL"));
@@ -46,8 +45,8 @@ public class EduMsgRedis {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {
-            System.out.println("Redis URI : local-6379");
-            jedis = new Jedis(localHost.getHostAddress(), 6379);
+            System.out.println("Redis URI : " + config.getMain_host() + "-6379");
+            jedis = new Jedis(config.getMain_host(), 6379);
         }
         return jedis;
     }

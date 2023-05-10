@@ -25,8 +25,8 @@ public class EduMsgController {
     static final boolean SSL = System.getProperty("ssl") != null;
 
     static final int PORT = getPort();
+    public static HashMap<String, Host> hostMap = new HashMap<>();
     static TreeSet<Host> hosts;
-    static HashMap<String, Host> hostMap = new HashMap<>();
 
     static {
         try {
@@ -39,7 +39,6 @@ public class EduMsgController {
     public static TreeSet<Host> initializeHosts() throws IOException {
         TreeSet<Host> hosts = new TreeSet<>();
         File configFile = new File("IPs.properties");
-
         FileReader reader = new FileReader(configFile);
         Properties props = new Properties();
         props.load(reader);
@@ -53,6 +52,11 @@ public class EduMsgController {
             hostMap.put(ip, host);
             i++;
         }
+        Host host = new Host("localhost", null, null);
+        //Loadbalancer + Controller + Netty server + 4 apps
+        host.setInstancesCount(7);
+        hosts.add(host);
+        hostMap.put("localhost", host);
         return hosts;
     }
 
@@ -80,7 +84,6 @@ public class EduMsgController {
 
             System.err.println("Server is listening on "
                     + (SSL ? "https" : "http") + "://127.0.0.1:" + PORT + '/');
-
             ch.closeFuture().sync();
         } catch (Exception e) {
             e.printStackTrace();

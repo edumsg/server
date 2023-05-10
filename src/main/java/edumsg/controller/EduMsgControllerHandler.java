@@ -81,13 +81,15 @@ public class EduMsgControllerHandler extends
         String Queue = (requestJson.getString("app_type")).toUpperCase() + "_" + app_num;
 
         System.out.println("request body... " + requestBody);
-        notifier notifier = new notifier(this, Queue);
+
 
         // the command to create new micro-service instance
         if (command.equals("newInstance")) {
-            if (!app_type.toLowerCase().equals("server")) {
-                // TODO: 30/04/2023 new app instance
-            }
+            NewInstanceNotifier notifier = new NewInstanceNotifier(app_type, app_num, correlationId, log);
+            System.out.println("Waiting...");
+            Future future = executorService.submit(notifier);
+            this.responseBody = (String) future.get();
+            System.out.println("-----------");
         } else {
             // the command to update update class version in all running micro-service instance
             if (command.equals("updateClass")) {
@@ -102,39 +104,32 @@ public class EduMsgControllerHandler extends
             }
         }
         if (!command.equals("newInstance")) {
+            notifier notifier = new notifier(this, Queue);
             System.out.println("Waiting...");
             Future future = executorService.submit(notifier);
             this.responseBody = (String) future.get();
-        } else {
-            NewInstanceNotifier instanceNotifier = new NewInstanceNotifier(app_num, this);
-            System.out.println("Waiting...");
-            Future future = executorService.submit(instanceNotifier);
-            this.responseBody = (String) future.get();
-        }
-        System.out.println("-----------");
 
+            System.out.println("-----------");
+        }
+        System.out.println(1);
         JSONObject json = new JSONObject(responseBody);
         HttpResponseStatus status = null;
-        if (!json.has("message"))
-
+        if (!json.has("message")) {
             status = new HttpResponseStatus(200,
                     "ok");
-        else {
+        } else {
             status = new HttpResponseStatus(Integer.parseInt((String) json
                     .get("code")), (String) json.get("message"));
         }
-
         boolean keepAlive = HttpHeaders.isKeepAlive(request);
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
                 status, Unpooled.copiedBuffer(responseBody, CharsetUtil.UTF_8));
-
         response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
         if (keepAlive) {
             response.headers().set(CONTENT_LENGTH,
                     response.content().readableBytes());
             response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
         }
-
         ctx.writeAndFlush(response);
         System.out.println("res..." + responseBody);
     }

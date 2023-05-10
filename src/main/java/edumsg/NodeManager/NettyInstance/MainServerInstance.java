@@ -84,6 +84,7 @@ public class MainServerInstance implements Runnable {
 
             System.err.println("Server is listening on "
                     + (SSL ? "https" : "http") + "://127.0.0.1:" + PORT + '/');
+            System.out.println("App Running Successfully!");
 
             ch.closeFuture().sync();
         } catch (Exception e) {

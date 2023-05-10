@@ -203,6 +203,7 @@ public class RunnableInstance implements Runnable, MessageListener {
         consumer = new Consumer(new ActiveMQConfig(app.toUpperCase() + "_" + cur_instance + ".INQUEUE"), this);
         cons_ctrl = new Consumer(new ActiveMQConfig(app.toUpperCase() + "_" + cur_instance + "_CONTROLLER.INQUEUE"), this);
         new subscriber(new ActiveMQConfig(app.toUpperCase()), this);
+        System.out.println("App Running Successfully!");
     }
 
     @Override

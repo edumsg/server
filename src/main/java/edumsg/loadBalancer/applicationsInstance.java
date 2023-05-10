@@ -1,11 +1,12 @@
 package edumsg.loadBalancer;
 
+import edumsg.controller.EduMsgController;
+import edumsg.controller.Host;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.json.JSONObject;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -32,15 +33,15 @@ public class applicationsInstance {
     private URI uri;
 
     // the constructor for the 4 applications
-    public applicationsInstance(String id, String identifiers) {
-        if (identifiers == null) {
+    public applicationsInstance(String id, String ip) {
+        if (ip == null) {
             this.ip = "localhost";
             this.user = System.getProperty("user.name");
         } else {
-            JSONObject Json = new JSONObject(identifiers);
-            this.ip = Json.getString("ip");
-            this.user = Json.getString("user");
-            this.password = Json.getString("password");
+            Host host = EduMsgController.hostMap.get(ip);
+            this.ip = host.getIp();
+            this.user = host.getUser();
+            this.password = host.getUser();
         }
         this.id = id;
         this.app_response_time = new HashMap<>();

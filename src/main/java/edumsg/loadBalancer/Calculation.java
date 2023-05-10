@@ -147,39 +147,39 @@ public class Calculation {
     }
 
     // when we run a new micro-service this method will be called to initialize the object for this instance
-    public static void new_instance(String app_type, String identifiers) {
+    public static void new_instance(String app_type, String ip) {
         int last_index;
         switch (app_type.toUpperCase()) {
             case "USER":
                 last_index = userInstances.size();
                 String user_id = app_type + "_" + (last_index + 1);
-                applicationsInstance user_app = new applicationsInstance(user_id, identifiers);
+                applicationsInstance user_app = new applicationsInstance(user_id, ip);
                 userInstances.put(user_id, user_app);
                 break;
             case "DM":
                 last_index = DMInstances.size();
                 String DM_id = app_type + "_" + (last_index + 1);
-                applicationsInstance DM_app = new applicationsInstance(DM_id, identifiers);
+                applicationsInstance DM_app = new applicationsInstance(DM_id, ip);
                 DMInstances.put(DM_id, DM_app);
                 break;
             case "TWEET":
                 last_index = tweetInstances.size();
                 String tweet_id = app_type + "_" + (last_index + 1);
-                applicationsInstance tweet_app = new applicationsInstance(tweet_id, identifiers);
+                applicationsInstance tweet_app = new applicationsInstance(tweet_id, ip);
                 tweetInstances.put(tweet_id, tweet_app);
                 break;
             case "LIST":
                 last_index = listInstances.size();
                 String list_id = app_type + "_" + (last_index + 1);
-                applicationsInstance list_app = new applicationsInstance(list_id, identifiers);
+                applicationsInstance list_app = new applicationsInstance(list_id, ip);
                 listInstances.put(list_id, list_app);
                 break;
             case "SERVER":
                 String host;
-                if (identifiers == null) {
+                if (ip == null) {
                     host = "127.0.0.1";
                 } else {
-                    host = identifiers;
+                    host = ip;
                 }
                 applicationsInstance server = new applicationsInstance(host);
                 HttpSnoopClient.add_server_instance(server);
