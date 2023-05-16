@@ -38,7 +38,6 @@ C:\Users\ziads\server\src\main\java\edumsg\core\CommandsMap.java
 C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\Calculation.java
 C:\Users\ziads\server\src\main\java\edumsg\core\commands\list\CreateListCommand.java
 C:\Users\ziads\server\src\main\java\edumsg\logger\MyHandler.java
-C:\Users\ziads\server\src\main\java\edumsg\controller\ServiceMigration.java
 C:\Users\ziads\server\src\main\java\edumsg\activemq\subscriber.java
 C:\Users\ziads\server\src\main\java\edumsg\controller\notifier.java
 C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\HttpSnoopClientHandler.java
@@ -48,6 +47,7 @@ C:\Users\ziads\server\src\main\java\edumsg\core\commands\list\SubscribeCommand.j
 C:\Users\ziads\server\src\main\java\edumsg\core\commands\tweet\FavoriteCommand.java
 C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\systemStatus.java
 C:\Users\ziads\server\src\main\java\edumsg\redis\EduMsgRedis.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\admin\AdminShell.java
 C:\Users\ziads\server\src\main\java\edumsg\controller\MainServerMigration.java
 C:\Users\ziads\server\src\main\java\edumsg\activemq\ActiveMQConfig.java
 C:\Users\ziads\server\src\main\java\edumsg\NodeManager\NettyInstance\MainServerHandler.java
@@ -83,6 +83,7 @@ C:\Users\ziads\server\src\main\java\edumsg\NodeManager\NettyInstance\MainServerI
 C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\serverInstances.java
 C:\Users\ziads\server\src\main\java\edumsg\NodeManager\RunnableInstance.java
 C:\Users\ziads\server\src\main\java\edumsg\controller\Host.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\admin\AdminGUI.java
 C:\Users\ziads\server\src\main\java\edumsg\core\commands\dm\GetConversationsCommand.java
 C:\Users\ziads\server\src\main\java\edumsg\core\commands\dm\CreateConversationCommand.java
 C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\FollowCommand.java
@@ -112,5 +113,6 @@ C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\FollowingCommand.j
 C:\Users\ziads\server\src\main\java\edumsg\activemq\publisher.java
 C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\HttpControllerClientInitializer.java
 C:\Users\ziads\server\src\main\java\edumsg\controller\EduMsgControllerInitializer.java
+C:\Users\ziads\server\src\main\java\edumsg\NodeManager\Test.java
 C:\Users\ziads\server\src\main\java\edumsg\NodeManager\NettyInstance\MainServerInstance.java
 C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\GetTimelineCommand.java

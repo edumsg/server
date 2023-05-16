@@ -2,6 +2,7 @@ package edumsg.loadBalancer;
 
 import edumsg.controller.EduMsgController;
 import edumsg.controller.Host;
+import edumsg.loadBalancer.admin.AppInfo;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
@@ -19,6 +20,7 @@ import static java.lang.System.currentTimeMillis;
 // java class to create object for each one the micro-services
 public class applicationsInstance {
     private static ExecutorService executor = Executors.newCachedThreadPool();
+    private AppInfo appInfo;
     private String ip;
     private String user;
     private String password;
@@ -34,6 +36,7 @@ public class applicationsInstance {
 
     // the constructor for the 4 applications
     public applicationsInstance(String id, String ip) {
+        appInfo = new AppInfo();
         if (ip == null) {
             this.ip = "localhost";
             this.user = System.getProperty("user.name");
@@ -49,6 +52,12 @@ public class applicationsInstance {
         this.max_capacity = 100; // the max number that a miro-service can handle concurrently
         this.run = true;
         this.in_service = false;
+        appInfo.setIp(this.ip);
+        appInfo.setId(this.id);
+        appInfo.setIn_service(in_service);
+        appInfo.setRun(run);
+        appInfo.setIncomplete_req(incomplete_req);
+        appInfo.setMaxCapacity(max_capacity);
         this.runnable();
     }
 
@@ -59,6 +68,11 @@ public class applicationsInstance {
         this.max_capacity = 100;
         this.run = true;
         this.in_service = false;
+        this.appInfo = new AppInfo();
+        appInfo.setIp(ip);
+        appInfo.setIn_service(in_service);
+        appInfo.setRun(run);
+        appInfo.setMaxCapacity(max_capacity);
         this.create_channel();
     }
 
@@ -113,6 +127,7 @@ public class applicationsInstance {
             }
             total = total / app_response_time.size();
         }
+        appInfo.setAvg_response_time(total);
         return total;
     }
 
@@ -121,7 +136,9 @@ public class applicationsInstance {
        /* if(this.id.contains("USER")) {
             System.out.println("capacity..." + (this.getIncomplite_req()*100)/this.max_capacity + "%");
         }*/
-        return (this.getIncomplite_req() * 100) / this.max_capacity;
+        int capacity = (this.getIncomplite_req() * 100) / this.max_capacity;
+        appInfo.setCapacity(capacity);
+        return capacity;
 
     }
 
@@ -144,10 +161,12 @@ public class applicationsInstance {
 
     public void increase() {
         incomplete_req = incomplete_req + 1;
+        appInfo.setIncomplete_req(incomplete_req);
     }
 
     public void decrease() {
         incomplete_req = incomplete_req - 1;
+        appInfo.setIncomplete_req(incomplete_req);
     }
 
     public int getIncomplite_req() {
@@ -172,6 +191,7 @@ public class applicationsInstance {
 
     public void setRun(boolean run) {
         this.run = run;
+        appInfo.setRun(run);
     }
 
     public boolean isIn_service() {
@@ -180,6 +200,7 @@ public class applicationsInstance {
 
     public void setIn_service(boolean in_service) {
         this.in_service = in_service;
+        appInfo.setIn_service(in_service);
     }
 
     public Channel getChannel() {

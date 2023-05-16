@@ -8,14 +8,15 @@ edumsg\core\commands\user\IsFollowingCommand.class
 edumsg\core\commands\user\GetMentionsCommand.class
 edumsg\core\commands\tweet\GetTweetCommand.class
 edumsg\core\commands\user\FollowersCommand.class
+edumsg\NodeManager\Test.class
 edumsg\core\commands\list\GetListFeedsCommand.class
 edumsg\core\commands\user\GetSubscribedListsCommand.class
+edumsg\loadBalancer\admin\AdminShell.class
 edumsg\redis\UserCache.class
 edumsg\controller\NewInstanceNotifier.class
 edumsg\redis\ListCache.class
 edumsg\core\commands\dm\CreateDm2Command.class
 edumsg\core\commands\user\LoginCommand.class
-edumsg\controller\ServiceMigration.class
 edumsg\core\commands\tweet\RetweetCommand.class
 edumsg\core\commands\dm\CreateConversationCommand.class
 edumsg\redis\EduMsgRedis$2.class
@@ -118,6 +119,7 @@ edumsg\loadBalancer\loadBalancerServer.class
 edumsg\logger\MyLogger.class
 edumsg\NodeManager\JsonMapper$1.class
 edumsg\update\tst.class
+edumsg\loadBalancer\admin\AdminGUI.class
 edumsg\redis\EduMsgRedis$3.class
 edumsg\core\commands\dm\MarkAllReadCommand.class
 edumsg\core\commands\dm\CreateDmCommand.class

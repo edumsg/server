@@ -12,6 +12,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 IN THE SOFTWARE.
 */
 
+import edumsg.loadBalancer.admin.AdminGUI;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
@@ -31,6 +32,7 @@ public class loadBalancerServer {
     static final boolean SSL = System.getProperty("ssl") != null;
 
     static final int PORT = getPort();
+    public static AdminGUI gui = new AdminGUI();
 
     public static void main(String[] args) throws Exception {
         getHostDetails();
