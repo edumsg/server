@@ -152,25 +152,25 @@ public class Calculation {
         switch (app_type.toUpperCase()) {
             case "USER":
                 last_index = userInstances.size();
-                String user_id = app_type + "_" + (last_index + 1);
+                String user_id = app_type.toUpperCase() + "_" + (last_index + 1);
                 applicationsInstance user_app = new applicationsInstance(user_id, ip);
                 userInstances.put(user_id, user_app);
                 break;
             case "DM":
                 last_index = DMInstances.size();
-                String DM_id = app_type + "_" + (last_index + 1);
+                String DM_id = app_type.toUpperCase() + "_" + (last_index + 1);
                 applicationsInstance DM_app = new applicationsInstance(DM_id, ip);
                 DMInstances.put(DM_id, DM_app);
                 break;
             case "TWEET":
                 last_index = tweetInstances.size();
-                String tweet_id = app_type + "_" + (last_index + 1);
+                String tweet_id = app_type.toUpperCase() + "_" + (last_index + 1);
                 applicationsInstance tweet_app = new applicationsInstance(tweet_id, ip);
                 tweetInstances.put(tweet_id, tweet_app);
                 break;
             case "LIST":
                 last_index = listInstances.size();
-                String list_id = app_type + "_" + (last_index + 1);
+                String list_id = app_type.toUpperCase() + "_" + (last_index + 1);
                 applicationsInstance list_app = new applicationsInstance(list_id, ip);
                 listInstances.put(list_id, list_app);
                 break;
