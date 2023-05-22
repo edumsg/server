@@ -8,9 +8,15 @@ import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class MainServerMigration {
@@ -96,10 +102,14 @@ public class MainServerMigration {
     }
 
     // open sftp channel to transfer the jar file to the remote machine
-    public void scpToServer() throws JSchException, SftpException, IOException, InterruptedException {
+    public void scpToServer() throws Exception {
         File file = new File(System.getProperty("user.dir") + "\\newconfig.conf");
         List<String> lines = Arrays.asList("# config attributes", "instance_num = [" + app_num + "]", "instance_user = [" + user + "]", "instance_host = [" + ip + "]", "instance_pass = [" + password + "]", "main_host = [" + InetAddress.getLocalHost().getHostAddress() + "]");
         Files.write(Paths.get(file.getPath()), lines, StandardCharsets.UTF_8);
+        HashMap<String, String> dbConfig = getDBConfig();
+        File postgresFile = new File(System.getProperty("user.dir") + "\\newPostgres.conf");
+        List<String> postgresLines = Arrays.asList("username = [" + dbConfig.get("user") + "]", "database = [" + dbConfig.get("database") + "]", "pass = [" + dbConfig.get("pass") + "]", "port = [" + dbConfig.get("port") + "]", "host = [" + InetAddress.getLocalHost().getHostAddress() + "]");
+        Files.write(Paths.get(postgresFile.getPath()), postgresLines, StandardCharsets.UTF_8);
         Channel channel = session.openChannel("exec");
         ((ChannelExec) channel).setCommand("cd Desktop ; mkdir Server ; cd Server ; rm -rf .[^.]* *");
         channel.setInputStream(null);
@@ -115,11 +125,55 @@ public class MainServerMigration {
         ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
         sftpChannel.connect();
         sftpChannel.put(System.getProperty("user.dir") + "\\target\\TwitterBackend-1.0.jar", "/home/" + user + "/Desktop/Server");
-        sftpChannel.put(System.getProperty("user.dir") + "\\Postgres.conf", "/home/" + user + "/Desktop/Server");
+        sftpChannel.put(System.getProperty("user.dir") + "\\newPostgres.conf", "/home/" + user + "/Desktop/Server");
         sftpChannel.put(System.getProperty("user.dir") + "\\logger.properties", "/home/" + user + "/Desktop/Server");
-        sftpChannel.put(System.getProperty("user.dir") + "\\newconfig.conf", "/home/" + user + "/Desktop/Server");
+        sftpChannel.put(System.getProperty("user.dir") + "\\newConfig.conf", "/home/" + user + "/Desktop/Server");
         sftpChannel.disconnect();
         System.out.println("jar file sent...");
+    }
+
+    private HashMap<String, String> getDBConfig() throws Exception {
+
+        String file = System.getProperty("user.dir") + "/Postgres.conf";
+        java.util.List<String> lines = new ArrayList<String>();
+        //extract string between square brackets and compile regex for faster performance
+        Pattern pattern = Pattern.compile("\\[(.+)\\]");
+        Matcher matcher;
+        Exception e;
+        Stream<String> stream = Files.lines(Paths.get(file));
+        lines = stream.filter(line -> !line.startsWith("#")).collect(Collectors.toList());
+        HashMap<String, String> map = new HashMap<>();
+        //set variables based on matches
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).contains("user")) {
+                matcher = pattern.matcher(lines.get(i));
+                if (matcher.find()) {
+                    map.put("user", matcher.group(1));
+                } else
+                    throw e = new Exception("empty user in Postgres.conf");
+            }
+            if (lines.get(i).contains("database")) {
+                matcher = pattern.matcher(lines.get(i));
+                if (matcher.find())
+                    map.put("database", matcher.group(1));
+                else
+                    throw e = new Exception("empty database name in Postgres.conf");
+            }
+            if (lines.get(i).contains("pass")) {
+                matcher = pattern.matcher(lines.get(i));
+                matcher.find();
+                map.put("pass", matcher.group(1));
+            }
+            if (lines.get(i).contains("port")) {
+                matcher = pattern.matcher(lines.get(i));
+                if (matcher.find())
+                    map.put("port", matcher.group(1));
+                else
+                    map.put("port", "5432");
+            }
+        }
+
+        return map;
     }
 
     // install java on the remote machine
@@ -142,7 +196,7 @@ public class MainServerMigration {
     // execute commands in the remote machine terminal to run the micro-service
     public void run() throws IOException, JSchException, InterruptedException {
         String Command1 = "cd ~";
-        String Command2 = "cd Desktop/Server && mv newconfig.conf config.conf";
+        String Command2 = "cd Desktop/Server && mv newConfig.conf config.conf && mv newPostgres.conf Postgres.conf";
         String Command3 = "java -jar TwitterBackend-1.0.jar " + app_type + " " + app_num;
 
 

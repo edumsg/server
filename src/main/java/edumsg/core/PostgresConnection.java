@@ -17,7 +17,6 @@ import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
-import java.net.InetAddress;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -261,10 +260,7 @@ public class PostgresConnection {
             if (lines.get(i).contains("host")) {
                 matcher = pattern.matcher(lines.get(i));
                 if (matcher.find()) {
-                    if (matcher.group(1).equals(InetAddress.getLocalHost().getHostAddress()))
-                        setDBHost("localhost");
-                    else
-                        setDBHost(matcher.group(1));
+                    setDBHost(matcher.group(1));
                 } else
                     setDBHost("localhost");
             }
