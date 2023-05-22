@@ -74,7 +74,7 @@ public class GetFavoritesCommand extends Command implements Runnable {
                 creator.setUsername(creator_username);
                 t.setCreator(creator);
 
-                tweets.addPOJO(t);
+                if (tweets.size() < 10) tweets.addPOJO(t);
             }
             set.close();
             proc.close();

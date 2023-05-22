@@ -104,7 +104,7 @@ public class GetUserWithTweetsCommand extends Command implements Runnable {
                 t.setCreatedAt(tweet_created_at);
                 t.setCreator(user);
 
-                tweets.addPOJO(t);
+                if (tweets.size() < 10) tweets.addPOJO(t);
 
                 System.out.println(tweet);
 

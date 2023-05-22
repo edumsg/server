@@ -89,7 +89,7 @@ public class GetTimelineCommand extends Command implements Runnable {
                     t.setRetweeter(r);
                 }
 
-                tweets.addPOJO(t);
+                if (tweets.size() < 10) tweets.addPOJO(t);
             }
             set.close();
             proc.close();

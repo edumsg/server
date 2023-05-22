@@ -88,7 +88,7 @@ public class GetListFeedsCommand extends Command implements Runnable {
                     t.setRetweeter(r);
                 }
 
-                tweets.addPOJO(t);
+                if (tweets.size() < 10) tweets.addPOJO(t);
             }
 
             root.set("list_feeds", tweets);

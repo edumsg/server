@@ -78,7 +78,7 @@ public class GetEarliestRepliesCommand extends Command implements Runnable {
                 t.setIsRetweeted(isRetweeted != 0);
                 t.setCreatedAt(createdAt);
 
-                tweets.addPOJO(t);
+                if (tweets.size() < 10) tweets.addPOJO(t);
             }
 
             root.set("earliest_replies", tweets);

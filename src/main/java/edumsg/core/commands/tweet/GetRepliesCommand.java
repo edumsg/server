@@ -71,7 +71,7 @@ public class GetRepliesCommand extends Command implements Runnable {
                 t.setCreator(creator);
                 t.setCreatedAt(createdAt);
 
-                tweets.addPOJO(t);
+                if (tweets.size() < 10) tweets.addPOJO(t);
             }
 
             root.set("replies", tweets);
