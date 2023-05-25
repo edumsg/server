@@ -12,6 +12,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OU
 IN THE SOFTWARE.
 */
 
+import io.netty.util.CharsetUtil;
+import org.json.JSONObject;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
@@ -32,6 +35,28 @@ public class notifier implements Callable<String> {
     public String call() throws Exception {
         // create latch with count 1 to await the call method until the response is sent back from the main server
         latch = new CountDownLatch((1));
+        JSONObject body = new JSONObject(loadBalancer.getByteBuf().toString(CharsetUtil.UTF_8));
+        if (body.has("config")) {
+            switch (body.getString("command")) {
+                case "newInstance":
+                    Calculation.new_instance(body.getString("app").split("_")[0], body.getString("ip"));
+                    System.out.println(body.getString("msg"));
+                    break;
+                case "start":
+                    Calculation.reflect_command(body.getString("app"), true);
+                    break;
+                case "stop":
+                    Calculation.reflect_command(body.getString("app"), false);
+                    break;
+                case "updateClass":
+                    //FileUtils.cleanDirectory(new File("C:\\Users\\OS\\Desktop\\Edumsg-comp\\update"));
+                    break;
+            }
+            JSONObject response = new JSONObject();
+            response.put("msg", "success");
+            response.put("code", "200");
+            return response.toString();
+        }
         HttpSnoopClientHandler.add_notifier(loadBalancer.getId(), this);
         HttpSnoopClient.serverCluster(loadBalancer.getByteBuf(), loadBalancer.getId());
         latch.await();

@@ -111,7 +111,6 @@ public class EduMsgControllerHandler extends
 
             System.out.println("-----------");
         }
-        System.out.println(1);
         JSONObject json = new JSONObject(responseBody);
         HttpResponseStatus status = null;
         if (!json.has("message")) {

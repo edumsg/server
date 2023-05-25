@@ -135,21 +135,21 @@ public class RunnableInstance implements Runnable, MessageListener {
                 if (Integer.parseInt(parameters) == pool.getMaxThreads()) {
                     response = " {Max Threads Updated Successfully }";
                 } else {
-                    error = "failed to update max threads";
+                    error = "{failed to update max threads}";
                 }
                 break;
             case "maxDBConnections":
                 if (parameters.equals(db.getDbMaxConnections())) {
                     response = " {Max DB Connections Updated Successfully}";
                 } else {
-                    error = "failed to update max DB connections";
+                    error = "{failed to update max DB connections}";
                 }
                 break;
             case "initDBConnections":
                 if (parameters.equals(db.getDbInitConnections())) {
                     response = " {initial DB Connections Updated Successfully}";
                 } else {
-                    error = "failed to update initial DB connections";
+                    error = "{failed to update initial DB connections}";
                 }
                 break;
             case "getVersion":
@@ -166,7 +166,7 @@ public class RunnableInstance implements Runnable, MessageListener {
                 if (MyLogger.getLog_path().equals(parameters)) {
                     response = " {log file path Updated Successfully}";
                 } else {
-                    error = "failed to update log file path";
+                    error = "{failed to update log file path}";
                 }
                 break;
             case "start":
@@ -225,6 +225,13 @@ public class RunnableInstance implements Runnable, MessageListener {
             }
 
         } catch (Exception e) {
+            try {
+                this.controllerHandleError("server error", e.getMessage(), message.getJMSCorrelationID());
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            } catch (JMSException ex) {
+                throw new RuntimeException(ex);
+            }
             e.printStackTrace();
         }
     }
