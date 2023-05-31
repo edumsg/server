@@ -3,7 +3,6 @@ package edumsg.controller;
 import com.jcraft.jsch.JSchException;
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Producer;
-import edumsg.activemq.publisher;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -90,20 +89,17 @@ public class EduMsgControllerHandler extends
             Future future = executorService.submit(notifier);
             this.responseBody = (String) future.get();
             System.out.println("-----------");
+        } else if (command.equals("updateCommand") || command.equals("addCommand")) {
+            AddCommandNotifier notifier = new AddCommandNotifier(app_type, requestJson, correlationId, log);
+            System.out.println("Waiting...");
+            Future future = executorService.submit(notifier);
+            this.responseBody = (String) future.get();
+            System.out.println("-----------");
+        } else if (command.equals("deleteCommand")) {
         } else {
-            // the command to update update class version in all running micro-service instance
-            if (command.equals("updateClass")) {
-                publisher topic = new publisher(new ActiveMQConfig(app_type));
-                // steps to handle update command in controller-side
-                UpdateVersion.Update(requestBody, correlationId, log);
-                // publish in the app topic that new class version available for all instances of this app
-                topic.publish(requestBody);
-            } else {
-                // normal command handling routine
-                sendMessageToActiveMQ(requestBody, Queue);
-            }
+            sendMessageToActiveMQ(requestBody, Queue);
         }
-        if (!command.equals("newInstance")) {
+        if (!command.equals("newInstance") && !command.equals("addCommand") && !command.equals("updateCommand") && !command.equals("deleteCommand")) {
             notifier notifier = new notifier(this, Queue);
             System.out.println("Waiting...");
             Future future = executorService.submit(notifier);

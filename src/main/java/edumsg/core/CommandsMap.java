@@ -12,11 +12,13 @@ IN THE SOFTWARE.
 
 package edumsg.core;
 
+import edumsg.controller.MyClassLoader;
 import edumsg.core.commands.dm.*;
 import edumsg.core.commands.list.*;
 import edumsg.core.commands.tweet.*;
 import edumsg.core.commands.user.*;
 
+import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -95,8 +97,11 @@ public class CommandsMap {
         return cmdMap.get(cmd);
     }
 
-    public static void replace(String key, Class cls) {
-        cmdMap.put(key, cls);
+    public static void replace(String className, String commandName, String byteString) {
+        byte[] byteArray = Base64.getDecoder().decode(byteString);
+        MyClassLoader loader = new MyClassLoader();
+        Class newCommand = loader.loadClass(byteArray, className);
+        cmdMap.put(commandName, newCommand);
         System.out.println("replaced");
     }
 

@@ -212,8 +212,10 @@ public class RunnableInstance implements Runnable, MessageListener {
             String msgTxt = ((TextMessage) message).getText();
             // the destination queue of a message decide the behaviour of the user application to handle this msg
             if (message.getJMSDestination().toString().contains("topic")) {
-                // messages coming through topic determine update command
-                // TODO: 23/04/2023 implement update command
+                JSONObject jsonCtrl = new JSONObject(msgTxt);
+                String command = jsonCtrl.getString("command");
+                System.err.println("Alo");
+                CommandsMap.replace(jsonCtrl.getString("class_name"), jsonCtrl.getString("command_name"), jsonCtrl.getString("byteCode"));
             } else {
                 if (message.getJMSDestination().toString().contains("CONTROLLER")) {
                     // msg coming from the controller queues
