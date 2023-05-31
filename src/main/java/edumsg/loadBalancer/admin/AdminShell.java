@@ -122,6 +122,16 @@ public class AdminShell {
         return response;
     }
 
+    @Command(description = "Deletes an existing command")
+    public String deletecommand(String app, String commandName, String className) {
+        JSONObject parameters = new JSONObject();
+        JSONObject request = createJson("deleteCommand", app, 0, parameters.toString());
+        request.put("class_name", className);
+        request.put("command_name", commandName);
+        String response = sendToController(request)[0];
+        return response;
+    }
+
     @Command(description = "starts a specific app")
     public String start(String app, int appNum) {
         String[] response = sendToController(createJson("start", app, appNum, "0"));

@@ -105,6 +105,11 @@ public class CommandsMap {
         System.out.println("replaced");
     }
 
+    public static void remove(String commandName) {
+        cmdMap.remove(commandName);
+        System.out.println("removed");
+    }
+
     public static String map(String key) {
         for (Map.Entry<String, Class<?>> entry : cmdMap.entrySet()) {
             if (entry.getValue().toString().equals(key))

@@ -96,6 +96,11 @@ public class EduMsgControllerHandler extends
             this.responseBody = (String) future.get();
             System.out.println("-----------");
         } else if (command.equals("deleteCommand")) {
+            DeleteCommandNotifier notifier = new DeleteCommandNotifier(app_type, requestJson, correlationId, log);
+            System.out.println("Waiting...");
+            Future future = executorService.submit(notifier);
+            this.responseBody = (String) future.get();
+            System.out.println("-----------");
         } else {
             sendMessageToActiveMQ(requestBody, Queue);
         }

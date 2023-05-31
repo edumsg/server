@@ -11,6 +11,7 @@ import edumsg.activemq.Producer;
 import edumsg.activemq.subscriber;
 import edumsg.concurrent.WorkerPool;
 import edumsg.core.Command;
+import edumsg.core.CommandsHelp;
 import edumsg.core.CommandsMap;
 import edumsg.core.PostgresConnection;
 import edumsg.logger.MyLogger;
@@ -214,8 +215,13 @@ public class RunnableInstance implements Runnable, MessageListener {
             if (message.getJMSDestination().toString().contains("topic")) {
                 JSONObject jsonCtrl = new JSONObject(msgTxt);
                 String command = jsonCtrl.getString("command");
-                System.err.println("Alo");
-                CommandsMap.replace(jsonCtrl.getString("class_name"), jsonCtrl.getString("command_name"), jsonCtrl.getString("byteCode"));
+                if (command.equals("deleteCommand")) {
+                    CommandsMap.remove(jsonCtrl.getString("command_name"));
+                } else if (command.equals("addCommand") || command.equals("deleteCommand")) {
+                    System.err.println("Alo");
+                    CommandsMap.replace(jsonCtrl.getString("class_name"), jsonCtrl.getString("command_name"), jsonCtrl.getString("byteCode"));
+                }
+
             } else {
                 if (message.getJMSDestination().toString().contains("CONTROLLER")) {
                     // msg coming from the controller queues
@@ -317,6 +323,7 @@ public class RunnableInstance implements Runnable, MessageListener {
                     LOGGER.log(Level.SEVERE,
                             "Invalid Request. Class \"" + map.get("method")
                                     + "\" Not Found");
+                    CommandsHelp.handleError(map.get("app"), map.get("method"), "NO such command", map.get("correlation_id"), LOGGER);
                 } else {
                     try {
                         Command c = (Command) cmdClass.newInstance();
