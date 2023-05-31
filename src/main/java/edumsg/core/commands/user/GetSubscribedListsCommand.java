@@ -26,8 +26,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GetSubscribedListsCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(GetSubscribedListsCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(GetSubscribedListsCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -74,8 +78,8 @@ public class GetSubscribedListsCommand extends Command implements Runnable {
             root.set("subscribed_lists", lists);
             try {
                 CommandsHelp.submit(map.get("app"),
-                mapper.writeValueAsString(root),
-                map.get("correlation_id"), LOGGER);
+                        mapper.writeValueAsString(root),
+                        map.get("correlation_id"), LOGGER);
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
@@ -92,11 +96,7 @@ public class GetSubscribedListsCommand extends Command implements Runnable {
             CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(set, proc, dbConn,null);
+            PostgresConnection.disconnect(set, proc, dbConn, null);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

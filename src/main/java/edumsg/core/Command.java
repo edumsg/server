@@ -14,7 +14,7 @@ package edumsg.core;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import edumsg.shared.MyObjectMapper;
+import edumsg.NodeManager.MyObjectMapper;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -37,7 +37,7 @@ public abstract class Command implements Runnable {
     public abstract void execute() throws Exception;
 
     public void setMap(HashMap<String, String> map) {
-        this.map=map;
+        this.map = map;
     }
 
     @Override

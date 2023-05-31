@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 public class PostgresConnection {
     private static final Logger LOGGER = Logger
             .getLogger(PostgresConnection.class.getName());
+    private static PoolingDataSource<PoolableConnection> dataSource;
     private String DB_USERNAME;   //your db username
     private String DB_PASSWORD; //your db password
     private String DB_PORT;
@@ -42,21 +43,6 @@ public class PostgresConnection {
     private String DB_MAX_CONNECTIONS = "15";
     private String DB_URL;
     private PoolingDriver dbDriver;
-    private static PoolingDataSource<PoolableConnection> dataSource;
-
-    public void shutdownDriver() throws SQLException {
-        dbDriver.closePool(DB_NAME);
-    }
-
-    public void printDriverStats() throws SQLException {
-        ObjectPool<? extends Connection> connectionPool = dbDriver
-                .getConnectionPool(DB_NAME);
-
-        System.out.println("DB Active Connections: "
-                + connectionPool.getNumActive());
-        System.out.println("DB Idle Connections: "
-                + connectionPool.getNumIdle());
-    }
 
     public static PoolingDataSource<PoolableConnection> getDataSource() {
         return dataSource;
@@ -83,7 +69,7 @@ public class PostgresConnection {
             }
         }
 
-        if(query != null){
+        if (query != null) {
             try {
                 query.close();
             } catch (SQLException e) {
@@ -116,6 +102,20 @@ public class PostgresConnection {
 
     }
 
+    public void shutdownDriver() throws SQLException {
+        dbDriver.closePool(DB_NAME);
+    }
+
+    public void printDriverStats() throws SQLException {
+        ObjectPool<? extends Connection> connectionPool = dbDriver
+                .getConnectionPool(DB_NAME);
+
+        System.out.println("DB Active Connections: "
+                + connectionPool.getNumActive());
+        System.out.println("DB Idle Connections: "
+                + connectionPool.getNumIdle());
+    }
+
     public void initSource() {
         try {
             try {
@@ -132,10 +132,10 @@ public class PostgresConnection {
                 DB_NAME = dbUri.getPath().replace("/", "");
                 DB_URL = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
 
-            } catch (Exception e1){
+            } catch (Exception e1) {
                 try {
                     readConfFile();
-                } catch ( Exception e2 ) {
+                } catch (Exception e2) {
                     e2.printStackTrace();
                 }
                 System.out.println("Used Config File For DB");
@@ -148,6 +148,7 @@ public class PostgresConnection {
             props.setProperty("password", DB_PASSWORD);
             props.setProperty("initialSize", DB_INIT_CONNECTIONS);
             props.setProperty("maxActive", DB_MAX_CONNECTIONS);
+            DB_URL = "jdbc:postgresql://" + DB_HOST + ':' + DB_PORT + "/" + DB_NAME;
 
             ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(
                     DB_URL, props);
@@ -174,7 +175,7 @@ public class PostgresConnection {
         }
     }
 
-    public  void setDBUser(String name) {
+    public void setDBUser(String name) {
         DB_USERNAME = name;
     }
 
@@ -187,7 +188,10 @@ public class PostgresConnection {
     }
 
     public void setDBHost(String host) {
-        DB_HOST = host;
+        if (host.contains("localhost"))
+            DB_HOST = "localhost";
+        else
+            DB_HOST = host;
     }
 
     public void setDBURL(String url) {
@@ -198,17 +202,25 @@ public class PostgresConnection {
         DB_NAME = name;
     }
 
-    public void setDbInitConnections (String initConnections){ DB_INIT_CONNECTIONS = initConnections;}
+    public String getDbInitConnections() {
+        return DB_INIT_CONNECTIONS;
+    }
 
-    public void setDbMaxConnections (String maxConnections ){DB_MAX_CONNECTIONS =maxConnections;  }
+    public void setDbInitConnections(String initConnections) {
+        DB_INIT_CONNECTIONS = initConnections;
+    }
 
-    public String getDbInitConnections() { return DB_INIT_CONNECTIONS;}
+    public String getDbMaxConnections() {
+        return DB_MAX_CONNECTIONS;
+    }
 
-    public String getDbMaxConnections(){return DB_MAX_CONNECTIONS;}
+    public void setDbMaxConnections(String maxConnections) {
+        DB_MAX_CONNECTIONS = maxConnections;
+    }
 
     private boolean formatURL() {
         setDBURL("jdbc:postgresql://" + DB_HOST + ":" + DB_PORT + "/" + DB_NAME);
-        System.out.println("database url..."+DB_URL);
+        System.out.println("database url..." + DB_URL);
         Pattern pattern = Pattern.compile("^\\w+:\\w+:\\/{2}\\d+.\\d+.\\d+.\\d+:\\d+\\/\\w+(?:\\W|\\w)*$");
         Matcher matcher = pattern.matcher(DB_URL);
         return matcher.matches();
@@ -228,17 +240,17 @@ public class PostgresConnection {
         for (int i = 0; i < lines.size(); i++) {
             if (lines.get(i).contains("user")) {
                 matcher = pattern.matcher(lines.get(i));
-                if(matcher.find()){
-                    setDBUser(matcher.group(1));}
-                else
-                    throw  e = new Exception("empty user in Postgres.conf");
+                if (matcher.find()) {
+                    setDBUser(matcher.group(1));
+                } else
+                    throw e = new Exception("empty user in Postgres.conf");
             }
             if (lines.get(i).contains("database")) {
                 matcher = pattern.matcher(lines.get(i));
-                if(matcher.find())
+                if (matcher.find())
                     setDBName(matcher.group(1));
                 else
-                    throw  e = new Exception("empty database name in Postgres.conf");
+                    throw e = new Exception("empty database name in Postgres.conf");
             }
             if (lines.get(i).contains("pass")) {
                 matcher = pattern.matcher(lines.get(i));
@@ -247,9 +259,9 @@ public class PostgresConnection {
             }
             if (lines.get(i).contains("host")) {
                 matcher = pattern.matcher(lines.get(i));
-                if (matcher.find())
+                if (matcher.find()) {
                     setDBHost(matcher.group(1));
-                else
+                } else
                     setDBHost("localhost");
             }
             if (lines.get(i).contains("port")) {
@@ -260,10 +272,10 @@ public class PostgresConnection {
                     setDBPort("5432");
             }
         }
-        if (!formatURL()) {
-            e = new Exception("Wrong Format in Postgres.conf");
-            throw e;
-        }
+//        if (!formatURL()) {
+//            e = new Exception("Wrong Format in Postgres.conf");
+//            throw e;
+//        }
     }
 
 }

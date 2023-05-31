@@ -15,8 +15,8 @@ package edumsg.core.commands.user;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import edumsg.NodeManager.Main;
 import edumsg.core.*;
-import edumsg.redis.Cache;
 import edumsg.redis.UserCache;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,8 +30,12 @@ import java.sql.Types;
 import java.util.logging.Logger;
 
 public class GetUserTweetsCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(GetUserTweetsCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(GetUserTweetsCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -75,8 +79,8 @@ public class GetUserTweetsCommand extends Command implements Runnable {
                 creator.setUsername(creator_username);
                 t.setCreator(creator);
 
-                    tweets.addPOJO(t);
-                }
+                if (tweets.size() < 10) tweets.addPOJO(t);
+            }
 
 //            set.close();
 //            proc.close();
@@ -87,7 +91,7 @@ public class GetUserTweetsCommand extends Command implements Runnable {
                         map.get("correlation_id"), LOGGER);
                 JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
                 cacheEntry.put("cacheStatus", "valid");
-                UserCache.userCache.set("user_tweets:" + map.get("session_id"), cacheEntry.toString());
+                ((UserCache) Main.cacheMap.get("user")).jedisCache.set("user_tweets:" + map.get("session_id"), cacheEntry.toString());
             } catch (JsonGenerationException e) {
                 //Logger.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
@@ -109,9 +113,5 @@ public class GetUserTweetsCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn, null);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

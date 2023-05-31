@@ -34,8 +34,8 @@ public class loadBalancerServerInitializer extends ChannelInitializer<SocketChan
     @Override
     protected void initChannel(SocketChannel arg0) {
         CorsConfig corsConfig = CorsConfig.withAnyOrigin().allowedRequestHeaders("X-Requested-With", "Content-Type",
-                "Content-Length").allowedRequestMethods(HttpMethod.GET,HttpMethod.POST,HttpMethod.PUT,HttpMethod
-                .DELETE,HttpMethod.OPTIONS).build();
+                "Content-Length").allowedRequestMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod
+                .DELETE, HttpMethod.OPTIONS).build();
         ChannelPipeline p = arg0.pipeline();
         if (sslCtx != null) {
             p.addLast(sslCtx.newHandler(arg0.alloc()));

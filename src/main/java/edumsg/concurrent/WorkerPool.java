@@ -39,11 +39,11 @@ public class WorkerPool {
         executor.submit(r);
     }
 
-    public void setMaxThreads(int maxThreads) {
-        this.maxThreads = maxThreads;
-    }
-
     public int getMaxThreads() {
         return maxThreads;
+    }
+
+    public void setMaxThreads(int maxThreads) {
+        this.maxThreads = maxThreads;
     }
 }

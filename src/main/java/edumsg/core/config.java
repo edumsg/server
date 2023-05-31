@@ -13,6 +13,15 @@ public class config {
     public static String instance_user;
     public static String instance_host;
     public static String instance_pass;
+    public static String main_host;
+
+    static {
+        try {
+            initialize();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     // configuration file to get the info related to each micro-service before running it
     public static void initialize() throws Exception {
@@ -28,42 +37,53 @@ public class config {
                 matcher = pattern.matcher(lines.get(i));
                 if (matcher.find()) {
                     instance_num = Integer.parseInt(matcher.group(1));
-                } }
+                }
+            }
 
-                if (lines.get(i).contains("instance_user")) {
-                    matcher = pattern.matcher(lines.get(i));
-                    if (matcher.find()) {
-                        instance_user = matcher.group(1);
-                    } }
+            if (lines.get(i).contains("instance_user")) {
+                matcher = pattern.matcher(lines.get(i));
+                if (matcher.find()) {
+                    instance_user = matcher.group(1);
+                }
+            }
             if (lines.get(i).contains("instance_host")) {
                 matcher = pattern.matcher(lines.get(i));
                 if (matcher.find()) {
                     instance_host = matcher.group(1);
-                } }
+                }
+            }
             if (lines.get(i).contains("instance_pass")) {
                 matcher = pattern.matcher(lines.get(i));
                 if (matcher.find()) {
                     instance_pass = matcher.group(1);
-                } }
+                }
             }
+            if (lines.get(i).contains("main_host")) {
+                matcher = pattern.matcher(lines.get(i));
+                if (matcher.find()) {
+                    main_host = matcher.group(1);
+                }
+            }
+        }
     }
 
-    public static int getInstance_num() throws Exception {
-        initialize();
+    public static int getInstance_num() {
         return instance_num;
     }
 
-    public static String getInstance_user() throws Exception {
-        initialize();
+    public static String getInstance_user() {
         return instance_user;
     }
 
-    public static String getInstance_host() throws Exception {
-        initialize();
+    public static String getInstance_host() {
         return instance_host;
     }
 
     public static String getInstance_pass() {
         return instance_pass;
+    }
+
+    public static String getMain_host() {
+        return main_host;
     }
 }

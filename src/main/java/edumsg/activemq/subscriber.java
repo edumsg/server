@@ -1,10 +1,5 @@
 package edumsg.activemq;
 
-import edumsg.shared.DMMain;
-import edumsg.shared.ListMain;
-import edumsg.shared.TweetMain;
-import edumsg.shared.UserMain;
-
 import javax.jms.*;
 
 public class subscriber {
@@ -12,27 +7,16 @@ public class subscriber {
     Connection conn;
     MessageConsumer consumer;
     Session session;
+
     // the constructor for crating a subscriber when we use a topic over the middle-ware connection
-    public subscriber(ActiveMQConfig config , String key) {
+    public subscriber(ActiveMQConfig config, MessageListener listener) {
         this.config = config;
         try {
             conn = config.connect();
             session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
             Topic topic = session.createTopic(config.getQueueName());
             consumer = session.createConsumer(topic);
-            switch (key){
-                case "USER" :
-                    consumer.setMessageListener(new UserMain());
-                    break;
-                case "TWEET" :
-                    consumer.setMessageListener(new TweetMain());
-                    break;
-                case "DM" :
-                    consumer.setMessageListener(new DMMain());
-                    break;
-                case "LIST" : consumer.setMessageListener(new ListMain());
-                    break;
-            }
+            consumer.setMessageListener(listener);
             conn.start();
         } catch (JMSException e) {
 

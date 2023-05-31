@@ -24,8 +24,12 @@ import java.sql.SQLException;
 import java.util.logging.Logger;
 
 public class LogoutCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(LogoutCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(LogoutCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -60,9 +64,5 @@ public class LogoutCommand extends Command implements Runnable {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

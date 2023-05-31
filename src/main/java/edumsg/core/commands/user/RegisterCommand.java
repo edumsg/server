@@ -28,8 +28,12 @@ import java.sql.SQLException;
 import java.util.logging.Logger;
 
 public class RegisterCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(RegisterCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(RegisterCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -42,7 +46,7 @@ public class RegisterCommand extends Command implements Runnable {
             query = dbConn.createStatement();
             query.setPoolable(true);
             System.out.println("query " + query);
-           System.out.println("map" + map);
+            System.out.println("map" + map);
             if (map.containsKey("avatar_url")) {
                 set = query.executeQuery(String.format(
                         "SELECT * FROM create_user('%s','%s','%s','%s','%s')"
@@ -66,15 +70,15 @@ public class RegisterCommand extends Command implements Runnable {
             root.put("status", "ok");
             root.put("code", "200");
 
-        while(set.next()) {
-            System.out.println("entered");
-            details.put("username", map.get("username"));
-            details.put("email", map.get("email"));
-            details.put("name", map.get("name"));
-            details.put("created_at", set.getTimestamp("created_at")+"");
-            //Cache.cacheUser(set.getInt("id")+"", details);
-            //Cache.mapUsernameID(map.get("username"), set.getInt("id")+"");
-        }
+            while (set.next()) {
+                System.out.println("entered");
+                details.put("username", map.get("username"));
+                details.put("email", map.get("email"));
+                details.put("name", map.get("name"));
+                details.put("created_at", set.getTimestamp("created_at") + "");
+                //Cache.cacheUser(set.getInt("id")+"", details);
+                //Cache.mapUsernameID(map.get("username"), set.getInt("id")+"");
+            }
 
             set.close();
             query.close();
@@ -120,9 +124,5 @@ public class RegisterCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, null, dbConn, query);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

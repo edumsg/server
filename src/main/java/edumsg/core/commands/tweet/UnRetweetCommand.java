@@ -16,14 +16,14 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import edumsg.NodeManager.Main;
+import edumsg.NodeManager.MyObjectMapper;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 import edumsg.redis.ListCache;
-import edumsg.redis.TweetsCache;
+import edumsg.redis.TweetCache;
 import edumsg.redis.UserCache;
-import edumsg.shared.MyObjectMapper;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
@@ -34,8 +34,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UnRetweetCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(UnRetweetCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(UnRetweetCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -61,40 +65,40 @@ public class UnRetweetCommand extends Command implements Runnable {
             root.put("favorites", retweets);
             try {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
-                String cacheEntry = UserCache.userCache.get("user_tweets:" + map.get("session_id"));
+                String cacheEntry = ((UserCache) Main.cacheMap.get("user")).jedisCache.get("user_tweets:" + map.get("session_id"));
                 if (cacheEntry != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    UserCache.userCache.set("user_tweets:" + map.get("session_id"), cacheEntryJson.toString());
+                    ((UserCache) Main.cacheMap.get("user")).jedisCache.set("user_tweets:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry1 = UserCache.userCache.get("timeline:" + map.get("session_id"));
+                String cacheEntry1 = ((UserCache) Main.cacheMap.get("user")).jedisCache.get("timeline:" + map.get("session_id"));
                 if (cacheEntry1 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    UserCache.userCache.set("timeline:" + map.get("session_id"), cacheEntryJson.toString());
+                    ((UserCache) Main.cacheMap.get("user")).jedisCache.set("timeline:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry2 = TweetsCache.tweetCache.get("get_earliest_replies:" + map.get("session_id"));
+                String cacheEntry2 = ((TweetCache) Main.cacheMap.get("tweet")).jedisCache.get("get_earliest_replies:" + map.get("session_id"));
                 if (cacheEntry2 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry2);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    TweetsCache.tweetCache.set("get_earliest_replies:" + map.get("session_id"), cacheEntryJson.toString());
+                    ((TweetCache) Main.cacheMap.get("tweet")).jedisCache.set("get_earliest_replies:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry3 = TweetsCache.tweetCache.get("get_replies:" + map.get("session_id"));
+                String cacheEntry3 = ((TweetCache) Main.cacheMap.get("tweet")).jedisCache.get("get_replies:" + map.get("session_id"));
                 if (cacheEntry3 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry3);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    TweetsCache.tweetCache.set("get_replies:" + map.get("session_id"), cacheEntryJson.toString());
+                    ((TweetCache) Main.cacheMap.get("tweet")).jedisCache.set("get_replies:" + map.get("session_id"), cacheEntryJson.toString());
                 }
-                String cacheEntry4 = ListCache.listCache.get("get_list_feeds:" + map.get("session_id"));
+                String cacheEntry4 = ((ListCache) Main.cacheMap.get("list")).jedisCache.get("get_list_feeds:" + map.get("session_id"));
                 if (cacheEntry4 != null) {
                     JSONObject cacheEntryJson = new JSONObject(cacheEntry4);
                     cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                    ListCache.listCache.set("get_list_feeds:" + map.get("session_id"), cacheEntryJson.toString());
+                    ((ListCache) Main.cacheMap.get("list")).jedisCache.set("get_list_feeds:" + map.get("session_id"), cacheEntryJson.toString());
                 }
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -116,9 +120,5 @@ public class UnRetweetCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

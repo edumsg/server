@@ -13,6 +13,7 @@ import io.netty.handler.ssl.SslContext;
 public class EduMsgControllerInitializer extends ChannelInitializer<SocketChannel> {
 
     private final SslContext sslCtx;
+
     public EduMsgControllerInitializer(SslContext sslCtx) {
         this.sslCtx = sslCtx;
     }
@@ -21,8 +22,8 @@ public class EduMsgControllerInitializer extends ChannelInitializer<SocketChanne
     protected void initChannel(SocketChannel arg0) {
 
         CorsConfig corsConfig = CorsConfig.withAnyOrigin().allowedRequestHeaders("X-Requested-With", "Content-Type",
-                "Content-Length").allowedRequestMethods(HttpMethod.GET,HttpMethod.POST,HttpMethod.PUT,HttpMethod
-                .DELETE,HttpMethod.OPTIONS).build();
+                "Content-Length").allowedRequestMethods(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod
+                .DELETE, HttpMethod.OPTIONS).build();
 
         ChannelPipeline p = arg0.pipeline();
         if (sslCtx != null) {

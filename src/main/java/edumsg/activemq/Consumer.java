@@ -11,11 +11,6 @@ IN THE SOFTWARE.
 */
 package edumsg.activemq;
 
-import edumsg.shared.DMMain;
-import edumsg.shared.ListMain;
-import edumsg.shared.TweetMain;
-import edumsg.shared.UserMain;
-
 import javax.jms.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,7 +23,7 @@ public class Consumer {
     Session session;
     Queue queue;
 
-    public Consumer(ActiveMQConfig config, String key) {
+    public Consumer(ActiveMQConfig config, MessageListener listener) {
         this.config = config;
         try {
             conn = config.connect();
@@ -36,20 +31,8 @@ public class Consumer {
             queue = session.createQueue(config.getQueueName());
             consumer = session.createConsumer(queue);
             // after crating a consumer for each micro-service, we assign a message listener for it
-            switch (key) {
-                case "USER":
-                    consumer.setMessageListener(new UserMain());
-                    break;
-                case "TWEET":
-                    consumer.setMessageListener(new TweetMain());
-                    break;
-                case "DM":
-                    consumer.setMessageListener(new DMMain());
-                    break;
-                case "LIST":
-                    consumer.setMessageListener(new ListMain());
-                    break;
-            }
+            if (listener != null)
+                consumer.setMessageListener(listener);
             conn.start();
         } catch (JMSException e) {
             lgr.log(Level.SEVERE, e.getMessage(), e);

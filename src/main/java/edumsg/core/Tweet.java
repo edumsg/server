@@ -16,59 +16,59 @@ import java.sql.Timestamp;
 
 @SuppressWarnings("unused")
 public class Tweet {
-	private Integer id;
-	private String tweet_text;
-	private String image_url;
-	private String created_at;
-	private User creator;
-	private User retweeter;
-	private User favoriter;
-	private Integer retweets;
-	private Integer favorites;
-	private boolean is_retweeted;
-	private boolean is_favorited;
+    private Integer id;
+    private String tweet_text;
+    private String image_url;
+    private String created_at;
+    private User creator;
+    private User retweeter;
+    private User favoriter;
+    private Integer retweets;
+    private Integer favorites;
+    private boolean is_retweeted;
+    private boolean is_favorited;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setTweetText(String tweet_text) {
-		this.tweet_text = tweet_text;
-	}
+    public void setTweetText(String tweet_text) {
+        this.tweet_text = tweet_text;
+    }
 
-	public void setImageUrl(String image_url) {
-		this.image_url = image_url;
-	}
+    public void setImageUrl(String image_url) {
+        this.image_url = image_url;
+    }
 
-	public void setCreatedAt(Timestamp timestamp) {
-		this.created_at = timestamp.toString();
-	}
+    public void setCreatedAt(Timestamp timestamp) {
+        this.created_at = timestamp.toString();
+    }
 
-	public void setCreator(User creator) {
-		this.creator = creator;
-	}
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
 
-	public void setRetweeter(User retweeter) {
-		this.retweeter = retweeter;
-	}
+    public void setRetweeter(User retweeter) {
+        this.retweeter = retweeter;
+    }
 
-	public void setFavoriter(User favoriter) {
-		this.favoriter = favoriter;
-	}
+    public void setFavoriter(User favoriter) {
+        this.favoriter = favoriter;
+    }
 
-	public void setRetweets(Integer retweets) {
-		this.retweets = retweets;
-	}
+    public void setRetweets(Integer retweets) {
+        this.retweets = retweets;
+    }
 
-	public void setFavorites(Integer favorites) {
-		this.favorites = favorites;
-	}
+    public void setFavorites(Integer favorites) {
+        this.favorites = favorites;
+    }
 
-	public void setIsRetweeted(boolean isRetweeted) {
-		this.is_retweeted = isRetweeted;
-	}
+    public void setIsRetweeted(boolean isRetweeted) {
+        this.is_retweeted = isRetweeted;
+    }
 
-	public void setIsFavorited(boolean isFavorited) {
-		this.is_favorited = isFavorited;
-	}
+    public void setIsFavorited(boolean isFavorited) {
+        this.is_favorited = isFavorited;
+    }
 }

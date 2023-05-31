@@ -34,15 +34,22 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 public class loadBalancerServerHandler extends
         SimpleChannelInboundHandler<Object> {
 
+    ExecutorService executorService = Executors.newCachedThreadPool();
     private HttpRequest request;
     private String requestBody;
     private String responseBody;
-    private ByteBuf ByteBuf ;
+    private ByteBuf ByteBuf;
     private String id;
 
-    ExecutorService executorService = Executors.newCachedThreadPool();
+    private static void send100Continue(ChannelHandlerContext ctx) {
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
+                CONTINUE);
+        ctx.writeAndFlush(response);
+    }
 
-    public void channelReadComplete(ChannelHandlerContext ctx) { ctx.flush(); }
+    public void channelReadComplete(ChannelHandlerContext ctx) {
+        ctx.flush();
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg)
@@ -66,10 +73,11 @@ public class loadBalancerServerHandler extends
         if (msg instanceof LastHttpContent) {
             DefaultLastHttpContent httpContent = (DefaultLastHttpContent) msg;
             ByteBuf content = httpContent.content();
-            writeResponse(content , ctx);
+            writeResponse(content, ctx);
 
         }
     }
+
     private synchronized void writeResponse(ByteBuf ByteBuf, final ChannelHandlerContext ctx) throws
             NumberFormatException, InterruptedException, JSONException, ExecutionException {
 
@@ -85,9 +93,10 @@ public class loadBalancerServerHandler extends
                     .get("code")),
                     Integer.parseInt((String) json.get("code")) == 200 ? "Ok"
                             : "Bad Request");
-        else{
+        else {
             status = new HttpResponseStatus(Integer.parseInt((String) json
-                    .get("code")), (String) json.get("message"));}
+                    .get("code")), (String) json.get("message"));
+        }
 
         boolean keepAlive = HttpHeaders.isKeepAlive(request);
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
@@ -100,12 +109,6 @@ public class loadBalancerServerHandler extends
             response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
         }
 
-        ctx.writeAndFlush(response);
-    }
-
-    private static void send100Continue(ChannelHandlerContext ctx) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
-                CONTINUE);
         ctx.writeAndFlush(response);
     }
 

@@ -30,7 +30,7 @@ public class notifier implements Callable<String> {
 
 
     public notifier(EduMsgControllerHandler controllerHandler,
-                         String queueName) {
+                    String queueName) {
         this.controllerHandler = controllerHandler;
         this.setQueueName(queueName);
     }

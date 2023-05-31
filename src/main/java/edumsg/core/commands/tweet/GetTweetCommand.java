@@ -27,8 +27,12 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 public class GetTweetCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(GetTweetCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(GetTweetCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -38,7 +42,7 @@ public class GetTweetCommand extends Command implements Runnable {
             User creator = new User();
             details = null; //Cache.returnTweet(map.get("tweet_id"));
 
-            if(details == null) {
+            if (details == null) {
 
                 dbConn = PostgresConnection.getDataSource().getConnection();
                 dbConn.setAutoCommit(false);
@@ -56,7 +60,7 @@ public class GetTweetCommand extends Command implements Runnable {
                 root.put("code", "200");
 
                 if (set.next()) {
-                    details =  new HashMap<>();
+                    details = new HashMap<>();
                     Integer id = set.getInt(1);
                     String tweet = set.getString(2);
                     String image_url = set.getString(5);
@@ -125,9 +129,5 @@ public class GetTweetCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

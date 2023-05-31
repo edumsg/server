@@ -3,10 +3,10 @@ package edumsg.core.commands.tweet;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import edumsg.NodeManager.Main;
 import edumsg.core.*;
 import edumsg.core.commands.user.GetUserCommand;
-import edumsg.redis.Cache;
-import edumsg.redis.TweetsCache;
+import edumsg.redis.TweetCache;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
 
@@ -21,10 +21,13 @@ import java.util.logging.Logger;
 /**
  * Created by omarelhagin on 15/3/16.
  */
-public class GetRepliesCommand extends Command implements Runnable
-{
-    private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
+public class GetRepliesCommand extends Command implements Runnable {
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(GetUserCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -68,7 +71,7 @@ public class GetRepliesCommand extends Command implements Runnable
                 t.setCreator(creator);
                 t.setCreatedAt(createdAt);
 
-                tweets.addPOJO(t);
+                if (tweets.size() < 10) tweets.addPOJO(t);
             }
 
             root.set("replies", tweets);
@@ -78,7 +81,7 @@ public class GetRepliesCommand extends Command implements Runnable
                         map.get("correlation_id"), LOGGER);
                 JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
                 cacheEntry.put("cacheStatus", "valid");
-                TweetsCache.tweetCache.set("get_replies:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
+                ((TweetCache) Main.cacheMap.get("tweet")).jedisCache.set("get_replies:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
@@ -97,9 +100,5 @@ public class GetRepliesCommand extends Command implements Runnable
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

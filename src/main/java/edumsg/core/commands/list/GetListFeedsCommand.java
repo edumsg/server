@@ -15,8 +15,8 @@ package edumsg.core.commands.list;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import edumsg.NodeManager.Main;
 import edumsg.core.*;
-import edumsg.redis.Cache;
 import edumsg.redis.ListCache;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
@@ -30,8 +30,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GetListFeedsCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(GetListFeedsCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(GetListFeedsCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -84,7 +88,7 @@ public class GetListFeedsCommand extends Command implements Runnable {
                     t.setRetweeter(r);
                 }
 
-                tweets.addPOJO(t);
+                if (tweets.size() < 10) tweets.addPOJO(t);
             }
 
             root.set("list_feeds", tweets);
@@ -92,7 +96,7 @@ public class GetListFeedsCommand extends Command implements Runnable {
                 CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
                 JSONObject cacheEntry = new JSONObject(mapper.writeValueAsString(root));
                 cacheEntry.put("cacheStatus", "valid");
-                ListCache.listCache.set("get_list_feeds:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
+                ((ListCache) Main.cacheMap.get("list")).jedisCache.set("get_list_feeds:" + map.getOrDefault("session_id", ""), cacheEntry.toString());
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
@@ -111,9 +115,5 @@ public class GetListFeedsCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(set, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

@@ -24,7 +24,6 @@ import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.ssl.SslContext;
 
 
-
 public class HttpControllerClientInitializer extends ChannelInitializer<SocketChannel> {
 
     private final SslContext sslCtx;

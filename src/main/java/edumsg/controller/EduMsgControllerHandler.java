@@ -3,7 +3,6 @@ package edumsg.controller;
 import com.jcraft.jsch.JSchException;
 import edumsg.activemq.ActiveMQConfig;
 import edumsg.activemq.Producer;
-import edumsg.activemq.publisher;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -54,7 +53,8 @@ public class EduMsgControllerHandler extends
             request = (HttpRequest) msg;
             if (HttpHeaders.is100ContinueExpected(request)) {
                 send100Continue(ctx);
-            } }
+            }
+        }
 
         if (msg instanceof HttpContent) {
             HttpContent httpContent = (HttpContent) msg;
@@ -80,62 +80,56 @@ public class EduMsgControllerHandler extends
         String Queue = (requestJson.getString("app_type")).toUpperCase() + "_" + app_num;
 
         System.out.println("request body... " + requestBody);
-        notifier notifier = new notifier(this, Queue);
+
 
         // the command to create new micro-service instance
         if (command.equals("newInstance")) {
-            Runnable r = new Runnable() {
-                public void run() {
-                    try {
-                        serviceMigration newInstance = new serviceMigration();
-                        newInstance.setUp(app_type, app_num, correlationId, log);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-            executorService.submit(r);
+            NewInstanceNotifier notifier = new NewInstanceNotifier(app_type, app_num, correlationId, log);
+            System.out.println("Waiting...");
+            Future future = executorService.submit(notifier);
+            this.responseBody = (String) future.get();
+            System.out.println("-----------");
+        } else if (command.equals("updateCommand") || command.equals("addCommand")) {
+            AddCommandNotifier notifier = new AddCommandNotifier(app_type, requestJson, correlationId, log);
+            System.out.println("Waiting...");
+            Future future = executorService.submit(notifier);
+            this.responseBody = (String) future.get();
+            System.out.println("-----------");
+        } else if (command.equals("deleteCommand")) {
+            DeleteCommandNotifier notifier = new DeleteCommandNotifier(app_type, requestJson, correlationId, log);
+            System.out.println("Waiting...");
+            Future future = executorService.submit(notifier);
+            this.responseBody = (String) future.get();
+            System.out.println("-----------");
         } else {
-            // the command to update update class version in all running micro-service instance
-            if (command.equals("updateClass")) {
-                publisher topic = new publisher(new ActiveMQConfig(app_type));
-                // steps to handle update command in controller-side
-                UpdateVersion.Update(requestBody, correlationId, log);
-                // publish in the app topic that new class version available for all instances of this app
-                topic.publish(requestBody);
-            } else {
-                // normal command handling routine
-                sendMessageToActiveMQ(requestBody, Queue);
-            }
+            sendMessageToActiveMQ(requestBody, Queue);
         }
-        System.out.println("waiting...");
+        if (!command.equals("newInstance") && !command.equals("addCommand") && !command.equals("updateCommand") && !command.equals("deleteCommand")) {
+            notifier notifier = new notifier(this, Queue);
+            System.out.println("Waiting...");
+            Future future = executorService.submit(notifier);
+            this.responseBody = (String) future.get();
 
-        Future future = executorService.submit(notifier);
-        this.responseBody = (String) future.get();
-        System.out.println("-----------");
-
+            System.out.println("-----------");
+        }
         JSONObject json = new JSONObject(responseBody);
         HttpResponseStatus status = null;
-        if (!json.has("message"))
-
+        if (!json.has("message")) {
             status = new HttpResponseStatus(200,
                     "ok");
-        else {
+        } else {
             status = new HttpResponseStatus(Integer.parseInt((String) json
                     .get("code")), (String) json.get("message"));
         }
-
         boolean keepAlive = HttpHeaders.isKeepAlive(request);
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1,
                 status, Unpooled.copiedBuffer(responseBody, CharsetUtil.UTF_8));
-
         response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
         if (keepAlive) {
             response.headers().set(CONTENT_LENGTH,
                     response.content().readableBytes());
             response.headers().set(CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
         }
-
         ctx.writeAndFlush(response);
         System.out.println("res..." + responseBody);
     }

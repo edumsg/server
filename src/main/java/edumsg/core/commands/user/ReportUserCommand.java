@@ -25,8 +25,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ReportUserCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(ReportUserCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(ReportUserCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -49,8 +53,8 @@ public class ReportUserCommand extends Command implements Runnable {
             root.put("code", "200");
             try {
                 CommandsHelp.submit(map.get("app"),
-                mapper.writeValueAsString(root),
-                map.get("correlation_id"), LOGGER);
+                        mapper.writeValueAsString(root),
+                        map.get("correlation_id"), LOGGER);
             } catch (JsonGenerationException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             } catch (JsonMappingException e) {
@@ -63,18 +67,14 @@ public class ReportUserCommand extends Command implements Runnable {
             if (e.getMessage().contains("unique constraint")) {
                 CommandsHelp.handleError(map.get("app"), map.get("method"), "You already reported this user", map.get("correlation_id"), LOGGER);
             } else {
-                CommandsHelp.handleError(map.get("app"), map.get("method"),e.getMessage(), map.get("correlation_id"), LOGGER);
+                CommandsHelp.handleError(map.get("app"), map.get("method"), e.getMessage(), map.get("correlation_id"), LOGGER);
             }
 
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
-            PostgresConnection.disconnect(null, proc, dbConn,null);
+            PostgresConnection.disconnect(null, proc, dbConn, null);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

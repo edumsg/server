@@ -14,10 +14,10 @@ package edumsg.core.commands.dm;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import edumsg.NodeManager.Main;
 import edumsg.core.Command;
 import edumsg.core.CommandsHelp;
 import edumsg.core.PostgresConnection;
-import edumsg.redis.Cache;
 import edumsg.redis.UserCache;
 import org.json.JSONObject;
 import org.postgresql.util.PSQLException;
@@ -29,10 +29,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CreateDmCommand extends Command implements Runnable {
+    private static double classVersion = 1.0;
     private final Logger LOGGER = Logger.getLogger(CreateDmCommand.class
             .getName());
-    private static double classVersion = 1.0;
 
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -63,19 +66,19 @@ public class CreateDmCommand extends Command implements Runnable {
                 root.put("code", "200");
                 try {
                     CommandsHelp.submit(map.get("app"), mapper.writeValueAsString(root), map.get("correlation_id"), LOGGER);
-                    String cacheEntry = UserCache.userCache.get("get_conv:" + map.get("session_id"));
+                    String cacheEntry = ((UserCache) Main.cacheMap.get("user")).jedisCache.get("get_conv:" + map.get("session_id"));
                     if (cacheEntry != null) {
                         JSONObject cacheEntryJson = new JSONObject(cacheEntry);
                         cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                        UserCache.userCache.set("get_conv:" + map.get("session_id"), cacheEntryJson.toString());
+                        ((UserCache) Main.cacheMap.get("user")).jedisCache.set("get_conv:" + map.get("session_id"), cacheEntryJson.toString());
                     }
-                    String cacheEntry1 = UserCache.userCache.get("get_convs:" + map.get("session_id"));
+                    String cacheEntry1 = ((UserCache) Main.cacheMap.get("user")).jedisCache.get("get_convs:" + map.get("session_id"));
                     if (cacheEntry1 != null) {
                         JSONObject cacheEntryJson = new JSONObject(cacheEntry1);
                         cacheEntryJson.put("cacheStatus", "invalid");
 //                    System.out.println("invalidated");
-                        UserCache.userCache.set("get_convs:" + map.get("session_id"), cacheEntryJson.toString());
+                        ((UserCache) Main.cacheMap.get("user")).jedisCache.set("get_convs:" + map.get("session_id"), cacheEntryJson.toString());
                     }
                 } catch (JsonGenerationException e) {
                     LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -105,9 +108,5 @@ public class CreateDmCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

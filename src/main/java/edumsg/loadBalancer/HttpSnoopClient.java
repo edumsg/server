@@ -26,6 +26,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 import org.json.JSONObject;
+
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -34,11 +35,11 @@ import java.util.Map;
 
 public final class HttpSnoopClient {
 
-    private static Channel controller_ch;
     public static HashMap<String, applicationsInstance> serverInstances = new HashMap<>(); //hashMap containing the current instances from main server nodes
+    private static Channel controller_ch;
 
     // method to create HTTP request using the request body and set the appropriate headers for the HTTP request
-    private static DefaultFullHttpRequest createReq(ByteBuf body,applicationsInstance server ,String App_Type,String reqId) {
+    private static DefaultFullHttpRequest createReq(ByteBuf body, applicationsInstance server, String App_Type, String reqId) {
         URI uri = server.getUri();
         DefaultFullHttpRequest request;
         if (body == null) {
@@ -61,8 +62,9 @@ public final class HttpSnoopClient {
         request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
         return request;
     }
+
     // method to decide to which server from the main servers farm we will direct this request to
-    public static void serverCluster(ByteBuf requestContent, String reqId){
+    public static void serverCluster(ByteBuf requestContent, String reqId) {
         /*sendToMainServer(requestContent,serverInstances.get( (serverInstances.keySet().toArray())[ count ] ));
         System.out.println("forward to server... " + count);
         if(count == 1) {
@@ -73,25 +75,25 @@ public final class HttpSnoopClient {
         // each time we will use the server instance with the least response time
         int min = 0;
         String host = serverInstances.entrySet().iterator().next().getValue().getIp();
-        if(serverInstances.size()==1){
-            sendToMainServer(requestContent,serverInstances.entrySet().iterator().next().getValue(),reqId);
+        if (serverInstances.size() == 1) {
+            sendToMainServer(requestContent, serverInstances.entrySet().iterator().next().getValue(), reqId);
             //System.err.println("request sent to server instance num..."+serverInstances.entrySet().iterator().next().getKey());
-        }else{
+        } else {
             // pick the 1st running server to be min
             for (Map.Entry<String, applicationsInstance> entry : serverInstances.entrySet()) {
-                if(entry.getValue().isRun()) {
+                if (entry.getValue().isRun()) {
                     min = entry.getValue().getIncomplite_req();
                     break;
                 }
             }
             // loop in the server instances list to pick the one with the lowest load.
-            for (Map.Entry<String, applicationsInstance> entry : serverInstances.entrySet()){
-                if(entry.getValue().isRun()) {
+            for (Map.Entry<String, applicationsInstance> entry : serverInstances.entrySet()) {
+                if (entry.getValue().isRun()) {
                     if (entry.getValue().getIncomplite_req() <= min)
                         host = entry.getValue().getIp();
                 }
             }
-            sendToMainServer(requestContent,serverInstances.get(host),reqId);
+            sendToMainServer(requestContent, serverInstances.get(host), reqId);
             //System.err.println("request sent to server instance IP..."+host);
 
         }
@@ -116,12 +118,12 @@ public final class HttpSnoopClient {
     }
 
     // this method would take a request and server to send this request for this server
-    public static void sendToMainServer(ByteBuf requestContent , applicationsInstance server,String reqId) {
+    public static void sendToMainServer(ByteBuf requestContent, applicationsInstance server, String reqId) {
 
         //System.out.println("send to channel..."+server.getIp());
         JSONObject body = new JSONObject(requestContent.toString(CharsetUtil.UTF_8));
         String App_Type = body.getString("queue");
-        DefaultFullHttpRequest request = createReq(requestContent,server, App_Type,reqId);
+        DefaultFullHttpRequest request = createReq(requestContent, server, App_Type, reqId);
         server.getChannel().writeAndFlush(request);
         // after sending the request we capture an image of it to calculate statistics
         Calculation.send_time(request);
@@ -148,14 +150,15 @@ public final class HttpSnoopClient {
     }
 
     // this method is responsible for integrating a new server to the system after we migrate a new instance of it
-    public static void add_server_instance (applicationsInstance server){
-        serverInstances.put(server.getIp(),server);
+    public static void add_server_instance(applicationsInstance server) {
+        serverInstances.put(server.getIp(), server);
     }
 
     public static int getServerInstances() {
         return serverInstances.size();
     }
-    public static void decrement(String host){
+
+    public static void decrement(String host) {
         applicationsInstance server = serverInstances.get(host);
         server.decrease();
     }

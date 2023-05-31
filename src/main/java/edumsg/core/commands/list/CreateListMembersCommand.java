@@ -27,8 +27,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CreateListMembersCommand extends Command implements Runnable {
-    private final Logger LOGGER = Logger.getLogger(CreateListCommand.class.getName());
     private static double classVersion = 1.0;
+    private final Logger LOGGER = Logger.getLogger(CreateListCommand.class.getName());
+
+    public static double getClassVersion() {
+        return classVersion;
+    }
 
     @Override
     public void execute() {
@@ -37,7 +41,8 @@ public class CreateListMembersCommand extends Command implements Runnable {
             dbConn = PostgresConnection.getDataSource().getConnection();
             dbConn.setAutoCommit(true);
             proc = dbConn.prepareCall("{call create_list_with_members(?,?,?,?,now()::TIMESTAMP ,?)}");
-            proc.setPoolable(true);proc.registerOutParameter(1, Types.OTHER);
+            proc.setPoolable(true);
+            proc.registerOutParameter(1, Types.OTHER);
             proc.setString(1, map.get("name"));
             proc.setString(2, map.get("description"));
             proc.setString(3, map.get("session_id"));
@@ -46,7 +51,6 @@ public class CreateListMembersCommand extends Command implements Runnable {
             proc.setArray(5, array);
 
             proc.execute();
-
 
 
             root.put("app", map.get("app"));
@@ -79,9 +83,5 @@ public class CreateListMembersCommand extends Command implements Runnable {
         } finally {
             PostgresConnection.disconnect(null, proc, dbConn);
         }
-    }
-
-    public static double getClassVersion() {
-        return classVersion;
     }
 }

@@ -10,6 +10,29 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ActiveMQTests {
+    public static void main(String args[]) {
+        Producer p = new Producer(new ActiveMQConfig("TEST_QUEUE"));
+
+        //creating CyclicBarrier for 100 thread to start simultaneously
+        final CyclicBarrier cb = new CyclicBarrier(100, new Runnable() {
+            @Override
+            public void run() {
+                //This task will be executed once all thread reaches barrier
+
+                System.out.println("All parties are arrived at barrier, lets play");
+                Logger l = Logger.getLogger(ActiveMQTests.class.getName());
+                p.send("demo " + Math.random(), ((int) Math.random()) + "", l);
+            }
+        });
+
+        //starting each of thread
+        for (int i = 0; i < 100; i++) {
+
+            new Thread(new ActiveMQTests.Task(cb), "Thread " + i).start();
+        }
+
+    }
+
     private static class Task implements Runnable {
 
         private CyclicBarrier barrier;
@@ -31,28 +54,5 @@ public class ActiveMQTests {
                 Logger.getLogger(ActiveMQTests.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }
-
-    public static void main(String args[]) {
-        Producer p = new Producer(new ActiveMQConfig("TEST_QUEUE"));
-
-        //creating CyclicBarrier for 100 thread to start simultaneously
-        final CyclicBarrier cb = new CyclicBarrier(100, new Runnable(){
-            @Override
-            public void run(){
-                //This task will be executed once all thread reaches barrier
-
-                System.out.println("All parties are arrived at barrier, lets play");
-                Logger l = Logger.getLogger(ActiveMQTests.class.getName());
-                p.send("demo "+ Math.random(), ((int) Math.random())+"",l);
-            }
-        });
-
-      //starting each of thread
-        for(int i = 0; i<100; i++){
-
-            new Thread(new ActiveMQTests.Task(cb), "Thread "+i).start();
-        }
-
     }
 }

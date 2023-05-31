@@ -1,90 +1,118 @@
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\UnconfirmedFollowersCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\concurrent\WorkerPool.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\list\CreateListCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\FollowersCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\shared\ListMain.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\User.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\LoginCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\shared\DMMain.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\list\AddMemberCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\dm\GetConversationCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\activemq\Producer.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\DirectMessage.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\netty\EduMsgNettyServerInitializer.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\list\GetListFeedsCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\MyProfileCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\dm\DeleteConversationCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\tweet\FavoriteCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\dm\GetConversationsCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\GetUserWithTweetsCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\UpdateUserCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\list\SubscribeCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\FollowCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\dm\MarkAllReadCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\redis\Cache.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\GetListMembershipsCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\redis\EduMsgRedis.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\tweet\GetRepliesCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\Tweet.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\BCrypt.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\GetUserTweetsCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\netty\EduMsgNettyServerHandler.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\tweet\DeleteTweetCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\GetTimelineCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\GetFavoritesCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\tweet\RetweetCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\GetSubscribedListsCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\tweet\UnFavoriteCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\ReportUserCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\list\DeleteMemberCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\list\DeleteListCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\CommandsHelp.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\shared\UserMain.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\dm\MarkReadCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\netty\NettyNotifier.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\dm\DeleteDmCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\Command.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\tests\ActiveMQTests.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\GetUserCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\redis\UserCache.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\GetUserTweets2Command.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\RegisterCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\List.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\list\UnSubscribeCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\redis\ListCache.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\GetUser2Command.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\dm\CreateDmCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\list\CreateListMembersCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\tweet\ReportTweetCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\GetUsersCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\redis\DMCache.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\tweet\ReplyCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\list\GetListMembersCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\FollowingCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\GetMentionsCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\shared\TweetMain.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\tweet\GetEarliestRepliesCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\activemq\Consumer.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\redis\TweetsCache.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\LogoutCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\dm\CreateDm2Command.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\CommandsMap.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\IsFollowingCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\shared\RunnableClasses.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\PostgresConnection.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\list\UpdateListCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\concurrent\RejectedExecutionHandlerImpl.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\shared\MyObjectMapper.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\ConfirmFollowCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\activemq\ActiveMQConfig.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\tweet\NewTweetCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\dm\CreateConversationCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\list\GetListSubscribersCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\GetRetweetsCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\tweet\UnRetweetCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\tweet\GetTweetCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\Conversation.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\list\GetListCommand.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\netty\EduMsgNettyServer.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\shared\JsonMapper.java
-D:\GUC\SEMESTER 8 (BACHELOR)\EduMsg\heroku-server\src\main\java\edumsg\core\commands\user\UnFollowCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\Command.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\tweet\DeleteTweetCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\HttpSnoopClient.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\tweet\ReplyCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\redis\UserCache.java
+C:\Users\ziads\server\src\main\java\edumsg\core\BCrypt.java
+C:\Users\ziads\server\src\main\java\edumsg\tests\ActiveMQTests.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\dm\GetConversationCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\ConfirmFollowCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\tweet\ReportTweetCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\CommandsHelp.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\list\DeleteListCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\loadBalancerServer.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\tweet\NewTweetCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\GetSubscribedListsCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\LogoutCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\ReportUserCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\HttpControllerClientHandler.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\UpdateUserCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\GetUserCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\UnFollowCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\GetUser2Command.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\GetRetweetsCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\Tweet.java
+C:\Users\ziads\server\src\main\java\edumsg\core\DirectMessage.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\FollowersCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\tweet\GetTweetCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\NodeManager\NettyInstance\MainServerNotifier.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\tweet\UnFavoriteCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\IsFollowingCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\Conversation.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\dm\CreateDm2Command.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\GetMentionsCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\controller\NewInstanceNotifier.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\list\CreateListMembersCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\config.java
+C:\Users\ziads\server\src\main\java\edumsg\core\CommandsMap.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\Calculation.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\list\CreateListCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\logger\MyHandler.java
+C:\Users\ziads\server\src\main\java\edumsg\activemq\subscriber.java
+C:\Users\ziads\server\src\main\java\edumsg\controller\notifier.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\HttpSnoopClientHandler.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\GetFavoritesCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\dm\MarkAllReadCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\list\SubscribeCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\tweet\FavoriteCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\systemStatus.java
+C:\Users\ziads\server\src\main\java\edumsg\redis\EduMsgRedis.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\admin\AdminShell.java
+C:\Users\ziads\server\src\main\java\edumsg\controller\MainServerMigration.java
+C:\Users\ziads\server\src\main\java\edumsg\activemq\ActiveMQConfig.java
+C:\Users\ziads\server\src\main\java\edumsg\NodeManager\NettyInstance\MainServerHandler.java
+C:\Users\ziads\server\src\main\java\edumsg\redis\DMCache.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\tweet\RetweetCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\activemq\Consumer.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\dm\DeleteConversationCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\GetListMembershipsCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\controller\EduMsgControllerHandler.java
+C:\Users\ziads\server\src\main\java\edumsg\NodeManager\Main.java
+C:\Users\ziads\server\src\main\java\edumsg\activemq\topicProducer.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\list\GetListMembersCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\List.java
+C:\Users\ziads\server\src\main\java\edumsg\NodeManager\JsonMapper.java
+C:\Users\ziads\server\src\main\java\edumsg\redis\Cache.java
+C:\Users\ziads\server\src\main\java\edumsg\controller\EduMsgController.java
+C:\Users\ziads\server\src\main\java\edumsg\redis\ListCache.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\MyProfileCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\list\DeleteMemberCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\GetUsersCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\applicationsInstance.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\list\UpdateListCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\UnconfirmedFollowersCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\list\AddMemberCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\dm\CreateDmCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\list\UnSubscribeCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\RegisterCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\loadBalancerServerHandler.java
+C:\Users\ziads\server\src\main\java\edumsg\redis\TweetCache.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\GetUserTweets2Command.java
+C:\Users\ziads\server\src\main\java\edumsg\NodeManager\MyObjectMapper.java
+C:\Users\ziads\server\src\main\java\edumsg\NodeManager\NettyInstance\MainServerInitializer.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\serverInstances.java
+C:\Users\ziads\server\src\main\java\edumsg\NodeManager\RunnableInstance.java
+C:\Users\ziads\server\src\main\java\edumsg\controller\Host.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\admin\AdminGUI.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\dm\GetConversationsCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\dm\CreateConversationCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\FollowCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\User.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\dm\DeleteDmCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\controller\UpdateVersion.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\notifier.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\dm\MarkReadCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\tweet\GetRepliesCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\list\GetListCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\GetUserWithTweetsCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\tweet\GetEarliestRepliesCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\HttpSnoopClientInitializer.java
+C:\Users\ziads\server\src\main\java\edumsg\concurrent\RejectedExecutionHandlerImpl.java
+C:\Users\ziads\server\src\main\java\edumsg\logger\MyLogger.java
+C:\Users\ziads\server\src\main\java\edumsg\concurrent\WorkerPool.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\GetUserTweetsCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\update\tst.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\tweet\UnRetweetCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\LoginCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\list\GetListFeedsCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\list\GetListSubscribersCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\loadBalancerServerInitializer.java
+C:\Users\ziads\server\src\main\java\edumsg\core\PostgresConnection.java
+C:\Users\ziads\server\src\main\java\edumsg\activemq\Producer.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\FollowingCommand.java
+C:\Users\ziads\server\src\main\java\edumsg\activemq\publisher.java
+C:\Users\ziads\server\src\main\java\edumsg\loadBalancer\HttpControllerClientInitializer.java
+C:\Users\ziads\server\src\main\java\edumsg\controller\EduMsgControllerInitializer.java
+C:\Users\ziads\server\src\main\java\edumsg\NodeManager\Test.java
+C:\Users\ziads\server\src\main\java\edumsg\NodeManager\NettyInstance\MainServerInstance.java
+C:\Users\ziads\server\src\main\java\edumsg\core\commands\user\GetTimelineCommand.java
