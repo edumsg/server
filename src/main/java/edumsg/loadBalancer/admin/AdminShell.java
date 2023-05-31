@@ -42,6 +42,9 @@ public class AdminShell {
             reader.close();
             connection.disconnect();
             JSONObject reposnseJson = new JSONObject(response.toString());
+            if (reposnseJson.has("ip")) {
+                return new String[]{reposnseJson.getString("msg").trim(), reposnseJson.getString("ip"), responseCode + ""};
+            }
             return new String[]{reposnseJson.getString("msg").trim(), responseCode + ""};
         } catch (IOException e) {
             return new String[]{"Server error", "400"};
@@ -147,6 +150,22 @@ public class AdminShell {
         return response[0];
     }
 
+    @Command(description = "Creates a new instance")
+    public String newinstance(String app, int appNum) {
+        String[] response = sendToController(createJson("newInstance", app, appNum, "0"));
+        if (response[2].equals("200")) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("command", "newInstance");
+            jsonObject.put("config", "true");
+            jsonObject.put("app", app.toLowerCase() + "_" + appNum);
+            jsonObject.put("ip", response[1]);
+            String[] lbResponse = sendToLoadBalancer(jsonObject);
+            if (lbResponse[1].equals("400"))
+                return lbResponse[0];
+        }
+        return response[0];
+    }
+
     @Command(description = "stops a specific app")
     public String stop(String app, int appNum) {
         String[] response = sendToController(createJson("stop", app, appNum, "0"));
@@ -164,8 +183,17 @@ public class AdminShell {
 
     @Command(description = "shutdowns a specific app")
     public String shutdown(String app, int appNum) {
-        String response = sendToController(createJson("shutdown", app, appNum, "0"))[0];
-        return response;
+        String[] response = sendToController(createJson("shutdown", app, appNum, "0"));
+        if (response[1].equals("200")) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("command", "shutdown");
+            jsonObject.put("config", "true");
+            jsonObject.put("app", app.toLowerCase() + "_" + appNum);
+            String[] lbResponse = sendToLoadBalancer(jsonObject);
+            if (lbResponse[1].equals("400"))
+                return lbResponse[0];
+        }
+        return response[0];
     }
 
     public JSONObject createJson(String command, String app, int appNum, String parameters) {

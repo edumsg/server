@@ -40,16 +40,12 @@ public class notifier implements Callable<String> {
             switch (body.getString("command")) {
                 case "newInstance":
                     Calculation.new_instance(body.getString("app").split("_")[0], body.getString("ip"));
-                    System.out.println(body.getString("msg"));
                     break;
                 case "start":
                     Calculation.reflect_command(body.getString("app"), true);
                     break;
                 case "stop":
                     Calculation.reflect_command(body.getString("app"), false);
-                    break;
-                case "updateClass":
-                    //FileUtils.cleanDirectory(new File("C:\\Users\\OS\\Desktop\\Edumsg-comp\\update"));
                     break;
             }
             JSONObject response = new JSONObject();
