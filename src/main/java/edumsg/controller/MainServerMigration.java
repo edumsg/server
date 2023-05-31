@@ -69,7 +69,7 @@ public class MainServerMigration {
                 session.setConfig("StrictHostKeyChecking", "no");
                 session.connect();
                 System.out.println("Connection established.");
-                if (host.getInstancesCount() == 0) {
+                if (!host.hasJar()) {
                     // We need to send a jar to the host
                     scpToServer();
                     install();

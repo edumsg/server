@@ -19,6 +19,12 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
@@ -51,6 +57,7 @@ public class AddCommandNotifier implements Callable<String> {
             String byteString = java.util.Base64.getEncoder().encodeToString(classBytes);
             request.put("byteCode", byteString);
             topic.publish(request.toString());
+            renewJar();
             String msg = "{Command added successfully}";
             return "{app:  \"" + app_type + " \",msg: \"" + msg + "\",code: \"200\",command:\"AddCommand\"}";
         } catch (Exception ex) {
@@ -60,5 +67,30 @@ public class AddCommandNotifier implements Callable<String> {
         }
     }
 
+    private void renewJar() throws UnknownHostException {
+        String currentDirectory = System.getProperty("user.dir");
+        String command = "cd " + currentDirectory + " ; mvn package";
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder("powershell.exe", "-Command", command);
+            Process process = processBuilder.start();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            int exitCode = process.waitFor();
+            System.out.println("Exit Code: " + exitCode);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        TreeSet<Host> hosts = EduMsgController.hosts;
+        for (Host host : hosts) {
+            if (!host.getIp().equals(InetAddress.getLocalHost().getHostAddress())) {
+                host.setHasJar(false);
+            }
+        }
+    }
 }
 

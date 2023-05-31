@@ -1,5 +1,6 @@
 package edumsg.controller;
 
+import java.net.InetAddress;
 import java.util.Objects;
 
 public class Host implements Comparable<Host> {
@@ -8,12 +9,23 @@ public class Host implements Comparable<Host> {
     private String user;
     private String password;
     private int instancesCount;
+    private boolean hasJar;
 
     public Host(String ip, String user, String password) {
         this.ip = ip;
         this.user = user;
         this.password = password;
         this.instancesCount = 0;
+        try {
+            if (this.ip.equals(InetAddress.getLocalHost().getHostAddress())) {
+                hasJar = true;
+            } else {
+                hasJar = false;
+            }
+        } catch (Exception ex) {
+            hasJar = false;
+        }
+
     }
 
     public String getIp() {
@@ -38,6 +50,15 @@ public class Host implements Comparable<Host> {
 
     public void incrementInstancesCount() {
         this.instancesCount++;
+        setHasJar(true);
+    }
+
+    public void setHasJar(boolean hasJar) {
+        this.hasJar = hasJar;
+    }
+
+    public boolean hasJar() {
+        return hasJar;
     }
 
     public void decrementInstancesCount() {
