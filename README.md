@@ -1,7 +1,5 @@
 This project uses Intellij Idea IDE settings and configurations
 
-Dependencies:
-
 1. Redis: Install Docker, pull the [redis](https://hub.docker.com/_/redis) image and run its container. It should be running on port `6379`.
 2. ActiveMQ: Install Docker and run this command in powershell
    `docker run -p 61616:61616 -p 8161:8161 rmohr/activemq`
